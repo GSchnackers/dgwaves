@@ -1,5 +1,5 @@
 
-GMSHSDK=~/local/gmsh-4.1.3-Linux64-sdk
+GMSHSDK=~/local/gmsh-sdk
 
 export PATH=${GMSHSDK}/bin:${GMSHSDK}/lib:${PATH}/bin
 export INCLUDE=${GMSHSDK}/include:${INCLUDE}
