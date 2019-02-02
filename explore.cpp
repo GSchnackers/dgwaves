@@ -1,6 +1,9 @@
 #include <iostream>
-#include <gmsh.h>
-//#include <gmsh.h_cwrap>
+// c++ interface gmsh.h:
+//  OK with Ubuntu18/gcc if _GLIBCXX_USE_CXX11_ABI=0
+//  KO with msvc19
+//#include <gmsh.h> 
+#include <gmsh.h_cwrap> // always works
 
 int main(int argc, char **argv)
 {
