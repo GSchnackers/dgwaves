@@ -1,5 +1,5 @@
 #include <cstdio>
-#include <gmsh.h_cwrap>
+#include <gmsh.h>
 
 int main(int argc, char **argv)
 {
