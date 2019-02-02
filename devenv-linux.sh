@@ -1,7 +1,7 @@
 
 GMSHSDK=~/local/gmsh-sdk
 
-export PATH=${GMSHSDK}/bin:${GMSHSDK}/lib
+export PATH=${GMSHSDK}/bin:${GMSHSDK}/lib:${PATH}
 export INCLUDE=${GMSHSDK}/include:${INCLUDE}
 export LIB=${GMSHSDK}/lib:${LIB}
 export PYTHONPATH=${GMSHSDK}/lib:${PYTHONPATH}
