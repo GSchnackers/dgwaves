@@ -12,17 +12,20 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF()
 
 # enable C++11
-INCLUDE(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" STD11CHECK)
-IF(STD11CHECK)
-    ADD_DEFINITIONS(-std=c++11 )
-ENDIF()
+set(CMAKE_CXX_STANDARD 11) # newer way to set C++11 
+#INCLUDE(CheckCXXCompilerFlag)
+#CHECK_CXX_COMPILER_FLAG("-std=c++11" STD11CHECK)
+#IF(STD11CHECK)
+#    ADD_DEFINITIONS(-std=c++11 )
+#ENDIF()
 #IF(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
 #    ADD_DEFINITIONS(-Wno-literal-suffix)
 #ENDIF()
 
 # compiler options
 IF(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+    # allows gcc5/ubuntu to link against the c++ interface
+    # (this does not work with mingw)
     ADD_DEFINITIONS(-D_GLIBCXX_USE_CXX11_ABI=0) # libgmsh is linked to libgcc4 (pbl with std::string) 
 ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
     ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_WARNINGS)
