@@ -1,6 +1,6 @@
 @echo off
 :: This file opens a terminal which allows you to compile the code with
-:: Microsoft Visual Studio (x64) on Windows
+:: Microsoft Visual Studio 2015 (x64) on Windows
 ::
 :: HOW TO USE THIS FILE?
 ::   [run this file]
@@ -9,7 +9,7 @@
 ::   cmake -A x64 ..
 ::   cmake --build . --config Release
 ::   [executables are built in the bin/Release folder]
-
+::   ctest -C Release
 
 :: set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
 set GMSHSDK=F:\local\gmsh-sdk
@@ -24,4 +24,6 @@ set LIB=%GMSHSDK%\lib;%LIB%
 set PYTHONPATH=%GMSHSDK%\lib;%PYTHONPATH%
 
 :: set the environment of the msvc compiler
+CD /d "%~dp0"
+CD ..
 %comspec% /K ""C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %processor_architecture%"

@@ -1,5 +1,5 @@
 # This file setup an environment which allows you to compile the code
-# on Linux or macOS
+# on Linux or macOS using the default compiler (gcc or clang)
 #
 # HOW TO USE THIS FILE?
 #   open a terminal
@@ -9,7 +9,7 @@
 #   cmake ..
 #   make
 #   [executables are built in the bin/ folder]
-
+#   ctest
 
 # set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
 GMSHSDK=~/local/gmsh-sdk
