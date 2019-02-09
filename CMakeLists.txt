@@ -38,17 +38,18 @@ INCLUDE_DIRECTORIES(${GMSH_INCLUDE_DIRS})
 FIND_LIBRARY(GMSH_LIBRARIES gmsh)
 MESSAGE(STATUS "GMSH_LIBRARIES=" ${GMSH_LIBRARIES})
 IF(NOT GMSH_LIBRARIES)
-    message(FATAL_ERROR "gmsh library not found!")
+    MESSAGE(FATAL_ERROR "gmsh library not found!")
 ENDIF()
 
 # gmsh.exe
 FIND_PROGRAM(GMSH_EXECUTABLE gmsh)
 MESSAGE(STATUS "GMSH_EXECUTABLE=" ${GMSH_EXECUTABLE})
 IF(NOT GMSH_EXECUTABLE)
-    message(FATAL_ERROR "gmsh executable not found!")
+    MESSAGE(FATAL_ERROR "gmsh executable not found!")
 ENDIF()
 
-#enable_testing()
 
 ADD_SUBDIRECTORY( srcs )
-#ADD_SUBDIRECTORY( tests )
+
+ENABLE_TESTING()
+ADD_SUBDIRECTORY( tests )
