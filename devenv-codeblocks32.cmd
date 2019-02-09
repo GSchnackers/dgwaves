@@ -1,13 +1,25 @@
 @echo off
-:: Compilation with Code::Blocks (+ embedded mingw (32bits))
+:: This file opens a terminal which allows you to compile the code with
+:: the 32-bits mingw compiler provided with Code::Blocks on Windows
 ::
-:: cmake -G "CodeBlocks - MinGW Makefiles" ..
+:: HOW TO USE THIS FILE?
+::   [run this file]
+::   mkdir build
+::   cd build
+::   cmake -G "CodeBlocks - MinGW Makefiles" ..
+::   [open the generated project in Code::Blocks]
 
+:: set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
 set GMSHSDK=C:\local\gmsh-4.1.4-Windows32-sdk
 
+:: where is gmsh.exe and gmsh-**.dll ? (HINT: copy gmsh-**.dll to the bin folder)
 set PATH=%GMSHSDK%\bin;%GMSHSDK%\lib;%PATH%
+:: where is gmsh.h ? (rename gmsh.h_cwrap => gmsh.h)
 set INCLUDE=%GMSHSDK%\include;%INCLUDE%
+:: where is gmsh.lib ?
 set LIB=%GMSHSDK%\lib;%LIB%
+:: where is gmsh.py ? (required only if you want to use the python API)
 set PYTHONPATH=%GMSHSDK%\lib;%PYTHONPATH%
 
+:: set the environment of the Code::Blocks compiler (mingw)
 %comspec% /K "C:\Program Files (x86)\CodeBlocks\MinGW\mingwvars.bat"
