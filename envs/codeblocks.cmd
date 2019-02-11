@@ -10,7 +10,7 @@
 ::   [open the generated project in Code::Blocks]
 
 :: set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
-set GMSHSDK=C:\local\gmsh-4.1.4-Windows32-sdk
+set GMSHSDK=C:\local\gmsh-sdk32
 
 :: where is gmsh.exe and gmsh-**.dll ? (HINT: copy gmsh-**.dll to the bin folder)
 set PATH=%GMSHSDK%\bin;%GMSHSDK%\lib;%PATH%
