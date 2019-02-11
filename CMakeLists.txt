@@ -25,6 +25,12 @@ ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
     ADD_DEFINITIONS(-D_USE_MATH_DEFINES) # for M_PI
 ENDIF()
 
+IF(APPLE)
+    # on macOS, do not give priority to frameworks/apps
+    SET(CMAKE_FIND_APPBUNDLE LAST)
+    SET(CMAKE_FIND_FRAMEWORK LAST)
+ENDIF()
+
 # find gmsh-sdk
 # gmsh.h
 FIND_PATH(GMSH_INCLUDE_DIRS NAMES "gmsh.h")
