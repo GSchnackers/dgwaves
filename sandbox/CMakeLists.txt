@@ -1,0 +1,3 @@
+SET(SRCS myedges.cpp)
+ADD_EXECUTABLE(myedges ${SRCS})
+TARGET_LINK_LIBRARIES(myedges ${GMSH_LIBRARIES})
