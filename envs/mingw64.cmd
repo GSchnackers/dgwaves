@@ -20,7 +20,7 @@
 echo setting MinGW64 environment...
 
 :: set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
-set GMSHSDK=F:\local\gmsh-sdk
+set GMSHSDK=C:\Users\Programme\gmsh-4.1.4-Windows64-sdk
 
 :: where is gmsh.exe and gmsh-**.dll ? (HINT: copy gmsh-**.dll to the bin folder)
 set PATH=%GMSHSDK%\bin;%PATH%
@@ -32,7 +32,7 @@ set LIB=%GMSHSDK%\lib;%LIB%
 set PYTHONPATH=%GMSHSDK%\lib;%PYTHONPATH%
 
 ::set PATH=C:\mingw-w64\mingw64\bin;%PATH%
-set PATH=C:\msys64\mingw64\bin;%PATH%
+set PATH=C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%PATH%
 
 :: open terminal
 CD /d "%~dp0"
