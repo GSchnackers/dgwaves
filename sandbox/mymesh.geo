@@ -1,5 +1,5 @@
 
-d = 1.0; // useless if transfinite
+d = 1; // useless if transfinite
 
 nx = 2;
 ny = 2;
@@ -19,6 +19,5 @@ Plane Surface(61) = {51};
 // transfinite mesh
 Transfinite Curve {44, 42} = ny+1 Using Progression 1;
 Transfinite Curve {43, 41} = nx+1 Using Progression 1;
-Transfinite Surface {71};
-
+Transfinite Surface {61};
 
