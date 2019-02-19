@@ -1,5 +1,5 @@
 
-d = 0.3; // useless if transfinite
+d = 1.0; //0.3; // useless if transfinite
 
 nx = 2;
 ny = 2;
