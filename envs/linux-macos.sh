@@ -12,7 +12,7 @@
 #   ctest
 
 # set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
-GMSHSDK=~/local/gmsh-sdk
+GMSHSDK=~/gmsh-4.1.5-Linux64-sdk
 
 # where are gmsh and gmsh-**.so ?
 export PATH=${GMSHSDK}/bin:${GMSHSDK}/lib:${PATH}
