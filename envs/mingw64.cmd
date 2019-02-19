@@ -20,7 +20,7 @@
 echo setting MinGW64 environment...
 
 :: set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
-set GMSHSDK=C:\Users\Programme\gmsh-4.1.4-Windows64-sdk
+set GMSHSDK=C:\Users\Programme\gmsh-4.1.5-Windows64-sdk
 
 :: where is gmsh.exe and gmsh-**.dll ? (HINT: copy gmsh-**.dll to the bin folder)
 set PATH=%GMSHSDK%\bin;%PATH%
