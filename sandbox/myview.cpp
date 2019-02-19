@@ -1,3 +1,22 @@
+// This example generate some results over a mesh
+//
+// How to use this example?
+//
+// 1.build the code:
+//     cd build
+//     cmake -G "MinGW Makefiles" ..
+//     cmake --build .      (or "mingw32-make")
+// 2.generate a mesh from a geo file:
+//     gmsh -2 -order 3 ..\sandbox\sea.geo
+// 3.run the program with the msh as argument
+//     bin\myview.exe ..\sandbox\sea.msh
+// 4.display the generated msh data
+//     gmsh data.msh
+
+
+
+
+
 #include <gmsh.h>
 #include <iostream>
 
