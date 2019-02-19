@@ -20,3 +20,7 @@ git fetch: permet de mettre à jour les informations de git status.
 git pull: permet de récupérer tous les commit git hub vers le pc et fait un git fetch.
 
 git merge: permet de combiner deux versions.
+
+
+
+test commit simon
