@@ -132,8 +132,47 @@ int main(int argc, char **argv)
         std::vector<int> nodes;
         gmsh::model::mesh::getElementEdgeNodes(eleType2D, nodes, s);
 
+        // Display nodes vector with duplicates of each edges 
 
+        for (std::size_t j = 0; j < nodes.size(); j++)
+        {
+            gmsh::logger::write("nodes[" + std::to_string(j) + "] " + std::to_string(nodes[j]));
+        }
 
+        // Sorting duplicates
+
+        std::vector<int> sortingNodes;
+        sortingNodes.push_back(nodes[0]);
+        sortingNodes.push_back(nodes[1]);
+        for (std::size_t i = 0; i < nodes.size(); i += 2)
+        {
+            for (std::size_t j = 0; j < sortingNodes.size(); j += 2)
+            {
+                if(nodes[i] == sortingNodes[j] && nodes[i+1] == sortingNodes[j+1])
+                {
+                    j = sortingNodes.size();
+                }
+                else if(nodes[i] == sortingNodes[j+1]  && nodes[i+1] == sortingNodes[j])
+                {
+                    j = sortingNodes.size();
+                }
+
+                if(j+2 == sortingNodes.size())
+                {
+                    sortingNodes.push_back(nodes[i]);
+                    sortingNodes.push_back(nodes[i+1]);
+                }
+            }
+        }
+
+        nodes = sortingNodes;
+
+        // Display sortingNodes vector without duplicates of each edges 
+
+        for (std::size_t j = 0; j < sortingNodes.size(); j++)
+        {
+            gmsh::logger::write("sortingNodes[" + std::to_string(j) + "] " + std::to_string(sortingNodes[j]));
+        }
 
         // create a new discrete entity of dimension 1
 
