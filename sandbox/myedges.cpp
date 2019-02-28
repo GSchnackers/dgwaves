@@ -75,6 +75,9 @@ int main(int argc, char **argv)
     gmsh::logger::write("2D elements are of type '" + name + "' (type = " +
                         std::to_string(eleType2D) + ") ");
 
+    for(std::size_t i = 0; i < paramCoord.size(); ++i) std::cout << paramCoord[i] << std::endl;
+
+
     // iterate over all surfaces (i.e. entities of dim "2"), get the 2D elements
     // and create new 1D elements for all edges
 
@@ -147,9 +150,17 @@ int main(int argc, char **argv)
         // Display sortingNodes vector without duplicates of each edges 
 
         for (std::size_t j = 0; j < nodes.size(); j++)
-        {
             gmsh::logger::write("sortingNodes[" + std::to_string(j) + "] " + std::to_string(nodes[j]));
-        }
+        
+
+        // Computation of the normals to the elements.
+
+        std::vector<double> normal2D = my2Dnormal(nodes);
+
+        // Shows the normal to the elements.
+
+        for (std::size_t j = 0; j < nodes.size(); j+=2)
+            gmsh::logger::write("Normal[" + std::to_string(j/2) + "] ( " + std::to_string(normal2D[j]) + " , " + std::to_string(normal2D[j+1]) + " ) ");
 
         // create a new discrete entity of dimension 1
 
