@@ -23,4 +23,7 @@ git merge: permet de combiner deux versions.
 
 
 
-test commit simon
+1) Find how to determine the number of Gauss point
+2) Compute the derivative of basis function for the determination of matrix S
+3) Choice of the flux function
+4) Determine the number of nodes per elements for the dimension of matrix M
