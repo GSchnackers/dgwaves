@@ -14,7 +14,7 @@ void gaussIntegration(const std::vector<double> & integrationPoints, const std::
         {
             for(std::size_t k = 0; k < 3; k++)
             {
-                gaussSum = 0;
+                double gaussSum = 0;
 
                 for(std::size_t l = 0; l < numGaussPoints; l++)
                 {

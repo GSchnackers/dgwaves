@@ -1,4 +1,4 @@
-SET(SRCS myedges.cpp mysorting.cpp my2Dnormal.cpp)
+SET(SRCS myedges.cpp mysorting.cpp my2Dnormal.cpp gaussIntegration.cpp)
 ADD_EXECUTABLE(myedges ${SRCS})
 TARGET_LINK_LIBRARIES(myedges ${GMSH_LIBRARIES})
 
