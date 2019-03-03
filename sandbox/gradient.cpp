@@ -1,4 +1,4 @@
-// Computes the divergence of a lagrangian shape function at point x,y,z, no matter the parametric
+// Computes the gradient of a lagrangian shape function at point x,y,z, no matter the parametric
 // or real system of coordinate.
 
 // Input: - f, the value of the lagrangian function (parametric or cartesian coordinates).
