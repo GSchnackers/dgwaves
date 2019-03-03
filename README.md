@@ -22,8 +22,12 @@ git pull: permet de récupérer tous les commit git hub vers le pc et fait un gi
 git merge: permet de combiner deux versions.
 
 
-
-1) Find how to determine the number of Gauss point
-2) Compute the derivative of basis function for the determination of matrix S
-3) Choice of the flux function
-4) Determine the number of nodes per elements for the dimension of matrix M
+Objectives:
+1) gaussIntegration (Gauderic)
+2) Determination of the direction of the normal (inner/outer) (Nico)
+3) Find near elements (Nico)
+4) Choice of the flux function (Simon)
+5) Invert matrix M (Nico)
+6) Forward Euler method (Simon)
+7) Boundary and initial conditions (Gauderic)
+8) Save of data (Gauderic)
