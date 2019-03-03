@@ -155,7 +155,8 @@ int main(int argc, char **argv)
 
         // Computation of the normals to the elements.
 
-        std::vector<double> normal2D = my2Dnormal(nodes);
+        std::vector<double> normal2D;
+        normal(nodes, normal2D);
 
         // Shows the normal to the elements.
 

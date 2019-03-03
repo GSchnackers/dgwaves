@@ -1,6 +1,6 @@
 // my2Dnormal is a function that computes the normal to each edge in 2D.
 // Input: nodes, the vector containing all nodes (no doublons)
-// Output: a vector containing the components of the normal to the edge in the
+// Output: a vector containing the components of the normal to the edge of nodes in "node" in the
 // format (n1x, n1y, n2x, n2y, n3x, n3y, ...).
 // This method is inneficient but works as a first approximation for a preliminary solver.
 
@@ -10,11 +10,8 @@
 #include <cmath>
 #include "functions.h"
 
-std::vector<double> my2Dnormal(std::vector<int> nodes)
+void normal(const std::vector<int> nodes, std::vector<double> & normal2D)
 {
-
-    // Declaration of the vector contaning the normals to the edges.
-    std::vector<double> normal2D(nodes.size());
 
     for(std::size_t i = 0; i < nodes.size(); i += 2)
     {
@@ -35,8 +32,6 @@ std::vector<double> my2Dnormal(std::vector<int> nodes)
         normal2D[i + 1] /= norm;
 
     }
-
-    return normal2D;
 
 }
 
