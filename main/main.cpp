@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 
         // Sorting duplicates
 
-        mysorting(nodes);
+        sorting(nodes);
 
         // Computation of the normals to the elements.
 

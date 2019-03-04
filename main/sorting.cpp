@@ -3,7 +3,7 @@
 #include <vector>
 #include "functions.h"
 
-void mysorting(std::vector<int> & nodes)
+void sorting(std::vector<int> & nodes)
 {
     std::vector<int> sortingNodes;
     sortingNodes.push_back(nodes[0]);
