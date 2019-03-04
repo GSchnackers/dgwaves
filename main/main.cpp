@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 
         // Sorting duplicates
 
-        mysorting(nodes);
+        sorting(nodes);
 
         // Computation of the normals to the elements.
 
@@ -170,6 +170,7 @@ int main(int argc, char **argv)
 
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
         gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, nodes);
+        neighbours(nodeTags, numNodes, elementTags, nodes);
 
         // here we created two 1D elements for each edge; to create unique elements
         // it would be useful to call getElementEdgeNodes() with the extra `primary'
