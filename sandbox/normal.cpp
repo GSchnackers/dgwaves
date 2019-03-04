@@ -12,7 +12,6 @@
 
 void normal(const std::vector<int> nodes, std::vector<double> & normal2D)
 {
-
     for(std::size_t i = 0; i < nodes.size(); i += 2)
     {
         std::vector<double> nodeCoord1, nodeCoord2, nodeCoordParam1, nodeCoordParam2;
@@ -32,7 +31,6 @@ void normal(const std::vector<int> nodes, std::vector<double> & normal2D)
         normal2D[i + 1] /= norm;
 
     }
-
 }
 
 /* getNode
