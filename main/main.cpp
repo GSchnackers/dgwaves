@@ -218,6 +218,22 @@ int main(int argc, char **argv)
         gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac, det, pts, c);
     }
 
+    std::vector<double> functionM;
+    numElements = ;
+    numNodes = ;
+    numGaussPoints = intpts.size()/4;
+
+    for(std::size_t e = 0; e < numElements; e++)
+        for(std::size_t i = 0; i < numNodes; i++)
+            for(std::size_t j = 0; j < numNodes; j++)
+            {
+                for(std::size_t g = 0; g < numGaussPoints; g++)
+                    functionM.push_back(bf[numNodes*g + i] * bf[numNodes*g + j]);
+            }
+    
+    std::vector<double> matrixM;
+    gaussIntegration(intpts, functionM, det, matrixM, numElements, numGaussPoints, numNodes);
+
     //gmsh::fltk::run();
 
     gmsh::finalize();
