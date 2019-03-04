@@ -15,5 +15,9 @@ void gaussIntegration(const std::vector<double> & integrationPoints, const std::
 
 void gradient(const double f,const  std::vector<double> pointsPositions,\
                              const std::vector<double> nodesPositions, std::vector<double> & grad);
+// Computes the neighbourhood of one edge.
+
+void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
+               const std::vector<int> elementTags, std::vector<int> & nodes);
 
 #endif
