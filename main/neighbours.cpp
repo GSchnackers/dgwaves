@@ -21,8 +21,12 @@ void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
     // The "i" loop stands for each pair of nodes (in fact each edge).
     for(std::size_t i = 0; i < nodes.size(); i += 2){
 
+<<<<<<< HEAD
         std::vector<int> tmp(2,-1); // Temporary vector containing the tags of the neighbouring elements.
                                     // Initialized at -1 (i.e. no neighbours state). 
+=======
+        std::vector<int> tmp(2,-1); // Temporary vector containing the tags of the neighbouring elements. 
+>>>>>>> 28274124b591580bdd9310cf9a19343e1a3dc581
         int l = 0; 
 
         // The "j" loop stands for each element.

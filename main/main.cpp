@@ -186,6 +186,35 @@ int main(int argc, char **argv)
 
     //gmsh::write("edges.msh");
 
+    std::vector<double> intpts, bf;
+    int numComp;
+    gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "IsoParametric",
+                                         intpts, numComp, bf);
+    gmsh::model::getEntities(entities, 2);
+    std::vector<int> elementTags, nodeTags;
+    std::vector<double> jac, det, pts;
+    for (std::size_t i = 0; i < entities.size(); i++)
+    {
+        int s = entities[i].second;
+        gmsh::model::mesh::getElementsByType(eleType2D, elementTags, nodeTags, s);
+        gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac, det, pts, s);
+    }
+
+    std::vector<double> functionM;
+    int numElements = elementTags.size();
+    int numGaussPoints = intpts.size()/4;
+
+    for(std::size_t e = 0; e < numElements; e++)
+        for(std::size_t i = 0; i < numNodes; i++)
+            for(std::size_t j = 0; j < numNodes; j++)
+            {
+                for(std::size_t g = 0; g < numGaussPoints; g++)
+                    functionM.push_back(bf[numNodes*g + i] * bf[numNodes*g + j]);
+            }
+    
+    std::vector<double> matrixM;
+    gaussIntegration(intpts, functionM, det, matrixM, numElements, numGaussPoints, numNodes);
+
     // iterate over all 1D elements and get integration information
     gmsh::model::mesh::getElementTypes(eleTypes, 1);
 
@@ -205,8 +234,6 @@ int main(int argc, char **argv)
     //                                 int & numComponents,
     //                                 std::vector<double> & basisFunctions);
     int eleType1D = eleTypes[0];
-    std::vector<double> intpts, bf;
-    int numComp;
     gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
                                          intpts, numComp, bf);
     gmsh::model::getEntities(entities, 1);
