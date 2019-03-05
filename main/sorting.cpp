@@ -12,15 +12,18 @@ void sorting(std::vector<int> & nodes)
     {
         for (std::size_t j = 0; j < sortingNodes.size(); j += 2)
         {
+            // Check if edges is already in sortingNodes in the same direction
             if(nodes[i] == sortingNodes[j] && nodes[i+1] == sortingNodes[j+1])
             {
                 j = sortingNodes.size();
             }
+            // Check if edges is already in sortingNodes in the opposite direction
             else if(nodes[i] == sortingNodes[j+1]  && nodes[i+1] == sortingNodes[j])
             {
                 j = sortingNodes.size();
             }
 
+            // If the edge is not already in sortingNodes, we add it
             if(j+2 == sortingNodes.size())
             {
                 sortingNodes.push_back(nodes[i]);
