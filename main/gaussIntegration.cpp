@@ -28,6 +28,6 @@ void gaussIntegration(const std::vector<double> & integrationPoints, const std::
                     // functions[numNodes*numNodes*numGaussPoints*e + numNodes*numGaussPoints*i + numGaussPoints*j + g]
                     gaussSum += functions[numGaussPoints*(numNodes*(numNodes*e + i) + j) + g]
                                 * integrationPoints[3 + 4*g] * determinants[numGaussPoints*e + g];
-                matrix[numNodes*(numNodes*e + i) + j] = gaussSum;
+                matrix.push_back(gaussSum);
             }
 }
