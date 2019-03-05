@@ -1,12 +1,13 @@
-// function that associates to an edge formed by a pair of adjacent nodes the tags of the two elements
-// by to that edge.
+// function that associates to an edge the tags of the two elements connected to that edge.
 
-// INPUT: nodeTags, the tag of the nots by elemnts as given by getElementByType.
-//        nodeNumber, the number of nodes per element.
-//        elementTags, the tags of elements as given bygetElementByType.
-// OUTPUT: nodes, the vector containing the edges and the associated neighbouring elements in the
-//         form [edge1n1, edge1n2, edge1tag1, edge1tag2, edge2n1, ...]. If there is only one 
-//         neighbour to edgex, the value of edgextag2 = -1.
+// INPUT: - nodeTags, the tag of the nots by elemnts as given by getElementByType.
+//        - nodeNumber, the number of nodes per element.
+//        - elementTags, the tags of elements as given bygetElementByType.
+//        - nodes, the vector containing the sorted nodes.
+//        - neighbourhood, the vector in which the neigbours are placed.
+//          It is of the form [edge1tagneighbour1, edge1tagneghbour2, edge2tagneighbour1, ...].
+//        - It has twice the size of nodes and must be allocated BEFORE calling the function.
+// OUTPUT: none
 
 #include <cstdio>
 #include <iostream>
@@ -14,24 +15,24 @@
 #include "functions.h"
 
 void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
-               const std::vector<int> elementTags, std::vector<int> & nodes){
-
-    std::vector<int> neighbourhood(2*nodes.size());
+               const std::vector<int> elementTags, std::vector<int> nodes,\
+               std::vector<int> & neighbourhood){
 
     // The "i" loop stands for each pair of nodes (in fact each edge).
     for(std::size_t i = 0; i < nodes.size(); i += 2){
 
-        gmsh::logger::write("Helloooo!");
-
-        std::vector<int> tmp(2,-1); // Temporary vector containing the tags of the neighbouring elements. 
+        std::vector<int> tmp(2,-1); // Temporary vector containing the tags of the neighbouring elements.
+                                    // Initialized at -1 (i.e. no neighbours state). 
         int l = 0; 
 
         // The "j" loop stands for each element.
         for(std::size_t j = 0; j < nodeTags.size(); j += nodeNumber){
 
-            int verificator = 0;
+            int verificator = 0; // Variable which is incremented each time a node is common to two
+                                 // elements.
 
-            // The "k" loop stands for each node of one element. At each iteration, 
+            // The "k" loop stands for each node of one element.
+            // At each iteration, 
             for(std::size_t k = 0; k < nodeNumber; ++k)
                 if(nodeTags[j + k] == nodes[i] ||nodeTags[j + k] == nodes[i + 1])
                     ++verificator;
@@ -45,14 +46,9 @@ void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
 
         }
 
-        int m = 2*i;
-
-        neighbourhood[m] = nodes[i];
-        neighbourhood[m + 1] = nodes[i + 1];
-        neighbourhood[m + 2] = tmp[0];
-        neighbourhood[m + 3] = tmp[1];
+        neighbourhood[i] = tmp[0];
+        neighbourhood[i + 1] = tmp[1];
 
     }
 
-    nodes = neighbourhood;
 }
