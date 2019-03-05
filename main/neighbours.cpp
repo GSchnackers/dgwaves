@@ -21,8 +21,6 @@ void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
     // The "i" loop stands for each pair of nodes (in fact each edge).
     for(std::size_t i = 0; i < nodes.size(); i += 2){
 
-        gmsh::logger::write("Helloooo!");
-
         std::vector<int> tmp(2,-1); // Temporary vector containing the tags of the neighbouring elements. 
         int l = 0; 
 
