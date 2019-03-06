@@ -14,9 +14,8 @@
 #include <gmsh.h>
 #include "functions.h"
 
-void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
-               const std::vector<int> elementTags, std::vector<int> nodes,\
-               std::vector<int> & neighbourhood){
+void neighbours(const std::vector<int> nodeTags, const int nodeNumber, const std::vector<int> elementTags,\
+                const std::vector<int> nodes, std::vector<int> & neighbourhood){
 
     // The "i" loop stands for each pair of nodes (in fact each edge).
     for(std::size_t i = 0; i < nodes.size(); i += 2){

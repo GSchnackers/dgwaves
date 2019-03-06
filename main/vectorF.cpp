@@ -14,6 +14,7 @@
 #include <vector>
 #include "functions.h"
 
-void vectorF(std::vector<double> & vectorF, double a_x, double a_y, std::vector<double> u, std::vector<double> sfg){
+void vectorF(std::vector<double> & vectorF, const double a_x, const double a_y,\
+                    const std::vector<double> u, const std::vector<double> sfg){
 
 }

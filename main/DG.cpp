@@ -94,7 +94,10 @@ int main(int argc, char **argv)
         int c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
         gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, nodes);
-        neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes);
+
+        // Get the neighbourhood of 2D elements
+        std::vector<int> neighbourhood(nodes.size());
+        neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes, neighbourhood);
     }
     
     // Get type of 1D elements 
