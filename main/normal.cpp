@@ -1,4 +1,5 @@
-// my2Dnormal is a function that computes the normal to each edge in 2D.
+// normal is a function that computes the normal to each edge in 2D and that
+// yields the coordinates (real and parametric) of the nodes.
 // Input: nodes, the vector containing all nodes (no doublons)
 // Output: a vector containing the components of the normal to the edge of nodes in "node" in the
 // format (n1x, n1y, n2x, n2y, n3x, n3y, ...).
@@ -10,9 +11,10 @@
 #include <cmath>
 #include "functions.h"
 
-void normal(const std::vector<int> nodes, std::vector<double> & normal2D)
+void normal(const std::vector<int> nodes, std::vector<double> & normal2D,\
+            std::vector<double> & nodeCoords, std::vector<double> & nodeCoordParam)
 {
-
+    
     for(std::size_t i = 0; i < nodes.size(); i += 2)
     {
         std::vector<double> nodeCoord1, nodeCoord2, nodeCoordParam1, nodeCoordParam2;
@@ -30,6 +32,15 @@ void normal(const std::vector<int> nodes, std::vector<double> & normal2D)
         // Final norm.
         normal2D[i] /= norm;
         normal2D[i + 1] /= norm;
+
+        for(std::size_t k = 0; k < 3; ++k){
+
+            nodeCoords[3 * i + k] = nodeCoord1[k];
+            nodeCoords[3 * (i + 1) + 1] = nodeCoordParam1[k];
+            nodeCoordParam[3 * i + k] = nodeCoord2[k];
+            nodeCoordParam[3 * (i + 1) + k] = nodeCoordParam2[k];
+
+        }
 
     }
 
