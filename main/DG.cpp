@@ -83,6 +83,28 @@ int main(int argc, char **argv)
         std::vector<int> nodes;
         gmsh::model::mesh::getElementEdgeNodes(eleType2D, nodes, s2D);
 
+        //list of nodes for each element
+        std::vector<int> node_list(nodes.size()/2,0);
+        for(std::size_t i=0; i<nodes.size();i++){
+            node_list[i]=nodes[2*i];
+        }
+
+        //list of nodal values
+        std::vector<double> u(nodes_list.size());
+
+        //déclaration coordonnées
+        std::vector<double> nodeCoord(3);
+        std::vector<double> nodeCoordParam(3);
+
+        //initial condition
+        for(std::size_t i=0; i<node_list.size();i++){
+            gmsh::model::mesh::getNode(node_list[i], nodeCoord, nodeCoordParam);
+            initialCondition(nodeCoord,value);²&
+            u[i]=value;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////
+
         // Sorting duplicates
         sorting(nodes);
 
