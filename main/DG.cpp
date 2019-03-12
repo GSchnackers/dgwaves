@@ -75,51 +75,52 @@ int main(int argc, char **argv)
         std::vector<double> matrixM;
         gaussIntegration(intpts2D, functionM, det2D, matrixM, numElements2D, numGaussPoints2D, numNodes2D);
 
-
-
-    // 1D elements
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // get the nodes on the edges of the 2D elements
-        std::vector<int> nodes;
-        gmsh::model::mesh::getElementEdgeNodes(eleType2D, nodes, s2D);
+        std::vector<int> edgeNodes2D;
+        gmsh::model::mesh::getElementEdgeNodes(eleType2D, edgeNodes2D, s2D);
 
-        //list of nodes for each element
-        std::vector<int> node_list(nodes.size()/2,0);
-        for(std::size_t i=0; i<nodes.size();i++){
-            node_list[i]=nodes[2*i];
-        }
+        //list of nodes for each element : nodeTags2D
 
         //list of nodal values
-        std::vector<double> u(nodes_list.size());
+        std::vector<double> u(nodeTags2D.size());
 
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
         std::vector<double> nodeCoordParam(3);
 
         //initial condition
-        for(std::size_t i=0; i<node_list.size();i++){
-            gmsh::model::mesh::getNode(node_list[i], nodeCoord, nodeCoordParam);
-            initialCondition(nodeCoord,value);²&
+        for(std::size_t i=0; i<nodeTags2D.size(); i++){
+            gmsh::model::mesh::getNode(nodeTags2D[i], nodeCoord, nodeCoordParam);
+            initialCondition(nodeCoord,value);
             u[i]=value;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Sorting duplicates
+        
+
+        
+        // Add an entity to contain the sorted edges
+        int c = gmsh::model::addDiscreteEntity(1);
+        int eleType1D = gmsh::model::mesh::getElementType("line", order);
+        gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, edgeNodes1D);
+
+/*
+        // Sorting duplicates in edgeNodes1D and eleType1D
         sorting(nodes);
+
+        // Get the neighbourhood of 2D elements
+        std::vector<int> neighbourhood(nodes.size());
+        neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes, neighbourhood);
 
         // Computation of the normals to the elements.
         std::vector<double> normal2D(nodes.size());
         normal(nodes, normal2D);
 
-        // Add an entity to contain the sorted edges
-        int c = gmsh::model::addDiscreteEntity(1);
-        int eleType1D = gmsh::model::mesh::getElementType("line", order);
-        gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, nodes);
+*/
 
-        // Get the neighbourhood of 2D elements
-        std::vector<int> neighbourhood(nodes.size());
-        neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes, neighbourhood);
     }
     
     // Get type of 1D elements 
@@ -132,23 +133,11 @@ int main(int argc, char **argv)
     gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
                                          intpts1D, numComp1D, bf1D);
 
-    // Get the different lines of the mesh
-    std::vector<std::pair<int, int>> entities1D;
-    gmsh::model::getEntities(entities1D, 1);
-
-    // entities1D.size() = 5 -> 4 lines (square) and 1 lines for surface
-    for (std::size_t i = 0; i < entities1D.size(); i++)
-    {
-        int s1D = entities1D[i].second;
-
-        // Get 2D elements of type eleType1D
-        std::vector<int> elementTags1D, nodeTags1D;
-        gmsh::model::mesh::getElementsByType(eleType1D, elementTags1D, nodeTags1D, s1D);
-
-        // Get jacobian and its determinant of 1D elements
+    // Get jacobian and its determinant of 1D elements
         std::vector<double> jac1D, det1D, pts1D;
-        gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, s1D);
-    }
+        gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c );
+
+    
 
     gmsh::finalize();
     return 0;

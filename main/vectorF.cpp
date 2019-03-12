@@ -86,7 +86,27 @@ void vectorF(std::vector<double> & vectorF, double a_x, double a_y, std::vector<
 
             }else{
                 //loop for the gauss points
-                for(std::size_t gpt=0; gpt<N_gauss_point; gpt++){
+                
+                for(std::size_t bf_i=0; bf_i < N_node_side; bf_i++){
+                    //regarder dans la liste de noeuds pour savoir sur quel côté on est
+                    
+                    for(std::size_t bf_j=0; bf_j < N_node_side; bf_j++){
+
+
+                    }
+
+                }
+
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     //Loop for the L_j
                     for(std::size_t bf_j=0; bf_j < N_basis_function; bf_j++){
                         //loop for the L_i
