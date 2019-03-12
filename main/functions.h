@@ -1,8 +1,15 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-// Forward Euler method
-void Forward_Euler_method(std::vector<double> & u, const double timestep, const std::vector<double> dudt);
+// Initialization of the properties of the element of a certain dim and a certain type.
+void elementInitialization(struct Element & element2D);
+
+// Sorting the nodes of the list of the edges to remove duplicate and giving the neighbours of each edge.
+void edges(const int numNodes, struct Entity & entity);
+
+/*// Return the normals at each edges
+void normal(const std::vector<int> nodes, std::vector<double> & normal2D,\
+            std::vector<double> & nodeCoords, std::vector<double> & nodeCoordParam);
 
 // Compute the integration of Gauss
 void gaussIntegration(const std::vector<double> & integrationPoints, const std::vector<double> & functions,
@@ -14,17 +21,8 @@ void gradient(const double f,const  std::vector<double> pointsPositions,\
                              const std::vector<double> nodesPositions, std::vector<double> & grad);
 
 // Allow to compute the neighbours of each edges.
-void neighbours(const std::vector<int> nodeTags, const int nodeNumber,const std::vector<int> elementTags,\
-                const std::vector<int> nodes, std::vector<int> & neighbourhood);
 
-// Return the normals at each edges
-void normal(const std::vector<int> nodes, std::vector<double> & normal2D);
-
-// Sorting the nodes of the list of the edges to remove duplicate
-void sorting(std::vector<int> & nodes);
-
-// Vector of flux
-void vectorF(std::vector<double> & vectorF, const double a_x, const double a_y,\
-                    const std::vector<double> u, const std::vector<double> sfg);
+void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
+               const std::vector<int> elementTags, std::vector<int> & nodes); */
 
 #endif
