@@ -59,6 +59,9 @@ int main(int argc, char **argv)
         std::vector<double> jac2D, det2D, pts2D;
         gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac2D, det2D, pts2D, s2D);
 
+
+
+
         // function to integrate with Gauss integration to get the matrix M
         std::vector<double> functionM;
         int numElements2D = elementTags2D.size();
@@ -90,6 +93,7 @@ int main(int argc, char **argv)
         std::vector<double> nodeCoord(3);
         std::vector<double> nodeCoordParam(3);
 
+        std::vector<double> value (nodeTags2D.size());
         //initial condition
         for(std::size_t i=0; i<nodeTags2D.size(); i++){
             gmsh::model::mesh::getNode(nodeTags2D[i], nodeCoord, nodeCoordParam);
@@ -100,26 +104,13 @@ int main(int argc, char **argv)
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         
-
+        
         
         // Add an entity to contain the sorted edges
         int c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
         gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, edgeNodes1D);
 
-/*
-        // Sorting duplicates in edgeNodes1D and eleType1D
-        sorting(nodes);
-
-        // Get the neighbourhood of 2D elements
-        std::vector<int> neighbourhood(nodes.size());
-        neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes, neighbourhood);
-
-        // Computation of the normals to the elements.
-        std::vector<double> normal2D(nodes.size());
-        normal(nodes, normal2D);
-
-*/
 
     }
     
@@ -137,7 +128,24 @@ int main(int argc, char **argv)
         std::vector<double> jac1D, det1D, pts1D;
         gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c );
 
-    
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+     int NumNodesSide = edgeNodes1D.size()/eleType1D.size() // number of nodes per side 
+/*
+        // Sorting duplicates in edgeNodes1D and eleType1D and 
+        sorting(edgeNodes1D);
+
+        // Get the neighbourhood of 2D elements
+        std::vector<int> neighbourhood(nodes.size());
+        neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes, neighbourhood);
+
+        // Computation of the normals to the elements.
+        std::vector<double> normal2D(nodes.size());
+        normal(nodes, normal2D);
+
+*/
 
     gmsh::finalize();
     return 0;
