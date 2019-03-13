@@ -23,7 +23,7 @@ void edges(const int numNodes, struct Entity & entity)
 
             if(condition){
 
-                entity.neighbours[j + 1] = entity.nodeTags[j/(2*numNodes)];
+                entity.neighbours[j + 1] = entity.elementTags[j/(2*numNodes)];  // ok seulement pour T3 car si T6 : le noeud du milieu du coté n'apparait qu'une seule fois
                 break;
 
             }
@@ -33,7 +33,7 @@ void edges(const int numNodes, struct Entity & entity)
             {
                 entity.edges.push_back(entity.elementEdgeNodes[i]);
                 entity.edges.push_back(entity.elementEdgeNodes[i+1]);
-                entity.neighbours.push_back(entity.nodeTags[i/(2*numNodes)]);
+                entity.neighbours.push_back(entity.elementTags[i/(2*numNodes)]);
                 entity.neighbours.push_back(-1);
             }
 
