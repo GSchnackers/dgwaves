@@ -40,6 +40,13 @@ int main(int argc, char **argv)
     gmsh::model::mesh::getElementProperties(eleType2D, name, dim, order,
                                             numNodes2D, paramCoord);
 
+    // tag of entity of edges
+    int c = 0;
+
+    // tag and nodes of edges
+    std::vector<int> tagElement1D;
+    std::vector<int> edgeNodes1D;
+
     // Loop on surfaces in the mesh
     for (std::size_t i = 0; i < entities2D.size(); i++)
     {
@@ -93,22 +100,20 @@ int main(int argc, char **argv)
         std::vector<double> nodeCoord(3);
         std::vector<double> nodeCoordParam(3);
 
-        std::vector<double> value (nodeTags2D.size());
+        double value(nodeTags2D.size());
         //initial condition
         for(std::size_t i=0; i<nodeTags2D.size(); i++){
             gmsh::model::mesh::getNode(nodeTags2D[i], nodeCoord, nodeCoordParam);
-            initialCondition(nodeCoord,value);
+            initialCondition(nodeCoord, value);
             u[i]=value;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         
-        std::vector<int> tagElement1D;
-        std::vector<int> edgeNodes1D;
 
         // Add an entity to contain the sorted edges
-        int c = gmsh::model::addDiscreteEntity(1);
+        c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
         gmsh::model::mesh::setElementsByType(1, c, eleType1D, tagElement1D, edgeNodes1D);
 
@@ -126,8 +131,8 @@ int main(int argc, char **argv)
                                          intpts1D, numComp1D, bf1D);
 
     // Get jacobian and its determinant of 1D elements
-        std::vector<double> jac1D, det1D, pts1D;
-        gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c );
+    std::vector<double> jac1D, det1D, pts1D;
+    gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
