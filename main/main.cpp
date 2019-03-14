@@ -134,8 +134,8 @@ int main(int argc, char **argv)
 
         // Computation of the normals to the elements.
 
-        std::vector<double> normal2D;
-        normal(nodes, normal2D);
+        //std::vector<double> normal2D;
+        //normal(nodes, normal2D);
 
         // create a new discrete entity of dimension 1
 

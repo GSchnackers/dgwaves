@@ -27,4 +27,7 @@ void sorting(std::vector<int> & nodes);
 void vectorF(std::vector<double> & vectorF, const double a_x, const double a_y,\
                     const std::vector<double> u, const std::vector<double> sfg);
 
+// Initial condition
+void initialCondition(std::vector<double> & coord, double & value);
+
 #endif
