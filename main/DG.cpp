@@ -133,11 +133,14 @@ int main(int argc, char **argv)
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-     int NumNodesSide = edgeNodes1D.size()/tagElement1D.size() // number of nodes per side 
-     int NumGausspoint1D = det1D.size()/tagElement1D.size() // number of gauss point per side
+     int NumNodesSide = edgeNodes1D.size()/tagElement1D.size(); // number of nodes per side 
+     int NumGaussPoint1D = det1D.size()/tagElement1D.size(); // number of gauss point per side
 
+
+     /////////////////////////////////////////////////////////////////////////////////
      //trier edgeNodes1D , tagElement1D , det1D pour ne plus qu'il y ai de doublon
      //les vecteurs trié seront edgeNodes1DSorted , tagElement1DSorted , det1DSorted
+     /////////////////////////////////////////////////////////////////////////////////
 
     std::vector<int> edgeNodes1DSorted;
     std::vector<int> tagElement1DSorted;
@@ -175,7 +178,7 @@ int main(int argc, char **argv)
             }
 
             // If the edge is not already in sortingNodes, we add it
-            if(j+NumNodesSide == sortingNodes.size())
+            if(j+NumNodesSide == edgeNodes1DSorted.size())
             {
                 //fill edgeNodes1DSorted
                 for(size_t n=0; n<NumNodesSide; n++){
@@ -187,9 +190,9 @@ int main(int argc, char **argv)
                 tagElement1DSorted.push_back(tagElement1D[i/NumNodesSide]);
 
                 //fill det1DSorted
-                for(size_t g=0; g<NumGausspoint1D; g++){
+                for(size_t g=0; g<NumGaussPoint1D; g++){
 
-                    det1DSorted.push_back(det1D[(i/NumNodesSide)*NumGausspoint1D + g]);
+                    det1DSorted.push_back(det1D[(i/NumNodesSide)*NumGaussPoint1D + g]);
                     //(i/NumNodesSide) est le numéro de l'edge 
                     //(i/NumNodesSide)*NumGausspoint1D + g est l'indice du point de gauss de l'edge
 
@@ -201,8 +204,40 @@ int main(int argc, char **argv)
      }//fin de boucle sur i
 
 
-//Calculer les normales des éléments triés
-std::vector<double>
+/////////////////////////////////////////////
+//Calculer les normales des éléments triés//
+////////////////////////////////////////////
+std::vector<double> normale (tagElement1DSorted*2); // car 2 composantes par edge
+
+std::vector<double> nodeCoord1, nodeCoordParam1;
+std::vector<double> nodeCoord2, nodeCoordParam2;
+
+for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
+
+//calcul de la normale au bord
+gmsh::model::mesh::getNode(edgeNodes1DSorted[i], nodeCoord1, nodeCoordParam1);
+gmsh::model::mesh::getNode(edgeNodes1DSorted[i+NumNodesSide-1], nodeCoord2, nodeCoordParam2);
+
+// Computation of the normal. n = (-y , x)/(x^2+y^2)^(1/2)
+
+normale[(i/NumNodesSide)*2] = nodeCoord1[1] - nodeCoord2[1]; // -y
+normale[(i/NumNodesSide)*2+1] = nodeCoord2[0] - nodeCoord1[0]; // x
+//(i/NumNodesSide)*2 est la place dans normale seulement le edge
+
+double norm = sqrt(normale[(i/NumNodesSide)*2] * normale[(i/NumNodesSide)*2] + \
+                     normale[(i/NumNodesSide)*2+1] * normale[(i/NumNodesSide)*2+1]); //sqrt(x^2 + y^2)
+
+// Final norm.
+normale[(i/NumNodesSide)*2] /= norm;
+n_2 /= norm;
+
+}
+
+
+
+
+
+
 
 
 
