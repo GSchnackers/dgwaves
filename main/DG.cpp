@@ -104,12 +104,13 @@ int main(int argc, char **argv)
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         
-        
-        
+        std::vector<int> tagElement1D;
+        std::vector<int> edgeNodes1D;
+
         // Add an entity to contain the sorted edges
         int c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
-        gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, edgeNodes1D);
+        gmsh::model::mesh::setElementsByType(1, c, eleType1D, tagElement1D, edgeNodes1D);
 
 
     }
@@ -132,11 +133,81 @@ int main(int argc, char **argv)
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-     int NumNodesSide = edgeNodes1D.size()/eleType1D.size() // number of nodes per side 
-/*
-        // Sorting duplicates in edgeNodes1D and eleType1D and 
-        sorting(edgeNodes1D);
+     int NumNodesSide = edgeNodes1D.size()/tagElement1D.size() // number of nodes per side 
+     int NumGausspoint1D = det1D.size()/tagElement1D.size() // number of gauss point per side
 
+     //trier edgeNodes1D , tagElement1D , det1D pour ne plus qu'il y ai de doublon
+     //les vecteurs trié seront edgeNodes1DSorted , tagElement1DSorted , det1DSorted
+
+    std::vector<int> edgeNodes1DSorted;
+    std::vector<int> tagElement1DSorted;
+    std::vector<double> det1DSorted;
+
+    //nodes of the first element
+    for(size_t i=0; i<NumNodesSide; i++){
+
+        edgeNodes1DSorted.push_back(edgeNodes1D[i]);
+     }
+
+    //tag of the first element
+     tagElement1DSorted.push_back(tagElement1D[0]);
+
+    //Jacobians of the first element
+    for(size_t i=0; i<NumGaussPoint1D; i++){
+
+        det1DSorted.push_back(det1D[i]);
+     }
+    
+    //les indices i et j sont les indices du premier noeud de chaque edge    
+     for(size_t i=0; i<edgeNodes1D.size(); i+= NumNodesSide){
+
+         for(size_t j=0; j<edgeNodes1DSorted.size(); j+= NumNodesSide){
+
+             // Check if edges is already in sortingNodes in the same direction
+            if(edgeNodes1D[i] == edgeNodes1DSorted[j] && edgeNodes1D[i+ NumNodesSide -1] == edgeNodes1DSorted[j+ NumNodesSide -1])
+            {
+                break;
+            }
+            // Check if edges is already in sortingNodes in the opposite direction
+            else if(edgeNodes1D[i] == edgeNodes1DSorted[j+ NumNodesSide -1] && edgeNodes1D[i+ NumNodesSide -1] == edgeNodes1DSorted[j])
+            {
+                break;
+            }
+
+            // If the edge is not already in sortingNodes, we add it
+            if(j+NumNodesSide == sortingNodes.size())
+            {
+                //fill edgeNodes1DSorted
+                for(size_t n=0; n<NumNodesSide; n++){
+
+                    edgeNodes1DSorted.push_back(edgeNodes1D[i+n]);
+                }
+
+                //fill tagElement1DSorted
+                tagElement1DSorted.push_back(tagElement1D[i/NumNodesSide]);
+
+                //fill det1DSorted
+                for(size_t g=0; g<NumGausspoint1D; g++){
+
+                    det1DSorted.push_back(det1D[(i/NumNodesSide)*NumGausspoint1D + g]);
+                    //(i/NumNodesSide) est le numéro de l'edge 
+                    //(i/NumNodesSide)*NumGausspoint1D + g est l'indice du point de gauss de l'edge
+
+                }
+
+            }//fin du if()
+
+         }// fin de boucle sur j   
+     }//fin de boucle sur i
+
+
+//Calculer les normales des éléments triés
+std::vector<double>
+
+
+
+
+/*
         // Get the neighbourhood of 2D elements
         std::vector<int> neighbourhood(nodes.size());
         neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes, neighbourhood);
