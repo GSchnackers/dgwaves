@@ -2,7 +2,7 @@
 #define FUNCTIONS_H
 
 // Initialization of the properties of the element of a certain dim and a certain type.
-void elementInitialization(struct Element & element2D);
+void Initialization(std::vector<struct Entity> & geometry);
 
 // Sorting the nodes of the list of the edges to remove duplicate and giving the neighbours of each edge.
 void edges(const int numNodes, struct Entity & entity);
