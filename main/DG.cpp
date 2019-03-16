@@ -66,6 +66,10 @@ int main(int argc, char **argv)
         std::vector<double> jac2D, det2D, pts2D;
         gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac2D, det2D, pts2D, s2D);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////     Matrix M     //////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 
@@ -86,6 +90,14 @@ int main(int argc, char **argv)
         gaussIntegration(intpts2D, functionM, det2D, matrixM, numElements2D, numGaussPoints2D, numNodes2D);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////// Nodal values of u and list of nodes for each element ///////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // c = [a_x ; a_y] the speed of the transport
+        std::vector<double> c(2);
+        // The user has to choose the values he wants for c
+        c[0] = 3.78; //example
+        c[1] = 1.41; //example
 
         // get the nodes on the edges of the 2D elements
         std::vector<int> edgeNodes2D;
@@ -108,9 +120,9 @@ int main(int argc, char **argv)
             u[i]=value;
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////////////
-
-        
+/////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////// Entity 1D ////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
         // Add an entity to contain the sorted edges
         c = gmsh::model::addDiscreteEntity(1);
@@ -142,10 +154,10 @@ int main(int argc, char **argv)
      int NumGaussPoint1D = det1D.size()/tagElement1D.size(); // number of gauss point per side
 
 
-     /////////////////////////////////////////////////////////////////////////////////
-     //trier edgeNodes1D , tagElement1D , det1D pour ne plus qu'il y ai de doublon
-     //les vecteurs trié seront edgeNodes1DSorted , tagElement1DSorted , det1DSorted
-     /////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //// trier edgeNodes1D , tagElement1D , det1D pour ne plus qu'il y ai de doublon   ////
+    //// les vecteurs trié seront edgeNodes1DSorted , tagElement1DSorted , det1DSorted ////
+    ///////////////////////////////////////////////////////////////////////////////////////
 
     std::vector<int> edgeNodes1DSorted;
     std::vector<int> tagElement1DSorted;
@@ -155,7 +167,7 @@ int main(int argc, char **argv)
     for(size_t i=0; i<NumNodesSide; i++){
 
         edgeNodes1DSorted.push_back(edgeNodes1D[i]);
-     }
+    }
 
     //tag of the first element
      tagElement1DSorted.push_back(tagElement1D[0]);
@@ -164,12 +176,12 @@ int main(int argc, char **argv)
     for(size_t i=0; i<NumGaussPoint1D; i++){
 
         det1DSorted.push_back(det1D[i]);
-     }
+    }
     
     //les indices i et j sont les indices du premier noeud de chaque edge    
-     for(size_t i=0; i<edgeNodes1D.size(); i+= NumNodesSide){
+    for(size_t i=0; i<edgeNodes1D.size(); i+= NumNodesSide){
 
-         for(size_t j=0; j<edgeNodes1DSorted.size(); j+= NumNodesSide){
+        for(size_t j=0; j<edgeNodes1DSorted.size(); j+= NumNodesSide){
 
              // Check if edges is already in sortingNodes in the same direction
             if(edgeNodes1D[i] == edgeNodes1DSorted[j] && edgeNodes1D[i+ NumNodesSide -1] == edgeNodes1DSorted[j+ NumNodesSide -1])
@@ -182,7 +194,7 @@ int main(int argc, char **argv)
                 break;
             }
 
-            // If the edge is not already in sortingNodes, we add it
+            // If the edge is not already in edgeNodes1DSorted, we add it
             if(j+NumNodesSide == edgeNodes1DSorted.size())
             {
                 //fill edgeNodes1DSorted
@@ -205,58 +217,246 @@ int main(int argc, char **argv)
 
             }//fin du if()
 
-         }// fin de boucle sur j   
-     }//fin de boucle sur i
+        }// fin de boucle sur j   
+    }//fin de boucle sur i
 
 
-/////////////////////////////////////////////
-//Calculer les normales des éléments triés//
-////////////////////////////////////////////
-std::vector<double> normale (tagElement1DSorted*2); // car 2 composantes par edge
+    //////////////////////////////////////////////////////////////////////////////
+    ///////////////// Calculer les normales des éléments triés ///////////////////
+    //////////////////////////////////////////////////////////////////////////////
 
-std::vector<double> nodeCoord1, nodeCoordParam1;
-std::vector<double> nodeCoord2, nodeCoordParam2;
+    std::vector<double> normal(tagElement1DSorted.size()*2); // car 2 composantes par edge
 
-for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
+    std::vector<double> nodeCoord1, nodeCoordParam1;
+    std::vector<double> nodeCoord2, nodeCoordParam2;
 
-//calcul de la normale au bord
-gmsh::model::mesh::getNode(edgeNodes1DSorted[i], nodeCoord1, nodeCoordParam1);
-gmsh::model::mesh::getNode(edgeNodes1DSorted[i+NumNodesSide-1], nodeCoord2, nodeCoordParam2);
+    for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
 
-// Computation of the normal. n = (-y , x)/(x^2+y^2)^(1/2)
+    //calcul de la normale au bord
+    gmsh::model::mesh::getNode(edgeNodes1DSorted[i], nodeCoord1, nodeCoordParam1);
+    gmsh::model::mesh::getNode(edgeNodes1DSorted[i+NumNodesSide-1], nodeCoord2, nodeCoordParam2);
 
-normale[(i/NumNodesSide)*2] = nodeCoord1[1] - nodeCoord2[1]; // -y
-normale[(i/NumNodesSide)*2+1] = nodeCoord2[0] - nodeCoord1[0]; // x
-//(i/NumNodesSide)*2 est la place dans normale seulement le edge
+    // Computation of the normal. n = (-y , x)/(x^2+y^2)^(1/2)
 
-double norm = sqrt(normale[(i/NumNodesSide)*2] * normale[(i/NumNodesSide)*2] + \
-                     normale[(i/NumNodesSide)*2+1] * normale[(i/NumNodesSide)*2+1]); //sqrt(x^2 + y^2)
+    normal[(i/NumNodesSide)*2] = nodeCoord1[1] - nodeCoord2[1]; // -y
+    normal[(i/NumNodesSide)*2+1] = nodeCoord2[0] - nodeCoord1[0]; // x
+    //(i/NumNodesSide)*2 est la place dans normale seulement le edge
 
-// Final norm.
-normale[(i/NumNodesSide)*2] /= norm;
-n_2 /= norm;
+    double norm = sqrt(normal[(i/NumNodesSide)*2] * normal[(i/NumNodesSide)*2] + \
+                        normal[(i/NumNodesSide)*2+1] * normal[(i/NumNodesSide)*2+1]); //sqrt(x^2 + y^2)
 
-}
+    // Final norm.
+    normal[(i/NumNodesSide)*2] /= norm;
+    normal[(i/NumNodesSide)*2+1] /= norm;
 
-
-
+    }
 
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////// Find the neighbours of the edges and Find the BC tags ///////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    int neighbour1D_tmp;
+    std::vector<int> neighbours1D(tagElement1DSorted.size()*2,-1); // pour la taille "2*"car 2 voisins par edge,
+                                                                // on initialise à -1 ainsi nous sauront lorsqu'un côté n'a pas de voisin
+
+    //nombre de côtés de l'element 2D = nombre de noeuds sur les côtés divisé par (nombre de noeud par côtés)
+    NumSide2D = edgeNodes2D.size()/(NumNodesSide*elementTags2D.size());
+
+    int index_tmp;
+    double innerProduct;
+
+    // u concatenated with boundary conditions (we add BC later)
+    std::vector<double> uPlusBC(u.size());
+
+    // nodeTags2D concatenated with the tags of the nodes which have boundary conditions 
+    //(we add those tags later, in the loop for the neighbours)
+    std::vector<int> nodeTags2DPlusBC(nodeTags2D.size());
+
+    for(std::size_t i=0; i<nodeTags2D.size(); i++){
+        uPlusBC[i] = u[i];
+        nodeTags2DPlusBC[i] = nodeTags2D[i];
+    }
+
+    int check1;
+    int check2;
+
+
+    //les indices i et j sont les indices du premier noeud de chaque edge    
+    for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
+
+        for(size_t j=0; j<edgeNodes2D.size(); j+= NumNodesSide){
+
+            // Check if the edge is common to the edge of one 2D element
+            if((edgeNodes2D[j] == edgeNodes1DSorted[i] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i+ NumNodesSide -1]) \
+                ||(edgeNodes2D[j] == edgeNodes1DSorted[i+ NumNodesSide -1] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i])){
+                    
+                neighbour1D_tmp = j/(NumSide2D*NumNodesSide);
+                // (j/NumNodesSide) is the number("index") of the 2D element
+
+                // look at the inner product between the vector constructed with two node coordinates of the 2D element (one positioned on the edge)
+                // and the vector normal to the edge to know if the normal is in the conventional direction or not
+
+                // index_tmp contient l'index du noeud suivant de l'élément 2D 
+                index_tmp = j+ 2*NumNodesSide % (NumSide2D*NumNodesSide);
+
+                //get the coordinates of the begin and end nodes of the next edge of the 2D element
+                gmsh::model::mesh::getNode(edgeNodes2D[j+ NumNodesSide -1], nodeCoord1, nodeCoordParam1);
+                gmsh::model::mesh::getNode(edgeNodes2D[neighbour1D_tmp*NumNodesSide*NumSide2D + index_tmp], nodeCoord2, nodeCoordParam2);
+
+                //inner product
+                innerProduct = normal[i/(NumNodesSide)]*(nodeCoord2[0]-nodeCoord1[0]) + \
+                                normal[i/(NumNodesSide)+1]*(nodeCoord2[1]-nodeCoord1[1]);
+
+                //if the neighbour is positionned conventionnaly with respect to the normal, its number is registered in first position,
+                //if not, its number is registered in second position.
+                if(innerProduct >= 0){
+                    neighbours1D[i/(NumNodesSide)] = neighbour1D_tmp;
+                }
+                else{
+                    neighbours1D[i/(NumNodesSide) + 1] = neighbour1D_tmp;
+                }
+
+            } // end check if neighbour
+
+        }// fin de boucle sur j   
+
+        //fill the tags for BC in nodeTags2DPlusBC
+        if(neighbours1D[i/(NumNodesSide)] == -1 || neighbours1D[i/(NumNodesSide) + 1] == -1){
+            
+            check1 = 0;
+            check2 = 0;
+            // check if the tag of the node is already in the BC tags
+            for(std::size_t c=nodeTags2D.size(); c<nodeTags2DPlusBC.size(); c++){
+                if(nodeTags2DPlusBC[c] == edgeNodes1DSorted[i]){
+                    check1 = 1;
+                }
+                if(nodeTags2DPlusBC[c] == edgeNodes1DSorted[i + NumNodesSide -1]){
+                    check2 = 1;
+                }
+            }
+
+            if(check1 == 0){
+                nodeTags2DPlusBC.push_back(edgeNodes1DSorted[i]);
+                uPlusBC.push_back(0);
+            }
+            if(check2 == 0){
+                nodeTags2DPlusBC.push_back(edgeNodes1DSorted[i + NumNodesSide -1]);
+                uPlusBC.push_back(0);
+            }
+
+        } // end fill tags of BC
+
+    }//fin de boucle sur i
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // association of the nodes of edgeNodes1DSorted with their indices in nodeTags2D //
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector<int> indicesNei1(edgeNodes1DSorted.size());
+    std::vector<int> indicesNei2(edgeNodes1DSorted.size());
+
+    for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
+
+        // First neighbour
+        // check if there is a neighbour
+        if(neighbours1D[i/(NumNodesSide)] != -1){
+            // as we know the number of the neighbour element, we will only loop on its nodes in the general list : nodeTags2D
+            for(size_t j=neighbours1D[i/(NumNodesSide)]*NumNodes2D; j<(neighbours1D[i/(NumNodesSide)] + 1)*NumNodes2D; j++){
+
+                if(edgeNodes1DSorted[i] == nodeTags2D[j]){
+
+                    indicesNei1[i] = j;
+                }
+            }
+        }
+        //if there is no neighbour
+        else{
+            // loop on the nodes of the Boundary Conditions
+            for(size_t j=nodeTags2D.size(); j<nodeTags2DPlusBC.size(); j++){
+
+                if(edgeNodes1DSorted[i] == nodeTags2DPlusBC[j]){
+
+                    indicesNei1[i] = j;
+                }
+            }
+        }
+
+        // Second neighbour
+        // Same steps as for the first neighbour
+        if(neighbours1D[i/(NumNodesSide) + 1] != -1){
+            for(size_t j=neighbours1D[i/(NumNodesSide) + 1]*NumNodes2D; j<(neighbours1D[i/(NumNodesSide) + 1] + 1)*NumNodes2D; j++){
+
+                if(edgeNodes1DSorted[i] == nodeTags2D[j]){
+
+                    indicesNei2[i] = j;
+                }
+            }
+        }
+        else{
+            for(size_t j=nodeTags2D.size(); j<nodeTags2DPlusBC.size(); j++){
+
+                if(edgeNodes1DSorted[i] == nodeTags2DPlusBC[j]){
+
+                    indicesNei2[i] = j;
+                }
+            }
+        }
+
+    }// end loop on i
+
+
+    ///////////////////////////////////////////////////////////////////////
+    //////////////////////// upwind variable //////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+
+    /* 
+    upwind register if the inner product of the normal and c (the speed of transport) is positive or negative
+    This information will be used to know which neighbour is upwind
+    - if upwind = 1 --> the first neighbour is upwind
+    - if upwind = -1 --> the second neighbour is upwind
+    */
+
+    std::vector<int> upwind(tagElement1D.size());
+
+    for(std::size_t i=0; i<upwind.size(); i++){
+
+        if(normal[i*2]*c[0] + normal[i*2+1]*c[1]>=0){
+            upwind[i] = 1;
+        }
+        else{
+            upwind[i] = -1;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////// Matrix F ////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
 
 
 
 
-/*
-        // Get the neighbourhood of 2D elements
-        std::vector<int> neighbourhood(nodes.size());
-        neighbours(nodeTags2D, numNodes2D, elementTags2D, nodes, neighbourhood);
 
-        // Computation of the normals to the elements.
-        std::vector<double> normal2D(nodes.size());
-        normal(nodes, normal2D);
 
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     gmsh::finalize();
     return 0;
