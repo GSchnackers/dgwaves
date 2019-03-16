@@ -42,18 +42,26 @@ int main(int argc, char **argv)
 
     // tag of entity of edges
     int c = 0;
+    
+    // Get 2D elements of type eleType2D
+    std::vector<int> elementTags2D, nodeTags2D;
 
     // tag and nodes of edges
     std::vector<int> tagElement1D;
     std::vector<int> edgeNodes1D;
 
+    // get the nodes on the edges of the 2D elements
+    std::vector<int> edgeNodes2D;
+    
+    // coefF = [a_x ; a_y] the speed of the transport
+    std::vector<double> coefF(2);
+
     // Loop on surfaces in the mesh
-    for (std::size_t i = 0; i < entities2D.size(); i++)
-    {
-        int s2D = entities2D[i].second;
+    //for (std::size_t i = 0; i < entities2D.size(); i++)
+    //{
+        int s2D = entities2D[0].second;
 
         // Get 2D elements of type eleType2D
-        std::vector<int> elementTags2D, nodeTags2D;
         gmsh::model::mesh::getElementsByType(eleType2D, elementTags2D, nodeTags2D, s2D);
 
         // Get basis functions of 2D elements
@@ -93,14 +101,11 @@ int main(int argc, char **argv)
 //////////////// Nodal values of u and list of nodes for each element ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // coefF = [a_x ; a_y] the speed of the transport
-        std::vector<double> coefF(2);
         // The user has to choose the values he wants for coefF
         coefF[0] = 3.78; //example
         coefF[1] = 1.41; //example
 
         // get the nodes on the edges of the 2D elements
-        std::vector<int> edgeNodes2D;
         gmsh::model::mesh::getElementEdgeNodes(eleType2D, edgeNodes2D, s2D);
 
         //list of nodes for each element : nodeTags2D
@@ -129,22 +134,70 @@ int main(int argc, char **argv)
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
         gmsh::model::mesh::setElementsByType(1, c, eleType1D, tagElement1D, edgeNodes1D);
 
-
-    }
+    //}
     
     // Get type of 1D elements 
     gmsh::model::mesh::getElementTypes(eleTypes, 1);
 
+    // Properties of the 2D elements in the mesh
+    eleType1D = eleTypes[0];
+    std::string name1D;
+    int dim1D, order1D, numNodes1D;
+    std::vector<double> paramCoord1D;
+    gmsh::model::mesh::getElementProperties(eleType1D, name1D, dim1D, order1D,
+                                            numNodes1D, paramCoord1D);
+
     // Get basis functions of 1D elements
-    int eleType1D = eleTypes[0];
-    std::vector<double> intpts1D, bf1D;
-    int numComp1D;
+    std::vector<double> intpts1D, bf1D, gradIntPts1D, gradbf1D;
+    int numComp1D, gradNumComp1D;
     gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
                                          intpts1D, numComp1D, bf1D);
+    gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "GradLagrange",
+                                         gradIntPts1D, gradNumComp1D, gradbf1D);
+    
+    std::cout << "numComp1D : " << std::to_string(numComp1D) << "\n";
+    std::cout << "gradNumComp1D : " << std::to_string(gradNumComp1D) << "\n";
+    for(size_t i = 0; i < intpts1D.size(); i++){
+        std::cout << "intpts1D[" << std::to_string(i) << "] : " << std::to_string(intpts1D[i]) << "\n";
+    }
+    for(size_t i = 0; i < bf1D.size(); i++){
+        std::cout << "bf1D[" << std::to_string(i) << "] : " << std::to_string(bf1D[i]) << "\n";
+    }
+    for(size_t i = 0; i < gradIntPts1D.size(); i++){
+        std::cout << "gradIntPts1D[" << std::to_string(i) << "] : " << std::to_string(gradIntPts1D[i]) << "\n";
+    }
+    for(size_t i = 0; i < gradbf1D.size(); i++){
+        std::cout << "gradbf1D[" << std::to_string(i) << "] : " << std::to_string(gradbf1D[i]) << "\n";
+    }
 
     // Get jacobian and its determinant of 1D elements
     std::vector<double> jac1D, det1D, pts1D;
     gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);
+
+    // Get 2D elements of type eleType2D
+    std::vector<int> elementTags1D, nodeTags1D;
+    gmsh::model::mesh::getElementsByType(eleType1D, elementTags1D, nodeTags1D, c);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////     Matrix S     //////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // function to integrate with Gauss integration to get the matrix S
+    std::vector<double> functionS;
+    int numElements1D = elementTags1D.size();
+    int numGaussPoints1D = intpts1D.size()/4;
+    
+    for(std::size_t e = 0; e < numElements1D; e++)
+        for(std::size_t i = 0; i < numNodes1D; i++)
+            for(std::size_t j = 0; j < numNodes1D; j++)
+            {
+                for(std::size_t g = 0; g < numGaussPoints1D; g++)
+                    functionS.push_back((coefF[0]*gradbf1D[3*(numNodes1D*g + i)]\
+                                        + coefF[1]*gradbf1D[3*(numNodes1D*g + i) + 1])*bf1D[numNodes1D*g + j]);
+            }
+    
+    std::vector<double> matrixS;
+    gaussIntegration(intpts1D, functionS, det1D, matrixS, numElements1D, numGaussPoints1D, numNodes1D);
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +314,7 @@ int main(int argc, char **argv)
                                                                 // on initialise à -1 ainsi nous sauront lorsqu'un côté n'a pas de voisin
 
     //nombre de côtés de l'element 2D = nombre de noeuds sur les côtés divisé par (nombre de noeud par côtés)
-    NumSide2D = edgeNodes2D.size()/(NumNodesSide*elementTags2D.size());
+    int NumSide2D = edgeNodes2D.size()/(NumNodesSide*elementTags2D.size());
 
     int index_tmp;
     double innerProduct;
@@ -362,7 +415,7 @@ int main(int argc, char **argv)
         // check if there is a neighbour
         if(neighbours1D[i/(NumNodesSide)] != -1){
             // as we know the number of the neighbour element, we will only loop on its nodes in the general list : nodeTags2D
-            for(size_t j=neighbours1D[i/(NumNodesSide)]*NumNodes2D; j<(neighbours1D[i/(NumNodesSide)] + 1)*NumNodes2D; j++){
+            for(size_t j=neighbours1D[i/(NumNodesSide)]*numNodes2D; j<(neighbours1D[i/(NumNodesSide)] + 1)*numNodes2D; j++){
 
                 if(edgeNodes1DSorted[i] == nodeTags2D[j]){
 
@@ -385,7 +438,7 @@ int main(int argc, char **argv)
         // Second neighbour
         // Same steps as for the first neighbour
         if(neighbours1D[i/(NumNodesSide) + 1] != -1){
-            for(size_t j=neighbours1D[i/(NumNodesSide) + 1]*NumNodes2D; j<(neighbours1D[i/(NumNodesSide) + 1] + 1)*NumNodes2D; j++){
+            for(size_t j=neighbours1D[i/(NumNodesSide) + 1]*numNodes2D; j<(neighbours1D[i/(NumNodesSide) + 1] + 1)*numNodes2D; j++){
 
                 if(edgeNodes1DSorted[i] == nodeTags2D[j]){
 
