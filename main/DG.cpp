@@ -93,11 +93,11 @@ int main(int argc, char **argv)
 //////////////// Nodal values of u and list of nodes for each element ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // c = [a_x ; a_y] the speed of the transport
-        std::vector<double> c(2);
-        // The user has to choose the values he wants for c
-        c[0] = 3.78; //example
-        c[1] = 1.41; //example
+        // coefF = [a_x ; a_y] the speed of the transport
+        std::vector<double> coefF(2);
+        // The user has to choose the values he wants for coefF
+        coefF[0] = 3.78; //example
+        coefF[1] = 1.41; //example
 
         // get the nodes on the edges of the 2D elements
         std::vector<int> edgeNodes2D;
@@ -411,7 +411,7 @@ int main(int argc, char **argv)
     ///////////////////////////////////////////////////////////////////////
 
     /* 
-    upwind register if the inner product of the normal and c (the speed of transport) is positive or negative
+    upwind register if the inner product of the normal and coefF (the speed of transport) is positive or negative
     This information will be used to know which neighbour is upwind
     - if upwind = 1 --> the first neighbour is upwind
     - if upwind = -1 --> the second neighbour is upwind
@@ -421,7 +421,7 @@ int main(int argc, char **argv)
 
     for(std::size_t i=0; i<upwind.size(); i++){
 
-        if(normal[i*2]*c[0] + normal[i*2+1]*c[1]>=0){
+        if(normal[i*2]*coefF[0] + normal[i*2+1]*coefF[1]>=0){
             upwind[i] = 1;
         }
         else{
