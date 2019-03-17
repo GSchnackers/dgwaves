@@ -8,7 +8,10 @@ int main(int argc, char **argv)
 {
 
     std::size_t i, j;
-    std::vector<struct Entity> geometry; // Structure containing all info about the model.
+
+    std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
+    struct Element mainElements; // The main elements of the mesh.
+    struct Element frontierElement; // The frontier elements of the mesh.
 
     if (argc < 2)
     {
@@ -19,20 +22,9 @@ int main(int argc, char **argv)
     gmsh::initialize(argc, argv); // Initialization of gmsh library.
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
     gmsh::open(argv[1]);                            // reads the msh file
-    Initialization(geometry);
 
-    for(i = 0; i < geometry.size(); ++i){
-
-        std::cout << geometry[i].entityTag << std::endl;
-        std::cout << std::endl;
-        for(j = 0; j < geometry[i].nodeTags.size(); ++j) std::cout << geometry[i].nodeTags[j] << std::endl;
-        std::cout << std::endl;
-        for(j = 0; j < geometry[i].elementTag2D.size(); ++j) std::cout << geometry[i].elementTag2D[j] << std::endl;
-        std::cout << std::endl;
-        for(j = 0; j < geometry[i].elementEdgeNode2D.size(); ++j) std::cout << geometry[i].elementEdgeNode2D[j] << std::endl;
-        std::cout << std::endl;
-
-    }
+    Initialization(mainElements, 2, 3);
+    frontierCreation(mainElements, frontierElement, 2, sortedNodes);
 
     // Loop over all entities.
     

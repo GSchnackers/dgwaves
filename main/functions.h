@@ -1,8 +1,12 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
+#include "structures.h"
+// Initialization of the properties of the element of a certain dim and a certain type with a number of Gauss points given by GaussType.
+void Initialization(Element & element, const int meshDim, const int gaussType);
 
-// Initialization of the properties of the element of a certain dim and a certain type.
-void Initialization(std::vector<struct Entity> & geometry);
+// Creation of the frontier of the main elements. Each frontier is only counted once.
+void frontierCreation(const Element mainElement, Element & frontierElement, const int meshDim,\
+                      const std::vector<int> sortedNodes);
 
 // Sorting the nodes of the list of the edges to remove duplicate and giving the neighbours of each edge.
 void edges(const int numNodes, struct Entity & entity);
