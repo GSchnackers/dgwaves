@@ -17,6 +17,7 @@ struct Element{
     std::string name; // Name of the element.
     int dim; // dimension of the element.
     int order; // Order of the element.
+    int numSide; // Number of sides of the element.
 
     // Useful properties common to all elements of the element.
 
@@ -32,7 +33,7 @@ struct Element{
     
     std::vector<double> gaussPointsParam; // Gauss points in parametric coordiantes.
 
-    int numberEdgeNode; // The number of nodes per edge of an element.
+    int numberFrontierNode; // The number of nodes per edge of an element.
 
     std::vector<double> massMatrix; // Mass matrix of the element.
     std::vector<double> stiffnessMatrix; // stiffness matrix of the element.
