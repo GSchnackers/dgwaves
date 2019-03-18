@@ -117,7 +117,7 @@ int main(int argc, char **argv)
         std::vector<double> nodeCoord(3);
         std::vector<double> nodeCoordParam(3);
 
-        double value(nodeTags2D.size());
+        double value;
         //initial condition
         for(std::size_t i=0; i<nodeTags2D.size(); i++){
             gmsh::model::mesh::getNode(nodeTags2D[i], nodeCoord, nodeCoordParam);
@@ -208,8 +208,11 @@ int main(int argc, char **argv)
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
-    //// trier edgeNodes1D , tagElement1D , det1D pour ne plus qu'il y ai de doublon   ////
-    //// les vecteurs trié seront edgeNodes1DSorted , tagElement1DSorted , det1DSorted ////
+    //// trier, pour ne plus qu'il y ai de doublon :
+    //// edgeNodes1D , tagElement1D , det1D    
+    ////
+    //// les vecteurs trié seront :
+    //// edgeNodes1DSorted , tagElement1DSorted , det1DSorted
     ///////////////////////////////////////////////////////////////////////////////////////
 
     std::vector<int> edgeNodes1DSorted;
@@ -217,7 +220,7 @@ int main(int argc, char **argv)
     std::vector<double> det1DSorted;
 
     //nodes of the first element
-    for(size_t i=0; i<NumNodesSide; i++){
+    for(std::size_t i=0; i<NumNodesSide; i++){
 
         edgeNodes1DSorted.push_back(edgeNodes1D[i]);
     }
@@ -226,15 +229,15 @@ int main(int argc, char **argv)
      tagElement1DSorted.push_back(tagElement1D[0]);
 
     //Jacobians of the first element
-    for(size_t i=0; i<NumGaussPoint1D; i++){
+    for(std::size_t i=0; i<NumGaussPoint1D; i++){
 
         det1DSorted.push_back(det1D[i]);
     }
     
     //les indices i et j sont les indices du premier noeud de chaque edge    
-    for(size_t i=0; i<edgeNodes1D.size(); i+= NumNodesSide){
+    for(std::size_t i=0; i<edgeNodes1D.size(); i+= NumNodesSide){
 
-        for(size_t j=0; j<edgeNodes1DSorted.size(); j+= NumNodesSide){
+        for(std::size_t j=0; j<edgeNodes1DSorted.size(); j+= NumNodesSide){
 
              // Check if edges is already in sortingNodes in the same direction
             if(edgeNodes1D[i] == edgeNodes1DSorted[j] && edgeNodes1D[i+ NumNodesSide -1] == edgeNodes1DSorted[j+ NumNodesSide -1])
@@ -251,7 +254,7 @@ int main(int argc, char **argv)
             if(j+NumNodesSide == edgeNodes1DSorted.size())
             {
                 //fill edgeNodes1DSorted
-                for(size_t n=0; n<NumNodesSide; n++){
+                for(std::size_t n=0; n<NumNodesSide; n++){
 
                     edgeNodes1DSorted.push_back(edgeNodes1D[i+n]);
                 }
@@ -260,7 +263,7 @@ int main(int argc, char **argv)
                 tagElement1DSorted.push_back(tagElement1D[i/NumNodesSide]);
 
                 //fill det1DSorted
-                for(size_t g=0; g<NumGaussPoint1D; g++){
+                for(std::size_t g=0; g<NumGaussPoint1D; g++){
 
                     det1DSorted.push_back(det1D[(i/NumNodesSide)*NumGaussPoint1D + g]);
                     //(i/NumNodesSide) est le numéro de l'edge 
@@ -283,7 +286,7 @@ int main(int argc, char **argv)
     std::vector<double> nodeCoord1, nodeCoordParam1;
     std::vector<double> nodeCoord2, nodeCoordParam2;
 
-    for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
+    for(std::size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
 
     //calcul de la normale au bord
     gmsh::model::mesh::getNode(edgeNodes1DSorted[i], nodeCoord1, nodeCoordParam1);
@@ -336,9 +339,9 @@ int main(int argc, char **argv)
 
 
     //les indices i et j sont les indices du premier noeud de chaque edge    
-    for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
+    for(std::size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
 
-        for(size_t j=0; j<edgeNodes2D.size(); j+= NumNodesSide){
+        for(std::size_t j=0; j<edgeNodes2D.size(); j+= NumNodesSide){
 
             // Check if the edge is common to the edge of one 2D element
             if((edgeNodes2D[j] == edgeNodes1DSorted[i] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i+ NumNodesSide -1]) \
@@ -470,7 +473,7 @@ int main(int argc, char **argv)
     - if upwind = -1 --> the second neighbour is upwind
     */
 
-    std::vector<int> upwind(tagElement1D.size());
+    std::vector<int> upwind(tagElement1DSorted.size());
 
     for(std::size_t i=0; i<upwind.size(); i++){
 
@@ -486,12 +489,136 @@ int main(int argc, char **argv)
     ///////////////////////////// Matrix F ////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
 
+    std::vector<double> matrixF(tagElement1DSorted.size()*NumNodesSide*NumNodesSide);
+
+    //gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
+    //                                     intpts1D, numComp1D, bf1D);
+
+    //gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);  det1DSorted
 
 
+    int NumGaussPoint1D = bf1D.size()/NumNodesSide;
+
+    //loop for each edge
+    for(std::size_t ed; ed < tagElement1DSorted.size(); ed++){
+        //loop for i of F_{ij}
+        for(std::size_t i; i < NumNodesSide; i++){
+            //loop for j of F_{ij}
+            for(std::size_t j; j < NumNodesSide; j++){
+                //loop for each gauss point
+                for(std::size_t g; g < NumGaussPoint1D; g++){
+
+                    matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] += \
+                     (normal[ed*2]*coefF[0] + normal[ed*2+1]*coefF[1]) * bf1D[g*NumGaussPoint1D + i] * bf1D[g*NumGaussPoint1D + j] \
+                     * intpts1D[3 + 4*g] * det1DSorted[ed*NumGaussPoints + g];
+
+                }
+            }
+        }
+    }
 
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////           TIME LOOP           /////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    double time = 0;
+    double timeStep = 0.1;
+    double endTime = 10;
 
+    // declaration vector F (time dependent)
+    std::vector<double> vectorF(nodeTags2D.size());
+
+    while(time < endTime){
+
+        // BC
+        for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
+            gmsh::model::mesh::getNode(nodeTags2DPlusBC[i], nodeCoord, nodeCoordParam);
+            boundaryConditions(nodeCoord, time, value);
+            uplusBC[i]=value;
+        }
+
+        // initialisation to 0 of vector F
+        for(std::size_t i=0; i<vectorF.size(); i++){
+            vectorF[i] = 0;
+        }
+
+        // computation vector F
+        if(upwind == 1){
+
+            for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
+                if(neighbours1D[ed*2] != -1){
+                    //fill vectorF .... (produit mat)
+                    //loop on the nodes of the edge 
+                    for(std::size_t i=0; i<NumNodesSide; i++){
+                        for(std::size_t j=0; j<NumNodesSide; j++){
+                            vectorF[indicesNei1[ed*NumNodesSide + i]] += \
+                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei1[ed*NumNodesSide + j]]);
+                        }
+                    }
+
+                    if(neighbours1D[ed*2 + 1] != -1){
+                        for(std::size_t copy=0; copy<NumNodesSide; copy++){
+                            vectorF[indicesNei2[ed*NumNodesSide + copy]] += -vectorF[indicesNei1[ed*NumNodesSide + copy]];
+                        }
+                    }
+                }
+                if(neighbours1D[ed*2] == -1){
+                    //vectorF[indicesNei2] = -... (produit mat)
+                    for(std::size_t i=0; i<NumNodesSide; i++){
+                        for(std::size_t j=0; j<NumNodesSide; j++){
+                            vectorF[indicesNei2[ed*NumNodesSide + i]] += \
+                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei1[ed*NumNodesSide + j]];
+                        }
+                    }
+
+                }
+            } 
+        }
+        if(upwind == -1){
+        // same as upwind == 1 except we take "indicesNei2" to compute the flow
+            for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
+                if(neighbours1D[ed*2] != -1){
+                    //fill vectorF .... (produit mat)
+                    //loop on the nodes of the edge 
+                    for(std::size_t i=0; i<NumNodesSide; i++){
+                        for(std::size_t j=0; j<NumNodesSide; j++){
+                            vectorF[indicesNei1[ed*NumNodesSide + i]] += \
+                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei2[ed*NumNodesSide + j]]);
+                        }
+                    }
+
+                    if(neighbours1D[ed*2 + 1] != -1){
+                        for(std::size_t copy=0; copy<NumNodesSide; copy++){
+                            vectorF[indicesNei2[ed*NumNodesSide + copy]] += -vectorF[indicesNei1[ed*NumNodesSide + copy]];
+                        }
+                    }
+                }
+                if(neighbours1D[ed*2] == -1){
+                    //vectorF[indicesNei2] = -... (produit mat)
+                    for(std::size_t i=0; i<NumNodesSide; i++){
+                        for(std::size_t j=0; j<NumNodesSide; j++){
+                            vectorF[indicesNei2[ed*NumNodesSide + i]] += \
+                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei2[ed*NumNodesSide + j]];
+                        }
+                    }
+
+                }
+            }
+        }
+
+        // du/dt = M^{-1} (S.u + F)
+
+        // Forward Euler method
+
+        // Backup of u(t+dt)
+
+        time += timeStep;
+    }
+
+    
 
 
 
@@ -514,3 +641,21 @@ int main(int argc, char **argv)
     gmsh::finalize();
     return 0;
 }
+
+
+
+/* Notes sur le code
+
+ligne 370, peut être pas assez robuste, si jamais le produit scalaire vaut exactement 0,
+ le deuxième voisin va être écrit en effaçant le premier:
+
+ if(innerProduct >= 0){
+                    neighbours1D[i/(NumNodesSide)] = neighbour1D_tmp;
+                }
+                else{
+                    neighbours1D[i/(NumNodesSide) + 1] = neighbour1D_tmp;
+                }
+
+
+
+*/
