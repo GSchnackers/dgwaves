@@ -546,9 +546,10 @@ int main(int argc, char **argv)
         }
 
         // computation vector F
-        if(upwind == 1){
+        for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
 
-            for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
+            if(upwind == 1){
+
                 if(neighbours1D[ed*2] != -1){
                     //fill vectorF .... (produit mat)
                     //loop on the nodes of the edge 
@@ -576,10 +577,9 @@ int main(int argc, char **argv)
 
                 }
             } 
-        }
-        if(upwind == -1){
-        // same as upwind == 1 except we take "indicesNei2" to compute the flow
-            for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
+        
+            if(upwind == -1){
+            // same as upwind == 1 except we take "indicesNei2" to compute the flow            
                 if(neighbours1D[ed*2] != -1){
                     //fill vectorF .... (produit mat)
                     //loop on the nodes of the edge 
@@ -605,10 +605,9 @@ int main(int argc, char **argv)
                         }
                     }
 
-                }
+                }        
             }
         }
-
         // du/dt = M^{-1} (S.u + F)
 
         // Forward Euler method
