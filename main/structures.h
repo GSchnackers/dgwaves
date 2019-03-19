@@ -46,6 +46,10 @@ struct Element{
 
     std::vector<int> nodeTags; // Tags of the node of each elements. e1N1,e1N2,...,e1Nn, e2N1,...
 
+    std::vector<std::pair<int,int>> neighbours;// Neighbours of the elements. Useful only for the frontier elements.
+
+    std::vector<double> normals; // Vector containing the normals. Only useful for frontier elements.
+
 };
 
 typedef struct Element Element;

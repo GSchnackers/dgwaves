@@ -9,8 +9,8 @@ void frontierCreation(const Element mainElement, Element & frontierElement, cons
                       const std::vector<int> sortedNodes);
 
 // Sorting the nodes of the list of the edges to remove duplicate and giving the neighbours of each edge.
-void sortingNeighbouring(Element mainElement, std::vector<int> & nodeSorted,\
-           std::vector<std::pair<int,int>> & neighbours);
+void sortingNeighbouring(const Element & mainElement, Element & frontierElement,\
+                         std::vector<int> & nodeSorted);
 
 /*// Return the normals at each edges
 void normal(const std::vector<int> nodes, std::vector<double> & normal2D,\

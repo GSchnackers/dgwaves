@@ -10,7 +10,7 @@ int main(int argc, char **argv)
     std::size_t i, j;
 
     std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
-    std::vector<std::pair<int,int>> neighbours;
+    std::vector<int> normals; // Vector containing the normal to each frontier element.
     struct Element mainElements; // The main elements of the mesh.
     struct Element frontierElement; // The frontier elements of the mesh.
 
@@ -24,14 +24,18 @@ int main(int argc, char **argv)
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
     gmsh::open(argv[1]);                            // reads the msh file
 
+    // Initialization of the elements of the mesh.
     Initialization(mainElements, 2, 3);
-    sortingNeighbouring(mainElements, sortedNodes, neighbours);
-    for(i = 0; i < sortedNodes.size(); ++i) 
-        std::cout << sortedNodes[i] << " " << neighbours[i/(mainElements.numberFrontierNode)].first << " " << neighbours[i/(mainElements.numberFrontierNode)].second << " " << mainElements.elementTag[neighbours[i/(mainElements.numberFrontierNode)].first] << std::endl;
+
+    // Sorting of the nodes at the frontier of each element.
+    sortingNeighbouring(mainElements, frontierElement, sortedNodes);
+
+    // Creation of the frontier elements on the basis of the vector of sorted nodes.
     frontierCreation(mainElements, frontierElement, 2, sortedNodes);
 
-    // Loop over all entities.
-    
+    // Initialization of the element representing the frontiers.
+    Initialization(frontierElement, 1, 3);
+
 
     gmsh::finalize(); // Closes gmsh
     return 0;
