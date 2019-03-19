@@ -141,7 +141,7 @@ int main(int argc, char **argv)
             invert(matrix_tmp, matrix_tmpInverted);
 
             matrixM_Inverted.insert( matrixM_Inverted.end(), matrix_tmpInverted.begin(), matrix_tmpInverted.end() );
-          
+        
         }
 
 
@@ -593,6 +593,8 @@ int main(int argc, char **argv)
     double timeStep = 0.1;
     double endTime = 10;
 
+    std::vector<double> Su(elementTags2D.size()*numNodes2D);
+
     std::string modelName = names[0];
     std::string dataType = "NodeData";
     gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, data, endTime, 1);
@@ -678,8 +680,43 @@ int main(int argc, char **argv)
             }
         }// end computation vector F
 
-        // du/dt = M^{-1} (S.u + F)
+        // Su à zéro
+        for(std::size_t el=0; el<elementTags2D.size(); el++){
+            for(std::size_t i=0; i<numNodes2D; i++){
 
+                Su[el*numNodes2D + i] = 0;
+            }
+        }
+
+        //Computation of Su = S.u
+        for(std::size_t el=0; el<elementTags2D.size(); el++){
+            for(std::size_t i=0; i<numNodes2D; i++){
+                for(std::size_t j=0; j<numNodes2D; j++){
+
+                    Su[el*numNodes2D + i] += matrixS[el*numNodes2D*numNodes2D + i*numNodes2D + j] * u[el*numNodes2D + j];
+                }
+            }
+        }
+
+
+        // dudt à zéro
+        for(std::size_t el=0; el<elementTags2D.size(); el++){
+            for(std::size_t i=0; i<numNodes2D; i++){
+
+                dudt[el*numNodes2D + i] = 0;
+            }
+        }
+
+        // du/dt = M^{-1} (S.u + F)
+        for(std::size_t el=0; el<elementTags2D.size(); el++){
+            for(std::size_t i=0; i<numNodes2D; i++){
+                for(std::size_t j=0; j<numNodes2D; j++){
+
+                    dudt[el*numNodes2D + i] += matrixM_Inverted[el*numNodes2D*numNodes2D + i*numNodes2D + j]* \
+                                                    (Su[el*numNodes2D + j] + vectorF[el*numNodes2D + j]);
+                }
+            }
+        }
 
         // Forward Euler method
         Forward_Euler_method(u, timeStep, dudt);
