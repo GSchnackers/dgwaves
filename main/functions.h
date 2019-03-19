@@ -33,4 +33,7 @@ void initialCondition(std::vector<double> & coord, double & value);
 // Boundary conditions
 void boundaryConditions(std::vector<double> & coord,double time, double & value);
 
+// Inversion of a square dense matrix.
+void invert(std::vector<double> matrix, std::vector<double> & inverse);
+
 #endif

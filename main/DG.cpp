@@ -78,12 +78,13 @@ int main(int argc, char **argv)
         gmsh::model::mesh::getElementsByType(eleType2D, elementTags2D, nodeTags2D, s2D);
 
         // Get basis functions of 2D elements
-        std::vector<double> intpts2D, bf2D, gradIntPts2D, gradbf2D;
+        std::vector<double> intpts2D, bf2D, gradIntPts2D, gradbf2D, gradbf2DInverse;
         int numComp2D, gradNumComp2D;
         gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "IsoParametric",
                                             intpts2D, numComp2D, bf2D);
         gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "GradLagrange",
                                             gradIntPts2D, gradNumComp2D, gradbf2D);
+        invert(gradbf2D, gradbf2DInverse);
         
         std::cout << "numComp2D : " << std::to_string(numComp2D) << "\n";
         std::cout << "gradNumComp2D : " << std::to_string(gradNumComp2D) << "\n";
@@ -125,8 +126,9 @@ int main(int argc, char **argv)
                     }
                 }
         
-        std::vector<double> matrixM;
+        std::vector<double> matrixM, matrixMInverted;
         gaussIntegration(intpts2D, functionM, det2D, matrixM, numElements2D, numGaussPoints2D, numNodes2D);
+        invert(matrixM, matrixMInverted);
         std::vector<double> matrixS;
         gaussIntegration(intpts2D, functionS, det2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
 
@@ -622,7 +624,7 @@ int main(int argc, char **argv)
 
 
         // Forward Euler method
-        Forward_Euler_method(u, timestep, dudt);
+        //Forward_Euler_method(u, timeStep, dudt);
 
         // Backup of u(t+dt)
         
