@@ -622,9 +622,10 @@ int main(int argc, char **argv)
 
 
         // Forward Euler method
+        Forward_Euler_method(u, timestep, dudt);
 
         // Backup of u(t+dt)
-
+        
         gmsh::view::addModelData(viewtag, time, modelName, dataType, nodeTags2D, data, endTime, 1);
 
         time += timeStep;
