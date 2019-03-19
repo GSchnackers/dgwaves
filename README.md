@@ -20,14 +20,3 @@ git fetch: permet de mettre à jour les informations de git status.
 git pull: permet de récupérer tous les commit git hub vers le pc et fait un git fetch.
 
 git merge: permet de combiner deux versions.
-
-
-Objectives:
-1) gaussIntegration (Gauderic)
-2) Determination of the direction of the normal (inner/outer) (Nico)
-3) Find near elements (Nico)
-4) Choice of the flux function (Simon)
-5) Invert matrix M (Nico)
-6) Forward Euler method (Simon)
-7) Boundary and initial conditions (Gauderic)
-8) Save of data (Gauderic)

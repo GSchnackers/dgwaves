@@ -78,14 +78,22 @@ int main(int argc, char **argv)
         gmsh::model::mesh::getElementsByType(eleType2D, elementTags2D, nodeTags2D, s2D);
 
         // Get basis functions of 2D elements
-        std::vector<double> intpts2D, bf2D, gradIntPts2D, gradbf2D, gradbf2DInverse;
+        std::vector<double> intpts2D, bf2D, gradIntPts2D, gradbf2D;
         int numComp2D, gradNumComp2D;
         gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "IsoParametric",
                                             intpts2D, numComp2D, bf2D);
+
+        // getBasisFunctions with option "GradLagrange" puts 
+        // [g1 df1/du, g1 df1/dv, g1 df1/dw, ..., g1 dfC/dw, g2 df1/du, ...] in basis function
         gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "GradLagrange",
                                             gradIntPts2D, gradNumComp2D, gradbf2D);
-        invert(gradbf2D, gradbf2DInverse);
         
+        // Get jacobian and its determinant of 2D elements
+        std::vector<double> jac2D, det2D, pts2D, jac2DInverted;
+        gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac2D, det2D, pts2D, s2D);
+
+        
+
         std::cout << "numComp2D : " << std::to_string(numComp2D) << "\n";
         std::cout << "gradNumComp2D : " << std::to_string(gradNumComp2D) << "\n";
         for(size_t i = 0; i < intpts2D.size(); i++){
@@ -101,37 +109,87 @@ int main(int argc, char **argv)
             std::cout << "gradbf2D[" << std::to_string(i) << "] : " << std::to_string(gradbf2D[i]) << "\n";
         }
 
-        // Get jacobian and its determinant of 2D elements
-        std::vector<double> jac2D, det2D, pts2D;
-        gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac2D, det2D, pts2D, s2D);
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////   Matrix M & S   //////////////////////////////////////////////////////////////
+////////////////////////////     Matrix M     //////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // function to integrate with Gauss integration to get the matrix M & S
+        // function to integrate with Gauss integration to get the matrix M
         std::vector<double> functionM;
-        std::vector<double> functionS;
         int numElements2D = elementTags2D.size();
         int numGaussPoints2D = intpts2D.size()/4;
         
         for(std::size_t e = 0; e < numElements2D; e++)
             for(std::size_t i = 0; i < numNodes2D; i++)
                 for(std::size_t j = 0; j < numNodes2D; j++)
-                {
                     for(std::size_t g = 0; g < numGaussPoints2D; g++){
                         functionM.push_back(bf2D[numNodes2D*g + i] * bf2D[numNodes2D*g + j]);
-                        functionS.push_back((coefF[0]*gradbf2D[3*(numNodes2D*g + i)]\
-                                        + coefF[1]*gradbf2D[3*(numNodes2D*g + i) + 1])*bf2D[numNodes2D*g + j]);
+                    }
+        
+        std::vector<double> matrixM, matrixM_Inverted;
+        gaussIntegration(intpts2D, functionM, det2D, matrixM, numElements2D, numGaussPoints2D, numNodes2D);
+
+        std::vector<double> matrix_tmp(numNodes2D*numNodes2D), matrix_tmpInverted(numNodes2D*numNodes2D);
+
+        // loop on 2D element and putting the matrices which are concatenated in a matrix for one element : matrix_tmp
+        for(std::size_t e=0; e<elementTags2D.size(); e++){
+
+            for(std::size_t i=0; i<numNodes2D; i++){
+                for(std::size_t j=0; j<numNodes2D; j++){
+                    matrix_tmp[i*numNodes2D + j] = matrixM[e*numNodes2D*numNodes2D + i*numNodes2D + j];
+                }
+            }
+            invert(matrix_tmp, matrix_tmpInverted);
+
+            matrixM_Inverted.insert( matrixM_Inverted.end(), matrix_tmpInverted.begin(), matrix_tmpInverted.end() );
+          
+        }
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////     Matrix S     //////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+        // attention la matrice jacobienne est toujours 3D
+        std::vector<double> matrix3x3_tmp(9), matrix3x3_tmpInverted(9);
+        // loop on 2D element and putting the matrices which are concatenated in a matrix for one element : matrix3x3_tmp
+        for(std::size_t e=0; e<elementTags2D.size();e++){
+            for(std::size_t g=0; g<numGaussPoints2D; g++){
+
+                for(std::size_t i=0; i<3; i++){
+                    for(std::size_t j=0; j<3; j++){
+                        matrix3x3_tmp[i*3 + j] = jac2D[e*numGaussPoints2D*9 + g*9 + i*3 + j];
                     }
                 }
+                invert(matrix3x3_tmp, matrix3x3_tmpInverted);
+
+                jac2DInverted.insert( jac2DInverted.end(), matrix3x3_tmpInverted.begin(), matrix_tmpInverted.end() );
+            }
+        }// fin d'invertion
+
+
+        // function to integrate with Gauss integration to get the matrix S
+        std::vector<double> functionS;
+        double dfdx = 0, dfdy = 0;
+
+        // [g1 df1/du, g1 df1/dv, g1 df1/dw, g1 df2/du ..., g1 dfN/dw, g2 df1/du, ...] in gradbf2D (N number of nodes of 2D element)
+
+        for(std::size_t e = 0; e < numElements2D; e++)
+            for(std::size_t i = 0; i < numNodes2D; i++)
+                for(std::size_t j = 0; j < numNodes2D; j++)
+                    for(std::size_t g = 0; g < numGaussPoints2D; g++){
+                        for(std::size_t k = 0; k < 2; k++){
+                            dfdx += gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3];
+                            dfdy += gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3 + 1];
+                        }
+                        functionS.push_back((coefF[0]*dfdx + coefF[1]*dfdy)*bf2D[numNodes2D*g + j]);
+                        dfdx = 0;
+                        dfdy = 0;
+                    }
         
-        std::vector<double> matrixM, matrixMInverted;
-        gaussIntegration(intpts2D, functionM, det2D, matrixM, numElements2D, numGaussPoints2D, numNodes2D);
-        invert(matrixM, matrixMInverted);
         std::vector<double> matrixS;
         gaussIntegration(intpts2D, functionS, det2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
-
         
         for(std::size_t e = 0; e < numElements2D; e++)
             for(std::size_t i = 0; i < numNodes2D; i++){
@@ -157,6 +215,9 @@ int main(int argc, char **argv)
 
         //list of du/dt
         std::vector<double> dudt(u.size());
+
+        //all data
+        std::vector<std::vector<double>> data(u.size());
 
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
@@ -534,7 +595,7 @@ int main(int argc, char **argv)
 
     std::string modelName = names[0];
     std::string dataType = "NodeData";
-    gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, u, endTime, 1);
+    gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, data, endTime, 1);
 
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
@@ -621,12 +682,10 @@ int main(int argc, char **argv)
 
 
         // Forward Euler method
-        //Forward_Euler_method(u, timeStep, dudt);
+        Forward_Euler_method(u, timeStep, dudt);
 
         // Backup of u(t+dt)
-
-
-        gmsh::view::addModelData(viewtag, time, modelName, dataType, nodeTags2D, u, endTime, 1);
+        gmsh::view::addModelData(viewtag, time, modelName, dataType, nodeTags2D, data, endTime, 1);
 
         time += timeStep;
     }

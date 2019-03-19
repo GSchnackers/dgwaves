@@ -2,7 +2,7 @@
 #define FUNCTIONS_H
 
 // Forward Euler method
-void Forward_Euler_method(std::vector<double> & u, const double timestep, const std::vector<double> dudt);
+void Forward_Euler_method(std::vector<double> & u, const double timestep, const std::vector<double> & dudt);
 
 // Compute the integration of Gauss
 void gaussIntegration(const std::vector<double> & integrationPoints, const std::vector<double> & functions,
