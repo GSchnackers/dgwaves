@@ -154,7 +154,7 @@ int main(int argc, char **argv)
         
 
         // Computation of the normals to the elements.
-
+        /*
         std::vector<double> normal2D;
         normal(nodes, normal2D);
 
@@ -162,6 +162,9 @@ int main(int argc, char **argv)
 
         for (std::size_t j = 0; j < nodes.size(); j+=2)
             gmsh::logger::write("Normal[" + std::to_string(j/2) + "] ( " + std::to_string(normal2D[j]) + " , " + std::to_string(normal2D[j+1]) + " ) ");
+        */
+
+
 
         // create a new discrete entity of dimension 1
 
@@ -247,7 +250,13 @@ int main(int argc, char **argv)
                             " elements on curve " + std::to_string(c));
         std::vector<double> jac, det, pts;
         gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac, det, pts, c);
+
+        std::cout << "lenght of elementTags = " << std::to_string(elementTags.size()) << "\n";
+        std::cout << "lenght of nodeTags = " << std::to_string(nodeTags.size()) << "\n";
     }
+
+
+    
 
     //gmsh::fltk::run();
 

@@ -269,6 +269,17 @@ int main(int argc, char **argv)
     std::vector<int> elementTags1D, nodeTags1D;
     gmsh::model::mesh::getElementsByType(eleType1D, elementTags1D, nodeTags1D, c);
 
+    std::cout << "lenght of elementTags1D = " << std::to_string(elementTags1D.size()) << "\n";
+
+    for(size_t i = 0; i < elementTags1D.size(); i++){
+        std::cout << "elementTags1D[" << std::to_string(i) << "] : " << std::to_string(elementTags1D[i]) << "\n";
+    }
+
+    for(size_t i = 0; i < nodeTags1D.size(); i++){
+        std::cout << "nodeTags1D[" << std::to_string(i) << "] : " << std::to_string(nodeTags1D[i]) << "\n";
+    }
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
