@@ -1,4 +1,4 @@
-SET(SRCS main.cpp sorting.cpp normal.cpp gaussIntegration.cpp gradient.cpp neighbours.cpp matrices.cpp)
+SET(SRCS main.cpp sorting.cpp normal.cpp gaussIntegration.cpp gradient.cpp neighbours.cpp invert.cpp)
 ADD_EXECUTABLE(main ${SRCS})
 TARGET_LINK_LIBRARIES(main ${GMSH_LIBRARIES})
 TARGET_LINK_LIBRARIES(main ${EIGEN_LIBRARIES})
