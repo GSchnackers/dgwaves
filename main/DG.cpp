@@ -723,8 +723,11 @@ int main(int argc, char **argv)
         // Forward Euler method
         Forward_Euler_method(u, timeStep, dudt);
 
+        //fill data with u
+        data[][] =
+
         // Backup of u(t+dt)
-        gmsh::view::addModelData(viewtag, time, modelName, dataType, nodeTags2D, data, endTime, 1);
+        gmsh::view::addModelData(viewtag, time, modelName, dataType, elementTags2D, data, endTime, 1);
 
         time += timeStep;
     }
