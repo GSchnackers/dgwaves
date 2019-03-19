@@ -4,8 +4,8 @@
 #include <cmath>
 #include "functions.h"
 
-void (std::<double> coord,double time, double & value){
+void boundaryConditions(std::vector<double> & coord,double time, double & value){
     
-    L=0.25; //longueur d'onde
-    value=sin(2*pi*t); // vague comme quand une goute tombe dans l'eau
+    double L = 0.25; //longueur d'onde
+    value=sin(2*M_PI*time); // vague comme quand une goute tombe dans l'eau
 }
