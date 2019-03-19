@@ -191,7 +191,7 @@ int main(int argc, char **argv)
         std::vector<double> matrixS;
         gaussIntegration(intpts2D, functionS, det2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
         
-        for(std::size_t e = 0; e < numElements2D; e++)
+        for(std::size_t e = 0; e < numElements2D; e++){
             for(std::size_t i = 0; i < numNodes2D; i++){
                 for(std::size_t j = 0; j < numNodes2D; j++)
                 {
@@ -199,6 +199,8 @@ int main(int argc, char **argv)
                 }
                 std::cout << "\n";
             }
+            std::cout << "\n";
+        }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////// Nodal values of u and list of nodes for each element ///////////////////////////////////////
