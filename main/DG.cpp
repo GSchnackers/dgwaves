@@ -143,6 +143,9 @@ int main(int argc, char **argv)
         //list of nodal values
         std::vector<double> u(nodeTags2D.size());
 
+        //list of du/dt
+        std::vector<double> dudt(u.size());
+
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
         std::vector<double> nodeCoordParam(3);
@@ -596,8 +599,10 @@ int main(int argc, char **argv)
 
                 }        
             }
-        }
+        }// end computation vector F
+
         // du/dt = M^{-1} (S.u + F)
+
 
         // Forward Euler method
 
