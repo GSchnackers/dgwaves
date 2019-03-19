@@ -65,24 +65,39 @@ int main(int argc, char **argv)
         gmsh::model::mesh::getElementsByType(eleType2D, elementTags2D, nodeTags2D, s2D);
 
         // Get basis functions of 2D elements
-        std::vector<double> intpts2D, bf2D;
-        int numComp2D;
+        std::vector<double> intpts2D, bf2D, gradIntPts2D, gradbf2D;
+        int numComp2D, gradNumComp2D;
         gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "IsoParametric",
                                             intpts2D, numComp2D, bf2D);
+        gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "GradLagrange",
+                                            gradIntPts2D, gradNumComp2D, gradbf2D);
+        
+        std::cout << "numComp2D : " << std::to_string(numComp2D) << "\n";
+        std::cout << "gradNumComp2D : " << std::to_string(gradNumComp2D) << "\n";
+        for(size_t i = 0; i < intpts2D.size(); i++){
+            std::cout << "intpts2D[" << std::to_string(i) << "] : " << std::to_string(intpts2D[i]) << "\n";
+        }
+        for(size_t i = 0; i < bf2D.size(); i++){
+            std::cout << "bf2D[" << std::to_string(i) << "] : " << std::to_string(bf2D[i]) << "\n";
+        }
+        for(size_t i = 0; i < gradIntPts2D.size(); i++){
+            std::cout << "gradIntPts2D[" << std::to_string(i) << "] : " << std::to_string(gradIntPts2D[i]) << "\n";
+        }
+        for(size_t i = 0; i < gradbf2D.size(); i++){
+            std::cout << "gradbf2D[" << std::to_string(i) << "] : " << std::to_string(gradbf2D[i]) << "\n";
+        }
 
         // Get jacobian and its determinant of 2D elements
         std::vector<double> jac2D, det2D, pts2D;
         gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac2D, det2D, pts2D, s2D);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////     Matrix M     //////////////////////////////////////////////////////////////
+////////////////////////////   Matrix M & S   //////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-        // function to integrate with Gauss integration to get the matrix M
+        // function to integrate with Gauss integration to get the matrix M & S
         std::vector<double> functionM;
+        std::vector<double> functionS;
         int numElements2D = elementTags2D.size();
         int numGaussPoints2D = intpts2D.size()/4;
         
@@ -90,12 +105,27 @@ int main(int argc, char **argv)
             for(std::size_t i = 0; i < numNodes2D; i++)
                 for(std::size_t j = 0; j < numNodes2D; j++)
                 {
-                    for(std::size_t g = 0; g < numGaussPoints2D; g++)
+                    for(std::size_t g = 0; g < numGaussPoints2D; g++){
                         functionM.push_back(bf2D[numNodes2D*g + i] * bf2D[numNodes2D*g + j]);
+                        functionS.push_back((coefF[0]*gradbf2D[3*(numNodes2D*g + i)]\
+                                        + coefF[1]*gradbf2D[3*(numNodes2D*g + i) + 1])*bf2D[numNodes2D*g + j]);
+                    }
                 }
         
         std::vector<double> matrixM;
         gaussIntegration(intpts2D, functionM, det2D, matrixM, numElements2D, numGaussPoints2D, numNodes2D);
+        std::vector<double> matrixS;
+        gaussIntegration(intpts2D, functionS, det2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
+
+        
+        for(std::size_t e = 0; e < numElements2D; e++)
+            for(std::size_t i = 0; i < numNodes2D; i++)
+                for(std::size_t j = 0; j < numNodes2D; j++)
+                {
+                    std::cout << "Élément " << std::to_string(e) << " M(" << std::to_string(i) << ","\
+                     << std::to_string(j) << ") = " << std::to_string(matrixM[numNodes2D*(numNodes2D*e + i) + j])\
+                     << "\n";
+                }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////// Nodal values of u and list of nodes for each element ///////////////////////////////////////
@@ -148,27 +178,10 @@ int main(int argc, char **argv)
                                             numNodes1D, paramCoord1D);
 
     // Get basis functions of 1D elements
-    std::vector<double> intpts1D, bf1D, gradIntPts1D, gradbf1D;
-    int numComp1D, gradNumComp1D;
+    std::vector<double> intpts1D, bf1D;
+    int numComp1D;
     gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
                                          intpts1D, numComp1D, bf1D);
-    gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "GradLagrange",
-                                         gradIntPts1D, gradNumComp1D, gradbf1D);
-    
-    std::cout << "numComp1D : " << std::to_string(numComp1D) << "\n";
-    std::cout << "gradNumComp1D : " << std::to_string(gradNumComp1D) << "\n";
-    for(size_t i = 0; i < intpts1D.size(); i++){
-        std::cout << "intpts1D[" << std::to_string(i) << "] : " << std::to_string(intpts1D[i]) << "\n";
-    }
-    for(size_t i = 0; i < bf1D.size(); i++){
-        std::cout << "bf1D[" << std::to_string(i) << "] : " << std::to_string(bf1D[i]) << "\n";
-    }
-    for(size_t i = 0; i < gradIntPts1D.size(); i++){
-        std::cout << "gradIntPts1D[" << std::to_string(i) << "] : " << std::to_string(gradIntPts1D[i]) << "\n";
-    }
-    for(size_t i = 0; i < gradbf1D.size(); i++){
-        std::cout << "gradbf1D[" << std::to_string(i) << "] : " << std::to_string(gradbf1D[i]) << "\n";
-    }
 
     // Get jacobian and its determinant of 1D elements
     std::vector<double> jac1D, det1D, pts1D;
@@ -177,27 +190,6 @@ int main(int argc, char **argv)
     // Get 2D elements of type eleType2D
     std::vector<int> elementTags1D, nodeTags1D;
     gmsh::model::mesh::getElementsByType(eleType1D, elementTags1D, nodeTags1D, c);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////     Matrix S     //////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // function to integrate with Gauss integration to get the matrix S
-    std::vector<double> functionS;
-    int numElements1D = elementTags1D.size();
-    int numGaussPoints1D = intpts1D.size()/4;
-    
-    for(std::size_t e = 0; e < numElements1D; e++)
-        for(std::size_t i = 0; i < numNodes1D; i++)
-            for(std::size_t j = 0; j < numNodes1D; j++)
-            {
-                for(std::size_t g = 0; g < numGaussPoints1D; g++)
-                    functionS.push_back((coefF[0]*gradbf1D[3*(numNodes1D*g + i)]\
-                                        + coefF[1]*gradbf1D[3*(numNodes1D*g + i) + 1])*bf1D[numNodes1D*g + j]);
-            }
-    
-    std::vector<double> matrixS;
-    gaussIntegration(intpts1D, functionS, det1D, matrixS, numElements1D, numGaussPoints1D, numNodes1D);
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -496,9 +488,6 @@ int main(int argc, char **argv)
 
     //gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);  det1DSorted
 
-
-    int NumGaussPoint1D = bf1D.size()/NumNodesSide;
-
     //loop for each edge
     for(std::size_t ed; ed < tagElement1DSorted.size(); ed++){
         //loop for i of F_{ij}
@@ -510,7 +499,7 @@ int main(int argc, char **argv)
 
                     matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] += \
                      (normal[ed*2]*coefF[0] + normal[ed*2+1]*coefF[1]) * bf1D[g*NumGaussPoint1D + i] * bf1D[g*NumGaussPoint1D + j] \
-                     * intpts1D[3 + 4*g] * det1DSorted[ed*NumGaussPoints + g];
+                     * intpts1D[3 + 4*g] * det1DSorted[ed*NumGaussPoint1D + g];
 
                 }
             }
@@ -537,7 +526,7 @@ int main(int argc, char **argv)
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
             gmsh::model::mesh::getNode(nodeTags2DPlusBC[i], nodeCoord, nodeCoordParam);
             boundaryConditions(nodeCoord, time, value);
-            uplusBC[i]=value;
+            uPlusBC[i]=value;
         }
 
         // initialisation to 0 of vector F

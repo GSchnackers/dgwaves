@@ -30,4 +30,7 @@ void vectorF(std::vector<double> & vectorF, const double a_x, const double a_y,\
 // Initial condition
 void initialCondition(std::vector<double> & coord, double & value);
 
+// Boundary conditions
+void boundaryConditions(std::vector<double> & coord,double time, double & value);
+
 #endif
