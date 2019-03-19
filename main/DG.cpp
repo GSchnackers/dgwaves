@@ -722,7 +722,14 @@ int main(int argc, char **argv)
         Forward_Euler_method(u, timeStep, dudt);
 
         //fill data with u
-        data[][] =
+        for(std::size_t e=0; e<elementTags2D.size(); e++){
+
+            data[e].resize(numNodes2D);
+            for(std::size_t i=0; i<numNodes2D; e++){
+                                
+                data[e][i] = u[e*numNodes2D + i];
+            }  
+        }
 
         // Backup of u(t+dt)
         gmsh::view::addModelData(viewtag, time, modelName, dataType, elementTags2D, data, endTime, 1);
