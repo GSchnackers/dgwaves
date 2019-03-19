@@ -164,7 +164,7 @@ int main(int argc, char **argv)
                 }
                 invert(matrix3x3_tmp, matrix3x3_tmpInverted);
 
-                jac2DInverted.insert( jac2DInverted.end(), matrix3x3_tmpInverted.begin(), matrix_tmpInverted.end() );
+                jac2DInverted.insert( jac2DInverted.end(), matrix3x3_tmpInverted.begin(), matrix3x3_tmpInverted.end() );
             }
         }// fin d'invertion
 
