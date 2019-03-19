@@ -5,6 +5,15 @@
 
 int main(int argc, char **argv)
 {
+    // coefF = [a_x ; a_y] the speed of the transport
+    std::vector<double> coefF(2);
+
+    // The user has to choose the values he wants for coefF
+    coefF[0] = 1; //example
+    coefF[1] = 0; //example
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Check of arguments
     if (argc < 2)
     {
@@ -16,6 +25,12 @@ int main(int argc, char **argv)
     gmsh::initialize(argc, argv);
     gmsh::option::setNumber("General.Terminal", 1);
     gmsh::open(argv[1]);
+
+    std::vector<std::string> names;
+    gmsh::model::list(names);
+
+    // Create a new post-processing view
+    int viewtag = gmsh::view::add("my results");
 
     // Get types of 2D elements and check if the mesh is not hybrid
     std::vector<int> eleTypes;
@@ -53,8 +68,6 @@ int main(int argc, char **argv)
     // get the nodes on the edges of the 2D elements
     std::vector<int> edgeNodes2D;
     
-    // coefF = [a_x ; a_y] the speed of the transport
-    std::vector<double> coefF(2);
 
     // Loop on surfaces in the mesh
     //for (std::size_t i = 0; i < entities2D.size(); i++)
@@ -119,21 +132,18 @@ int main(int argc, char **argv)
 
         
         for(std::size_t e = 0; e < numElements2D; e++)
-            for(std::size_t i = 0; i < numNodes2D; i++)
+            for(std::size_t i = 0; i < numNodes2D; i++){
                 for(std::size_t j = 0; j < numNodes2D; j++)
                 {
-                    std::cout << "Élément " << std::to_string(e) << " M(" << std::to_string(i) << ","\
-                     << std::to_string(j) << ") = " << std::to_string(matrixM[numNodes2D*(numNodes2D*e + i) + j])\
-                     << "\n";
+                    std::cout << std::to_string(matrixS[numNodes2D*(numNodes2D*e + i) + j]) << " ";
                 }
+                std::cout << "\n";
+            }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////// Nodal values of u and list of nodes for each element ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // The user has to choose the values he wants for coefF
-        coefF[0] = 3.78; //example
-        coefF[1] = 1.41; //example
 
         // get the nodes on the edges of the 2D elements
         gmsh::model::mesh::getElementEdgeNodes(eleType2D, edgeNodes2D, s2D);
@@ -142,6 +152,8 @@ int main(int argc, char **argv)
 
         //list of nodal values
         std::vector<double> u(nodeTags2D.size());
+
+        std::vector<std::vector<double> > data(u.size());  // check this size!!
 
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
@@ -517,6 +529,10 @@ int main(int argc, char **argv)
     double timeStep = 0.1;
     double endTime = 10;
 
+    std::string modelName = names[0];
+    std::string dataType = "NodeData";
+    gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, data, endTime, 1);
+
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
 
@@ -603,13 +619,15 @@ int main(int argc, char **argv)
 
         // Backup of u(t+dt)
 
+        gmsh::view::addModelData(viewtag, time, modelName, dataType, nodeTags2D, data, endTime, 1);
+
         time += timeStep;
     }
 
     
 
 
-
+    gmsh::view::write(viewtag, std::string("results.msh"));
 
 
 
