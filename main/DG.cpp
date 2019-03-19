@@ -548,7 +548,7 @@ int main(int argc, char **argv)
         // computation vector F
         for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
 
-            if(upwind == 1){
+            if(upwind[ed] == 1){
 
                 if(neighbours1D[ed*2] != -1){
                     //fill vectorF .... (produit mat)
@@ -578,7 +578,7 @@ int main(int argc, char **argv)
                 }
             } 
         
-            if(upwind == -1){
+            if(upwind[ed] == -1){
             // same as upwind == 1 except we take "indicesNei2" to compute the flow            
                 if(neighbours1D[ed*2] != -1){
                     //fill vectorF .... (produit mat)
