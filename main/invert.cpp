@@ -5,18 +5,22 @@
 #include <cmath>
 #include "functions.h"
 
-// Carefus, matrix contains only 1 matrix!!!
+// Careful, matrix contains only 1 matrix!!!
 
-void invert(std::vector<double> matrix, std::vector<double> & invert){
+void invert(std::vector<double> matrix, std::vector<double> & inverse){
 
     std::size_t i, j;
-    Eigen::MatrixXd tmp(int(std::sqrt(matrix.size())),int(std::sqrt(matrix.size())));
     int lineSize = std::sqrt(matrix.size());
+    Eigen::MatrixXd tmp(lineSize, lineSize);
 
-    for(i = 0; i < matrix.size(); ++i){
+    for(i = 0; i < matrix.size(); i += lineSize)
+        for(j = 0; j < lineSize; ++j)
+            tmp(i,j) = matrix[lineSize*i + j];
 
-        //tmp();
+    tmp = tmp.inverse();
 
-    }
+    for(i = 0; i < matrix.size(); i += lineSize)
+        for(j = 0; j < lineSize; ++j)
+            inverse.push_back(tmp(i,j));
 
 }
