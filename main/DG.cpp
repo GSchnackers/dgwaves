@@ -156,9 +156,6 @@ int main(int argc, char **argv)
         //list of du/dt
         std::vector<double> dudt(u.size());
 
-        //all data pour affichage
-        std::vector<std::vector<double> > data(u.size());
-
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
         std::vector<double> nodeCoordParam(3);
@@ -535,7 +532,7 @@ int main(int argc, char **argv)
 
     std::string modelName = names[0];
     std::string dataType = "NodeData";
-    gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, data, endTime, 1);
+    gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, u, endTime, 1);
 
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
@@ -625,8 +622,9 @@ int main(int argc, char **argv)
         Forward_Euler_method(u, timestep, dudt);
 
         // Backup of u(t+dt)
-        
-        gmsh::view::addModelData(viewtag, time, modelName, dataType, nodeTags2D, data, endTime, 1);
+
+
+        gmsh::view::addModelData(viewtag, time, modelName, dataType, nodeTags2D, u, endTime, 1);
 
         time += timeStep;
     }
