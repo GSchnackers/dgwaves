@@ -9,6 +9,8 @@
 void invert(std::vector<double> matrix, std::vector<double> & inverse){
 
     std::size_t i, j;
+    std::vector<double> inverse1;
+    
     // Computation of the number of rows (= number of columns as the matrix is square).
     int lineSize = std::sqrt(matrix.size());
 
@@ -27,6 +29,7 @@ void invert(std::vector<double> matrix, std::vector<double> & inverse){
     // Transfusion from the matrix to the inverted vector.
     for(i = 0; i < lineSize; ++i)
         for(j = 0; j < lineSize; ++j)
-            inverse.push_back(tmp.coeff(i,j));
-            
+            inverse1.push_back(tmp.coeff(i,j));
+    
+    inverse = inverse1;
 }

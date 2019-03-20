@@ -92,22 +92,8 @@ int main(int argc, char **argv)
         std::vector<double> jac2D, det2D, pts2D, jac2DInverted;
         gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac2D, det2D, pts2D, s2D);
 
+        std::vector<double> detS2D(det2D.size());
         
-
-        std::cout << "numComp2D : " << std::to_string(numComp2D) << "\n";
-        std::cout << "gradNumComp2D : " << std::to_string(gradNumComp2D) << "\n";
-        for(size_t i = 0; i < intpts2D.size(); i++){
-            std::cout << "intpts2D[" << std::to_string(i) << "] : " << std::to_string(intpts2D[i]) << "\n";
-        }
-        for(size_t i = 0; i < bf2D.size(); i++){
-            std::cout << "bf2D[" << std::to_string(i) << "] : " << std::to_string(bf2D[i]) << "\n";
-        }
-        for(size_t i = 0; i < gradIntPts2D.size(); i++){
-            std::cout << "gradIntPts2D[" << std::to_string(i) << "] : " << std::to_string(gradIntPts2D[i]) << "\n";
-        }
-        for(size_t i = 0; i < gradbf2D.size(); i++){
-            std::cout << "gradbf2D[" << std::to_string(i) << "] : " << std::to_string(gradbf2D[i]) << "\n";
-        }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////     Matrix M     //////////////////////////////////////////////////////////////
@@ -163,10 +149,24 @@ int main(int argc, char **argv)
                     }
                 }
                 invert(matrix3x3_tmp, matrix3x3_tmpInverted);
-
-                jac2DInverted.insert( jac2DInverted.end(), matrix3x3_tmpInverted.begin(), matrix3x3_tmpInverted.end() );
+                
+                jac2DInverted.insert(jac2DInverted.end(), matrix3x3_tmpInverted.begin(), matrix3x3_tmpInverted.end());
+                detS2D[numGaussPoints2D*e + g] = 1;
             }
         }// fin d'invertion
+
+        for(std::size_t e=0; e<elementTags2D.size();e++){
+            for(std::size_t g=0; g<numGaussPoints2D; g++){
+                std::cout << "e" << std::to_string(e) << " g" << std::to_string(g) << "\n";
+                for(std::size_t i=0; i<3; i++){
+                    for(std::size_t j=0; j<3; j++){
+                        std::cout << std::to_string(jac2DInverted[e*numGaussPoints2D*9 + g*9 + i*3 + j]);
+                    }
+                    std::cout << "\n";
+                }
+                std::cout << "\n";
+            }
+        }
 
 
         // function to integrate with Gauss integration to get the matrix S
@@ -175,21 +175,22 @@ int main(int argc, char **argv)
 
         // [g1 df1/du, g1 df1/dv, g1 df1/dw, g1 df2/du ..., g1 dfN/dw, g2 df1/du, ...] in gradbf2D (N number of nodes of 2D element)
 
-        for(std::size_t e = 0; e < numElements2D; e++)
+        for(std::size_t e = 0; e < numElements2D; e++){
             for(std::size_t i = 0; i < numNodes2D; i++)
                 for(std::size_t j = 0; j < numNodes2D; j++)
                     for(std::size_t g = 0; g < numGaussPoints2D; g++){
                         for(std::size_t k = 0; k < 2; k++){
-                            dfdx += gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3];
-                            dfdy += gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3 + 1];
+                            dfdx += (gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3]);
+                            dfdy += (gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3 + 1]);
                         }
-                        functionS.push_back((coefF[0]*dfdx + coefF[1]*dfdy)*bf2D[numNodes2D*g + j]);
+                        functionS.push_back(jac2DInverted[9*e + 8] * (coefF[0]*dfdx + coefF[1]*dfdy)*bf2D[numNodes2D*g + i]);
                         dfdx = 0;
                         dfdy = 0;
                     }
+        }
         
         std::vector<double> matrixS;
-        gaussIntegration(intpts2D, functionS, det2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
+        gaussIntegration(intpts2D, functionS, detS2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
         
         for(std::size_t e = 0; e < numElements2D; e++){
             for(std::size_t i = 0; i < numNodes2D; i++){
