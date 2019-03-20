@@ -265,7 +265,7 @@ int main(int argc, char **argv)
     std::vector<double> jac1D, det1D, pts1D;
     gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);
 
-    // Get 2D elements of type eleType2D
+    // Get 1D elements of type eleType1D
     std::vector<int> elementTags1D, nodeTags1D;
     gmsh::model::mesh::getElementsByType(eleType1D, elementTags1D, nodeTags1D, c);
 
