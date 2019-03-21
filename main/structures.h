@@ -26,12 +26,15 @@ struct Element{
     int numNodes; // Number of nodes of the element.
 
     std::vector<double> shapeFunctionsParam; // Shape functions at the Gauss points in parametric coordinates.
-    int numComponentShapeFunctions; // Number of components of each shapeFunctions.
+    int numShapeFunctions; // Number of shape functions.
 
+    std::vector<double> shapeFunctionsGrad; // Shape functions gradient at the Gauss points in real coordinates.
     std::vector<double> shapeFunctionsGradParam; // Shape functions gradient at the Gauss points in parametric coordinates.
-    int numComponentShapeFunctionsGrad; // Number of components of each gradient of shapeFunctions.
     
-    std::vector<double> gaussPointsParam; // Gauss points in parametric coordiantes.
+    std::vector<double> gaussPointsParam; // Gauss points in parametric coordinates.
+    std::vector<double> gaussPoints; // Gauss points real coordinates.
+
+    int gaussType; // Contains the number of gauss points on the element.
 
     int numberFrontierNode; // The number of nodes per edge of an element.
 
@@ -39,6 +42,7 @@ struct Element{
     std::vector<double> stiffnessMatrix; // stiffness matrix of the element.
 
     std::vector<double> jacobians; // Jacobians of the element at the gauss points.
+    std::vector<double> jacobiansDet; // Jacobians of the element at the gauss points.
 
     std::vector<int> frontierNode; // Nodes at the frontier of the element.
 

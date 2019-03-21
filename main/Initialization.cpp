@@ -12,7 +12,9 @@ void Initialization(Element & element, const int meshDim, const int gaussType){
 
     gmsh::vectorpair entities; // Vector pair used to contain the dimension and tags of entities.
 
-    std::vector<double> bin1, bin2, bin3; // Variable used to collect useless results.
+    std::vector<double> bin; // Variable used to collect useless results.
+
+    element.gaussType = gaussType;
 
     // Integration Type definition.
     std::string integrationType = "Gauss" + std::to_string(gaussType);
@@ -63,16 +65,16 @@ void Initialization(Element & element, const int meshDim, const int gaussType){
 
     // Gets the shape functions of the elements at the Gauss points;
     gmsh::model::mesh::getBasisFunctions(element.elementType[0], integrationType, "IsoParametric",\
-                                element.gaussPointsParam, element.numComponentShapeFunctions,\
+                                element.gaussPointsParam, element.numShapeFunctions,\
                                 element.shapeFunctionsParam);
 
     // Gets the gradient of the shape functions of the elements at the Gauss points;
-    gmsh::model::mesh::getBasisFunctions(element.elementType[0], integrationType, "GradIsoParametric",\
-                                            bin1, element.numComponentShapeFunctionsGrad,\
+    gmsh::model::mesh::getBasisFunctions(element.elementType[0], integrationType, "GradLagrange",\
+                                            bin, element.numShapeFunctions,\
                                             element.shapeFunctionsGradParam);
 
     // Gets the jacobian at each Gauss point of the elements.
-    gmsh::model::mesh::getJacobians(element.elementType[0], integrationType, bin2, element.jacobians,\
-                                    bin3);
+    gmsh::model::mesh::getJacobians(element.elementType[0], integrationType, element.jacobians,\
+                                    element.jacobiansDet, element.gaussPoints);
 
 }

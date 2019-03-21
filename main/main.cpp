@@ -25,16 +25,24 @@ int main(int argc, char **argv)
     gmsh::open(argv[1]);                            // reads the msh file
 
     // Initialization of the elements of the mesh.
+    gmsh::logger::write("Initializing the main elements of the mesh...");
     Initialization(mainElements, 2, 3);
+    std::cout << "Done." << std::endl;
 
     // Sorting of the nodes at the frontier of each element.
+    gmsh::logger::write("Collection of the information for creating the frontier elements...");
     sortingNeighbouring(mainElements, frontierElement, sortedNodes);
+    std::cout << "Done." << std::endl;
 
     // Creation of the frontier elements on the basis of the vector of sorted nodes.
+    gmsh::logger::write("Creation of the frontier elements...");
     frontierCreation(mainElements, frontierElement, 2, sortedNodes);
+    std::cout << "Done." << std::endl;
 
     // Initialization of the element representing the frontiers.
+    gmsh::logger::write("Initialization of the frontier elements...");
     Initialization(frontierElement, 1, 3);
+    std::cout << "Done." << std::endl;
 
 
     gmsh::finalize(); // Closes gmsh
