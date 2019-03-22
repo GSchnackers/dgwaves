@@ -234,6 +234,10 @@ int main(int argc, char **argv)
             u[i]=value;
         }
 
+        for(size_t i = 0; i < u.size(); i++){
+            std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
+        }
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// Entity 1D ////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +245,7 @@ int main(int argc, char **argv)
         // Add an entity to contain the sorted edges
         c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
-        gmsh::model::mesh::setElementsByType(1, c, eleType1D, tagElement1D, edgeNodes1D);
+        gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, edgeNodes2D);
 
     //}
     
@@ -284,9 +288,14 @@ int main(int argc, char **argv)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+    tagElement1D = elementTags1D;
+    edgeNodes1D = nodeTags1D;
 
-     int NumNodesSide = edgeNodes1D.size()/tagElement1D.size(); // number of nodes per side 
-     int NumGaussPoint1D = det1D.size()/tagElement1D.size(); // number of gauss point per side
+    int NumNodesSide = edgeNodes1D.size()/tagElement1D.size(); // number of nodes per side 
+    int NumGaussPoint1D = det1D.size()/tagElement1D.size(); // number of gauss point per side
+
+    std::cout << "NumNodesSide = " << std::to_string(NumNodesSide) << "\n";
+    std::cout << "NumGaussPoint1D = " << std::to_string(NumGaussPoint1D) << "\n";
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -436,7 +445,7 @@ int main(int argc, char **argv)
                 // and the vector normal to the edge to know if the normal is in the conventional direction or not
 
                 // index_tmp contient l'index du noeud suivant de l'élément 2D 
-                index_tmp = j+ 2*NumNodesSide % (NumSide2D*NumNodesSide);
+                index_tmp = (j+ 2*NumNodesSide) % (NumSide2D*NumNodesSide);
 
                 //get the coordinates of the begin and end nodes of the next edge of the 2D element
                 gmsh::model::mesh::getNode(edgeNodes2D[j+ NumNodesSide -1], nodeCoord1, nodeCoordParam1);
@@ -606,17 +615,31 @@ int main(int argc, char **argv)
     double time = 0;
     double timeStep = 0.1;
     double endTime = 10;
+    int numStep = endTime/timeStep;
 
     std::vector<double> Su(elementTags2D.size()*numNodes2D);
 
     std::string modelName = names[0];
-    std::string dataType = "NodeData";
-    gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, data, endTime, 1);
+    std::string dataType = "ElementNodeData";
+
+    //fill data with u
+    for(std::size_t e=0; e<elementTags2D.size(); e++){
+
+        data[e].resize(numNodes2D);
+        for(std::size_t i=0; i<numNodes2D; i++){
+                            
+            data[e][i] = u[e*numNodes2D + i];
+        }
+    }
+
+    gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, time, 1);
 
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
 
-    while(time < endTime){
+
+
+    for(std::size_t step=1; time < endTime; step++){
 
         // BC
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
@@ -738,22 +761,19 @@ int main(int argc, char **argv)
         //fill data with u
         for(std::size_t e=0; e<elementTags2D.size(); e++){
 
-            data[e].resize(numNodes2D);
-            for(std::size_t i=0; i<numNodes2D; e++){
+            for(std::size_t i=0; i<numNodes2D; i++){
                                 
                 data[e][i] = u[e*numNodes2D + i];
-            }  
+            }
         }
 
         // Backup of u(t+dt)
-        gmsh::view::addModelData(viewtag, time, modelName, dataType, elementTags2D, data, endTime, 1);
+        gmsh::view::addModelData(viewtag, step, modelName, dataType, elementTags2D, data, time, 1);
 
         time += timeStep;
     }
 
     
-
-
     gmsh::view::write(viewtag, std::string("results.msh"));
 
 
