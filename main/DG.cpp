@@ -664,7 +664,7 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei1[ed*NumNodesSide + i]] += \
-                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei1[ed*NumNodesSide + j]]);
+                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]]);
                         }
                     }
 
@@ -679,7 +679,7 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei2[ed*NumNodesSide + i]] += \
-                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei1[ed*NumNodesSide + j]];
+                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]];
                         }
                     }
 
@@ -694,7 +694,7 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei1[ed*NumNodesSide + i]] += \
-                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei2[ed*NumNodesSide + j]]);
+                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei2[ed*NumNodesSide + j]]);
                         }
                     }
 
@@ -709,7 +709,7 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei2[ed*NumNodesSide + i]] += \
-                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei2[ed*NumNodesSide + j]];
+                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei2[ed*NumNodesSide + j]];
                         }
                     }
 
