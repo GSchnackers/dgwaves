@@ -221,7 +221,7 @@ int main(int argc, char **argv)
 
         //all data
         std::vector<double> tmp(numNodes2D);
-        std::vector<std::vector<double>> data();
+        std::vector<std::vector<double>> data;
 
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
@@ -603,7 +603,7 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     double time = 0;
-    double timeStep = 0.1;
+    double timeStep = 0.2;
     double endTime = 10;
     int numStep = endTime/timeStep;
 
@@ -616,18 +616,15 @@ int main(int argc, char **argv)
     for(std::size_t e=0; e<elementTags2D.size(); e++){
         for(std::size_t i=0; i<numNodes2D; i++){
             tmp[i] = u[e*numNodes2D + i];
-            std::cout << std::to_string(u[e*numNodes2D + i]) << " ";
         }
         data.push_back(tmp);
-        std::cout << "\n";
     }
-    std::cout << std::to_string(data.size()) << " <- data & tags -> " << std::to_string(elementTags2D.size()) << "\n";
+
     gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, time, 1);
 
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
 
-    std::cout << "DEBUT FOR\n";
     for(std::size_t step = 1; time < endTime; step++){
 
         // BC
@@ -642,10 +639,8 @@ int main(int argc, char **argv)
             vectorF[i] = 0;
         }
 
-        std::cout << "BC AND F=0 OK\n";
         // computation vector F
         for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
-            std::cout << std::to_string(ed) << " upwind = 1\n";
             if(upwind[ed] == 1){
 
                 if(neighbours1D[ed*2] != -1){
@@ -654,7 +649,7 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei1[ed*NumNodesSide + i]] += \
-                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei1[ed*NumNodesSide + j]]);
+                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]]);
                         }
                     }
 
@@ -669,13 +664,12 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei2[ed*NumNodesSide + i]] += \
-                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei1[ed*NumNodesSide + j]];
+                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]];
                         }
                     }
 
                 }
-            } 
-            std::cout << std::to_string(ed) << " upwind = 1 OK\n";
+            }
         
             if(upwind[ed] == -1){
             // same as upwind == 1 except we take "indicesNei2" to compute the flow            
@@ -685,7 +679,7 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei1[ed*NumNodesSide + i]] += \
-                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei2[ed*NumNodesSide + j]]);
+                            -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei2[ed*NumNodesSide + j]]);
                         }
                     }
 
@@ -700,17 +694,14 @@ int main(int argc, char **argv)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei2[ed*NumNodesSide + i]] += \
-                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * u[indicesNei2[ed*NumNodesSide + j]];
+                            matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei2[ed*NumNodesSide + j]];
                         }
                     }
 
                 }        
             }
-            std::cout << std::to_string(ed) << " upwind = -1 OK\n";
         }// end computation vector F
 
-        
-        std::cout << "F OK\n";
         // Su à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
             for(std::size_t i=0; i<numNodes2D; i++){
@@ -728,8 +719,6 @@ int main(int argc, char **argv)
                 }
             }
         }
-
-        std::cout << "Su OK\n";
 
         // dudt à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
@@ -750,51 +739,24 @@ int main(int argc, char **argv)
             }
         }
 
-        std::cout << "du/dt OK\n";
         // Forward Euler method
         Forward_Euler_method(u, timeStep, dudt);
 
-        std::cout << "Forward Euler OK\n";
         //fill data with u
         for(std::size_t e=0; e<elementTags2D.size(); e++){
 
             for(std::size_t i=0; i<numNodes2D; i++){
-                std::cout << std::to_string(i) << " \n";
                 data[e][i] = u[e*numNodes2D + i];
             }
         }
 
-        std::cout << "u OK\n";
         // Backup of u(t+dt)
         gmsh::view::addModelData(viewtag, step, modelName, dataType, elementTags2D, data, time, 1);
 
-        std::cout << "Save OK\n";
         time += timeStep;
     }
 
-    
-    
-    std::cout << ".msh\n";
-
     gmsh::view::write(viewtag, std::string("results.msh"));
-
-
-
-    std::cout << ".msh OK\n";
-
-
-
-
-
-    std::cout << "FINAL OK\n";
-    
-    std::cout << "YOUHOU!!!!!\n";
-
-
-
-
-
-
 
 
     gmsh::finalize();
