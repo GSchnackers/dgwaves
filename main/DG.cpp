@@ -220,7 +220,8 @@ int main(int argc, char **argv)
         std::vector<double> dudt(u.size());
 
         //all data
-        std::vector<std::vector<double>> data(u.size());
+        std::vector<double> tmp(numNodes2D);
+        std::vector<std::vector<double>> data();
 
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
@@ -237,11 +238,11 @@ int main(int argc, char **argv)
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// Entity 1D ////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-
+        edgeNodes1D = edgeNodes2D;
         // Add an entity to contain the sorted edges
         c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
-        gmsh::model::mesh::setElementsByType(1, c, eleType1D, tagElement1D, edgeNodes1D);
+        gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, edgeNodes1D);
 
     //}
     
@@ -270,25 +271,14 @@ int main(int argc, char **argv)
     std::vector<int> elementTags1D, nodeTags1D;
     gmsh::model::mesh::getElementsByType(eleType1D, elementTags1D, nodeTags1D, c);
 
-    std::cout << "lenght of elementTags1D = " << std::to_string(elementTags1D.size()) << "\n";
-
-    for(size_t i = 0; i < elementTags1D.size(); i++){
-        std::cout << "elementTags1D[" << std::to_string(i) << "] : " << std::to_string(elementTags1D[i]) << "\n";
-    }
-
-    for(size_t i = 0; i < nodeTags1D.size(); i++){
-        std::cout << "nodeTags1D[" << std::to_string(i) << "] : " << std::to_string(nodeTags1D[i]) << "\n";
-    }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+    tagElement1D = elementTags1D;
 
      int NumNodesSide = edgeNodes1D.size()/tagElement1D.size(); // number of nodes per side 
      int NumGaussPoint1D = det1D.size()/tagElement1D.size(); // number of gauss point per side
-
-
+    
     ///////////////////////////////////////////////////////////////////////////////////////
     //// trier, pour ne plus qu'il y ai de doublon :
     //// edgeNodes1D , tagElement1D , det1D    
@@ -389,11 +379,9 @@ int main(int argc, char **argv)
 
     }
 
-
     ////////////////////////////////////////////////////////////////////////////
     ////////// Find the neighbours of the edges and Find the BC tags ///////////
     ////////////////////////////////////////////////////////////////////////////
-
     int neighbour1D_tmp;
     std::vector<int> neighbours1D(tagElement1DSorted.size()*2,-1); // pour la taille "2*"car 2 voisins par edge,
                                                                 // on initialise à -1 ainsi nous sauront lorsqu'un côté n'a pas de voisin
@@ -419,16 +407,14 @@ int main(int argc, char **argv)
     int check1;
     int check2;
 
-
     //les indices i et j sont les indices du premier noeud de chaque edge    
     for(std::size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
 
         for(std::size_t j=0; j<edgeNodes2D.size(); j+= NumNodesSide){
-
             // Check if the edge is common to the edge of one 2D element
             if((edgeNodes2D[j] == edgeNodes1DSorted[i] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i+ NumNodesSide -1]) \
                 ||(edgeNodes2D[j] == edgeNodes1DSorted[i+ NumNodesSide -1] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i])){
-                    
+                
                 neighbour1D_tmp = j/(NumSide2D*NumNodesSide);
                 // (j/NumNodesSide) is the number("index") of the 2D element
 
@@ -436,7 +422,7 @@ int main(int argc, char **argv)
                 // and the vector normal to the edge to know if the normal is in the conventional direction or not
 
                 // index_tmp contient l'index du noeud suivant de l'élément 2D 
-                index_tmp = j+ 2*NumNodesSide % (NumSide2D*NumNodesSide);
+                index_tmp = (j+ 2*NumNodesSide) % (NumSide2D*NumNodesSide);
 
                 //get the coordinates of the begin and end nodes of the next edge of the 2D element
                 gmsh::model::mesh::getNode(edgeNodes2D[j+ NumNodesSide -1], nodeCoord1, nodeCoordParam1);
@@ -458,6 +444,7 @@ int main(int argc, char **argv)
             } // end check if neighbour
 
         }// fin de boucle sur j   
+    
 
         //fill the tags for BC in nodeTags2DPlusBC
         if(neighbours1D[i/(NumNodesSide)] == -1 || neighbours1D[i/(NumNodesSide) + 1] == -1){
@@ -486,6 +473,7 @@ int main(int argc, char **argv)
         } // end fill tags of BC
 
     }//fin de boucle sur i
+    
 
     ////////////////////////////////////////////////////////////////////////////////////
     // association of the nodes of edgeNodes1DSorted with their indices in nodeTags2D //
@@ -597,6 +585,7 @@ int main(int argc, char **argv)
     }
 
 
+    std::cout << "TIME LOOP\n";
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////           TIME LOOP           /////////////////////////////////////////////////
@@ -610,13 +599,25 @@ int main(int argc, char **argv)
     std::vector<double> Su(elementTags2D.size()*numNodes2D);
 
     std::string modelName = names[0];
-    std::string dataType = "NodeData";
-    gmsh::view::addModelData(viewtag, 0, modelName, dataType, nodeTags2D, data, endTime, 1);
+    std::string dataType = "ElementNodeData";
+
+    //fill data with u
+    for(std::size_t e=0; e<elementTags2D.size(); e++){
+        for(std::size_t i=0; i<numNodes2D; i++){
+            tmp[i] = u[e*numNodes2D + i];
+            std::cout << std::to_string(u[e*numNodes2D + i]) << " ";
+        }
+        data.push_back(tmp);
+        std::cout << "\n";
+    }
+    std::cout << std::to_string(data.size()) << " <- data & tags -> " << std::to_string(elementTags2D.size()) << "\n";
+    gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, time, 1);
 
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
 
-    while(time < endTime){
+    std::cout << "DEBUT FOR\n";
+    for(std::size_t step = 1; time < endTime; step++){
 
         // BC
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
@@ -630,9 +631,10 @@ int main(int argc, char **argv)
             vectorF[i] = 0;
         }
 
+        std::cout << "BC AND F=0 OK\n";
         // computation vector F
         for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
-
+            std::cout << std::to_string(ed) << " upwind = 1\n";
             if(upwind[ed] == 1){
 
                 if(neighbours1D[ed*2] != -1){
@@ -662,6 +664,7 @@ int main(int argc, char **argv)
 
                 }
             } 
+            std::cout << std::to_string(ed) << " upwind = 1 OK\n";
         
             if(upwind[ed] == -1){
             // same as upwind == 1 except we take "indicesNei2" to compute the flow            
@@ -692,8 +695,11 @@ int main(int argc, char **argv)
 
                 }        
             }
+            std::cout << std::to_string(ed) << " upwind = -1 OK\n";
         }// end computation vector F
 
+        
+        std::cout << "F OK\n";
         // Su à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
             for(std::size_t i=0; i<numNodes2D; i++){
@@ -712,6 +718,7 @@ int main(int argc, char **argv)
             }
         }
 
+        std::cout << "Su OK\n";
 
         // dudt à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
@@ -732,37 +739,45 @@ int main(int argc, char **argv)
             }
         }
 
+        std::cout << "du/dt OK\n";
         // Forward Euler method
         Forward_Euler_method(u, timeStep, dudt);
 
+        std::cout << "Forward Euler OK\n";
         //fill data with u
         for(std::size_t e=0; e<elementTags2D.size(); e++){
 
-            data[e].resize(numNodes2D);
-            for(std::size_t i=0; i<numNodes2D; e++){
-                                
+            for(std::size_t i=0; i<numNodes2D; i++){
+                std::cout << std::to_string(i) << " \n";
                 data[e][i] = u[e*numNodes2D + i];
             }  
         }
 
+        std::cout << "u OK\n";
         // Backup of u(t+dt)
-        gmsh::view::addModelData(viewtag, time, modelName, dataType, elementTags2D, data, endTime, 1);
+        gmsh::view::addModelData(viewtag, step, modelName, dataType, elementTags2D, data, time, 1);
 
+        std::cout << "Save OK\n";
         time += timeStep;
     }
 
     
-
+    
+    std::cout << ".msh\n";
 
     gmsh::view::write(viewtag, std::string("results.msh"));
 
 
 
+    std::cout << ".msh OK\n";
 
 
 
 
 
+    std::cout << "FINAL OK\n";
+    
+    std::cout << "YOUHOU!!!!!\n";
 
 
 
