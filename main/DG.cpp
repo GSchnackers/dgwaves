@@ -235,14 +235,18 @@ int main(int argc, char **argv)
             u[i]=value;
         }
 
+        for(size_t i = 0; i < u.size(); i++){
+            std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
+        }
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// Entity 1D ////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-        edgeNodes1D = edgeNodes2D;
+        
         // Add an entity to contain the sorted edges
         c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
-        gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, edgeNodes1D);
+        gmsh::model::mesh::setElementsByType(1, c, eleType1D, {}, edgeNodes2D);
 
     //}
     
@@ -274,11 +278,17 @@ int main(int argc, char **argv)
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    tagElement1D = elementTags1D;
 
-     int NumNodesSide = edgeNodes1D.size()/tagElement1D.size(); // number of nodes per side 
-     int NumGaussPoint1D = det1D.size()/tagElement1D.size(); // number of gauss point per side
-    
+    tagElement1D = elementTags1D;
+    edgeNodes1D = nodeTags1D;
+
+    int NumNodesSide = edgeNodes1D.size()/tagElement1D.size(); // number of nodes per side 
+    int NumGaussPoint1D = det1D.size()/tagElement1D.size(); // number of gauss point per side
+
+    std::cout << "NumNodesSide = " << std::to_string(NumNodesSide) << "\n";
+    std::cout << "NumGaussPoint1D = " << std::to_string(NumGaussPoint1D) << "\n";
+
+
     ///////////////////////////////////////////////////////////////////////////////////////
     //// trier, pour ne plus qu'il y ai de doublon :
     //// edgeNodes1D , tagElement1D , det1D    
@@ -595,6 +605,7 @@ int main(int argc, char **argv)
     double time = 0;
     double timeStep = 0.1;
     double endTime = 10;
+    int numStep = endTime/timeStep;
 
     std::vector<double> Su(elementTags2D.size()*numNodes2D);
 
@@ -750,7 +761,7 @@ int main(int argc, char **argv)
             for(std::size_t i=0; i<numNodes2D; i++){
                 std::cout << std::to_string(i) << " \n";
                 data[e][i] = u[e*numNodes2D + i];
-            }  
+            }
         }
 
         std::cout << "u OK\n";
