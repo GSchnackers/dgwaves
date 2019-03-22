@@ -220,7 +220,8 @@ int main(int argc, char **argv)
         std::vector<double> dudt(u.size());
 
         //all data
-        std::vector<std::vector<double>> data(u.size());
+        std::vector<double> tmp(numNodes2D);
+        std::vector<std::vector<double>> data;
 
         //déclaration coordonnées
         std::vector<double> nodeCoord(3);
@@ -241,7 +242,7 @@ int main(int argc, char **argv)
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// Entity 1D ////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-
+        
         // Add an entity to contain the sorted edges
         c = gmsh::model::addDiscreteEntity(1);
         int eleType1D = gmsh::model::mesh::getElementType("line", order);
@@ -273,16 +274,6 @@ int main(int argc, char **argv)
     // Get 1D elements of type eleType1D
     std::vector<int> elementTags1D, nodeTags1D;
     gmsh::model::mesh::getElementsByType(eleType1D, elementTags1D, nodeTags1D, c);
-
-    std::cout << "lenght of elementTags1D = " << std::to_string(elementTags1D.size()) << "\n";
-
-    for(size_t i = 0; i < elementTags1D.size(); i++){
-        std::cout << "elementTags1D[" << std::to_string(i) << "] : " << std::to_string(elementTags1D[i]) << "\n";
-    }
-
-    for(size_t i = 0; i < nodeTags1D.size(); i++){
-        std::cout << "nodeTags1D[" << std::to_string(i) << "] : " << std::to_string(nodeTags1D[i]) << "\n";
-    }
 
 
 
@@ -398,11 +389,9 @@ int main(int argc, char **argv)
 
     }
 
-
     ////////////////////////////////////////////////////////////////////////////
     ////////// Find the neighbours of the edges and Find the BC tags ///////////
     ////////////////////////////////////////////////////////////////////////////
-
     int neighbour1D_tmp;
     std::vector<int> neighbours1D(tagElement1DSorted.size()*2,-1); // pour la taille "2*"car 2 voisins par edge,
                                                                 // on initialise à -1 ainsi nous sauront lorsqu'un côté n'a pas de voisin
@@ -428,16 +417,14 @@ int main(int argc, char **argv)
     int check1;
     int check2;
 
-
     //les indices i et j sont les indices du premier noeud de chaque edge    
     for(std::size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
 
         for(std::size_t j=0; j<edgeNodes2D.size(); j+= NumNodesSide){
-
             // Check if the edge is common to the edge of one 2D element
             if((edgeNodes2D[j] == edgeNodes1DSorted[i] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i+ NumNodesSide -1]) \
                 ||(edgeNodes2D[j] == edgeNodes1DSorted[i+ NumNodesSide -1] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i])){
-                    
+                
                 neighbour1D_tmp = j/(NumSide2D*NumNodesSide);
                 // (j/NumNodesSide) is the number("index") of the 2D element
 
@@ -467,6 +454,7 @@ int main(int argc, char **argv)
             } // end check if neighbour
 
         }// fin de boucle sur j   
+    
 
         //fill the tags for BC in nodeTags2DPlusBC
         if(neighbours1D[i/(NumNodesSide)] == -1 || neighbours1D[i/(NumNodesSide) + 1] == -1){
@@ -495,6 +483,7 @@ int main(int argc, char **argv)
         } // end fill tags of BC
 
     }//fin de boucle sur i
+    
 
     ////////////////////////////////////////////////////////////////////////////////////
     // association of the nodes of edgeNodes1DSorted with their indices in nodeTags2D //
@@ -606,6 +595,7 @@ int main(int argc, char **argv)
     }
 
 
+    std::cout << "TIME LOOP\n";
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////           TIME LOOP           /////////////////////////////////////////////////
@@ -613,7 +603,7 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     double time = 0;
-    double timeStep = 0.1;
+    double timeStep = 0.2;
     double endTime = 10;
     int numStep = endTime/timeStep;
 
@@ -624,12 +614,10 @@ int main(int argc, char **argv)
 
     //fill data with u
     for(std::size_t e=0; e<elementTags2D.size(); e++){
-
-        data[e].resize(numNodes2D);
         for(std::size_t i=0; i<numNodes2D; i++){
-                            
-            data[e][i] = u[e*numNodes2D + i];
+            tmp[i] = u[e*numNodes2D + i];
         }
+        data.push_back(tmp);
     }
 
     gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, time, 1);
@@ -637,9 +625,7 @@ int main(int argc, char **argv)
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
 
-
-
-    for(std::size_t step=1; time < endTime; step++){
+    for(std::size_t step = 1; time < endTime; step++){
 
         // BC
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
@@ -655,7 +641,6 @@ int main(int argc, char **argv)
 
         // computation vector F
         for(std::size_t ed=0; ed<tagElement1DSorted.size(); ed++){
-
             if(upwind[ed] == 1){
 
                 if(neighbours1D[ed*2] != -1){
@@ -684,7 +669,7 @@ int main(int argc, char **argv)
                     }
 
                 }
-            } 
+            }
         
             if(upwind[ed] == -1){
             // same as upwind == 1 except we take "indicesNei2" to compute the flow            
@@ -735,7 +720,6 @@ int main(int argc, char **argv)
             }
         }
 
-
         // dudt à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
             for(std::size_t i=0; i<numNodes2D; i++){
@@ -762,7 +746,6 @@ int main(int argc, char **argv)
         for(std::size_t e=0; e<elementTags2D.size(); e++){
 
             for(std::size_t i=0; i<numNodes2D; i++){
-                                
                 data[e][i] = u[e*numNodes2D + i];
             }
         }
@@ -773,22 +756,7 @@ int main(int argc, char **argv)
         time += timeStep;
     }
 
-    
     gmsh::view::write(viewtag, std::string("results.msh"));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     gmsh::finalize();
