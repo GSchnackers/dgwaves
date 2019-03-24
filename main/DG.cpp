@@ -605,6 +605,12 @@ int main(int argc, char **argv)
             upwind[i] = -1;
         }
     }
+    // TEST
+    /*
+    for(size_t i = 0; i < upwind.size(); i++){
+        std::cout << "upwind[" << std::to_string(i) << "]  : " << std::to_string(upwind[i]) << "\n";
+    }
+    */
 
     ///////////////////////////////////////////////////////////////////////
     ///////////////////////////// Matrix F ////////////////////////////////
@@ -618,22 +624,30 @@ int main(int argc, char **argv)
     //gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);  det1DSorted
 
     //loop for each edge
-    for(std::size_t ed; ed < tagElement1DSorted.size(); ed++){
+    for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
         //loop for i of F_{ij}
-        for(std::size_t i; i < NumNodesSide; i++){
+        for(std::size_t i=0; i < NumNodesSide; i++){
             //loop for j of F_{ij}
-            for(std::size_t j; j < NumNodesSide; j++){
+            for(std::size_t j=0; j < NumNodesSide; j++){
                 //loop for each gauss point
-                for(std::size_t g; g < NumGaussPoint1D; g++){
+                for(std::size_t g=0; g < NumGaussPoint1D; g++){
 
                     matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] += \
-                     (normal[ed*2]*coefF[0] + normal[ed*2+1]*coefF[1]) * bf1D[g*NumGaussPoint1D + i] * bf1D[g*NumGaussPoint1D + j] \
+                     (normal[ed*2]*coefF[0] + normal[ed*2+1]*coefF[1]) * bf1D[g*NumNodesSide + i] * bf1D[g*NumNodesSide + j] \
                      * intpts1D[3 + 4*g] * det1DSorted[ed*NumGaussPoint1D + g];
 
                 }
             }
         }
     }
+
+    // TEST
+    
+    for(size_t i = 0; i < matrixF.size(); i++){
+        std::cout << "matrixF[" << std::to_string(i) << "]  : " << std::to_string(matrixF[i]) << "\n";
+    }
+    
+    
 
     std::cout << "TIME LOOP\n";
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -642,12 +656,12 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    double time = 0;
+    double mytime = 0;
     double timeStep = 0.2;
     double endTime = 10;
     int numStep = endTime/timeStep;
 
-    std::vector<double> Su(elementTags2D.size()*numNodes2D);
+    std::vector<double> VectorSu(elementTags2D.size()*numNodes2D);
 
     std::string modelName = names[0];
     std::string dataType = "ElementNodeData";
@@ -660,23 +674,26 @@ int main(int argc, char **argv)
         data.push_back(tmp);
     }
 
-    gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, time, 1);
+    gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, mytime, 1);
 
-    // declaration vector F (time dependent)
+    // declaration vector F (mytime dependent)
     std::vector<double> vectorF(nodeTags2D.size());
 
-    for(std::size_t step = 1; time < endTime; step++){
+
+
+
+    for(std::size_t step = 1; mytime < endTime; step++){
 
         // BC
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
             gmsh::model::mesh::getNode(nodeTags2DPlusBC[i], nodeCoord, nodeCoordParam);
-            boundaryConditions(nodeCoord, time, value);
+            boundaryConditions(nodeCoord, mytime, value);
             uPlusBC[i]=value;
         }
 
         /* TEST
         for(size_t i = 0; i < uPlusBC.size(); i++){
-            std::cout << "uPlusBC[" << std::to_string(i) << "]  : " << std::to_string(uPlusBC[i]) << " at time " << std::to_string(time) << "\n";
+            std::cout << "uPlusBC[" << std::to_string(i) << "]  : " << std::to_string(uPlusBC[i]) << " at mytime " << std::to_string(mytime) << "\n";
         }
         */
 
@@ -748,20 +765,20 @@ int main(int argc, char **argv)
             }
         }// end computation vector F
 
-        // Su à zéro
+        // VectorSu à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
             for(std::size_t i=0; i<numNodes2D; i++){
 
-                Su[el*numNodes2D + i] = 0;
+                VectorSu[el*numNodes2D + i] = 0;
             }
         }
 
-        //Computation of Su = S.u
+        //Computation of VectorSu = S.u
         for(std::size_t el=0; el<elementTags2D.size(); el++){
             for(std::size_t i=0; i<numNodes2D; i++){
                 for(std::size_t j=0; j<numNodes2D; j++){
 
-                    Su[el*numNodes2D + i] += matrixS[el*numNodes2D*numNodes2D + i*numNodes2D + j] * u[el*numNodes2D + j];
+                    VectorSu[el*numNodes2D + i] += matrixS[el*numNodes2D*numNodes2D + i*numNodes2D + j] * u[el*numNodes2D + j];
                 }
             }
         }
@@ -780,7 +797,7 @@ int main(int argc, char **argv)
                 for(std::size_t j=0; j<numNodes2D; j++){
 
                     dudt[el*numNodes2D + i] += matrixM_Inverted[el*numNodes2D*numNodes2D + i*numNodes2D + j]* \
-                                                    (Su[el*numNodes2D + j] + vectorF[el*numNodes2D + j]);
+                                                    (VectorSu[el*numNodes2D + j] + vectorF[el*numNodes2D + j]);
                 }
             }
         }
@@ -797,9 +814,9 @@ int main(int argc, char **argv)
         }
 
         // Backup of u(t+dt)
-        gmsh::view::addModelData(viewtag, step, modelName, dataType, elementTags2D, data, time, 1);
+        gmsh::view::addModelData(viewtag, step, modelName, dataType, elementTags2D, data, mytime, 1);
 
-        time += timeStep;
+        mytime += timeStep;
     }
 
     gmsh::view::write(viewtag, std::string("results.msh"));
