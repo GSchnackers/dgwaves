@@ -622,7 +622,7 @@ int main(int argc, char **argv)
     //                                     intpts1D, numComp1D, bf1D);
 
     //gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);  det1DSorted
-
+    
     //loop for each edge
     for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
         //loop for i of F_{ij}
@@ -641,13 +641,18 @@ int main(int argc, char **argv)
         }
     }
 
-    // TEST
-    
-    for(size_t i = 0; i < matrixF.size(); i++){
-        std::cout << "matrixF[" << std::to_string(i) << "]  : " << std::to_string(matrixF[i]) << "\n";
+    for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
+        std::cout << "e " << std::to_string(ed) << "\n";
+        //loop for i of F_{ij}
+        for(std::size_t i=0; i < NumNodesSide; i++){
+            //loop for j of F_{ij}
+            for(std::size_t j=0; j < NumNodesSide; j++){
+                std::cout << std::to_string(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j]) << " ";
+            }
+        std::cout << "\n";
+        }
+        std::cout << "\n";
     }
-    
-    
 
     std::cout << "TIME LOOP\n";
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
