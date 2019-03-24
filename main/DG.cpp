@@ -401,11 +401,12 @@ int main(int argc, char **argv)
 
     }
 
-    
+    //Test
+    /*
     for(size_t i = 0; i < normal.size(); i++){
         std::cout << "normal[" << std::to_string(i) << "]  : " << std::to_string(normal[i]) << "\n";
     }
-    
+    */
 
     ////////////////////////////////////////////////////////////////////////////
     ////////// Find the neighbours of the edges and Find the BC tags ///////////
@@ -505,29 +506,32 @@ int main(int argc, char **argv)
     for(size_t i = 0; i < neighbours1D.size(); i++){
         std::cout << "neighbours1D[" << std::to_string(i) << "]  : " << std::to_string(neighbours1D[i]) << "\n";
     }
-    
+
+    // TEST
+    /*
     for(size_t i = 0; i < edgeNodes2D.size(); i++){
         std::cout << "edgeNodes2D[" << std::to_string(i) << "]  : " << std::to_string(edgeNodes2D[i]) << "\n";
     }
-
+    */
     for(size_t i = 0; i < nodeTags2DPlusBC.size(); i++){
         std::cout << "nodeTags2DPlusBC[" << std::to_string(i) << "]  : " << std::to_string(nodeTags2DPlusBC[i]) << "\n";
     }
+    
 
     ////////////////////////////////////////////////////////////////////////////////////
     // association of the nodes of edgeNodes1DSorted with their indices in nodeTags2D //
     ////////////////////////////////////////////////////////////////////////////////////
 
-    std::vector<int> indicesNei1(edgeNodes1DSorted.size());
-    std::vector<int> indicesNei2(edgeNodes1DSorted.size());
+    std::vector<int> indicesNei1(edgeNodes1DSorted.size(),-1);
+    std::vector<int> indicesNei2(edgeNodes1DSorted.size(),-1);
 
-    for(size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
+    for(size_t i=0; i<edgeNodes1DSorted.size(); i++){
 
         // First neighbour
         // check if there is a neighbour
-        if(neighbours1D[i/(NumNodesSide)] != -1){
+        if(neighbours1D[2*(i/NumNodesSide)] != -1){
             // as we know the number of the neighbour element, we will only loop on its nodes in the general list : nodeTags2D
-            for(size_t j=neighbours1D[i/(NumNodesSide)]*numNodes2D; j<(neighbours1D[i/(NumNodesSide)] + 1)*numNodes2D; j++){
+            for(size_t j=neighbours1D[2*(i/NumNodesSide)]*numNodes2D; j<(neighbours1D[2*(i/NumNodesSide)] + 1)*numNodes2D; j++){
 
                 if(edgeNodes1DSorted[i] == nodeTags2D[j]){
 
@@ -549,8 +553,8 @@ int main(int argc, char **argv)
 
         // Second neighbour
         // Same steps as for the first neighbour
-        if(neighbours1D[i/(NumNodesSide) + 1] != -1){
-            for(size_t j=neighbours1D[i/(NumNodesSide) + 1]*numNodes2D; j<(neighbours1D[i/(NumNodesSide) + 1] + 1)*numNodes2D; j++){
+        if(neighbours1D[2*(i/NumNodesSide) + 1] != -1){
+            for(size_t j=neighbours1D[2*(i/NumNodesSide) + 1]*numNodes2D; j<(neighbours1D[2*(i/NumNodesSide) + 1] + 1)*numNodes2D; j++){
 
                 if(edgeNodes1DSorted[i] == nodeTags2D[j]){
 
@@ -569,6 +573,14 @@ int main(int argc, char **argv)
         }
 
     }// end loop on i
+
+    for(size_t i = 0; i < indicesNei1.size(); i++){
+        std::cout << "indicesNei1[" << std::to_string(i) << "]  : " << std::to_string(indicesNei1[i]) << "\n";
+    }
+
+    for(size_t i = 0; i < indicesNei2.size(); i++){
+        std::cout << "indicesNei2[" << std::to_string(i) << "]  : " << std::to_string(indicesNei2[i]) << "\n";
+    }
 
 
     ///////////////////////////////////////////////////////////////////////
