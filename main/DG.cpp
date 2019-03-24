@@ -618,13 +618,13 @@ int main(int argc, char **argv)
     //gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);  det1DSorted
 
     //loop for each edge
-    for(std::size_t ed; ed < tagElement1DSorted.size(); ed++){
+    for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
         //loop for i of F_{ij}
-        for(std::size_t i; i < NumNodesSide; i++){
+        for(std::size_t i=0; i < NumNodesSide; i++){
             //loop for j of F_{ij}
-            for(std::size_t j; j < NumNodesSide; j++){
+            for(std::size_t j=0; j < NumNodesSide; j++){
                 //loop for each gauss point
-                for(std::size_t g; g < NumGaussPoint1D; g++){
+                for(std::size_t g=0; g < NumGaussPoint1D; g++){
 
                     matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] += \
                      (normal[ed*2]*coefF[0] + normal[ed*2+1]*coefF[1]) * bf1D[g*NumGaussPoint1D + i] * bf1D[g*NumGaussPoint1D + j] \
@@ -633,6 +633,19 @@ int main(int argc, char **argv)
                 }
             }
         }
+    }
+
+    for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
+        std::cout << "e " << std::to_string(ed) << "\n";
+        //loop for i of F_{ij}
+        for(std::size_t i=0; i < NumNodesSide; i++){
+            //loop for j of F_{ij}
+            for(std::size_t j=0; j < NumNodesSide; j++){
+                std::cout << std::to_string(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j]) << " ";
+            }
+        std::cout << "\n";
+        }
+        std::cout << "\n";
     }
 
     std::cout << "TIME LOOP\n";
