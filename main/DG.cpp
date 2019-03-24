@@ -616,7 +616,7 @@ int main(int argc, char **argv)
     //                                     intpts1D, numComp1D, bf1D);
 
     //gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);  det1DSorted
-
+    
     //loop for each edge
     for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
         //loop for i of F_{ij}
@@ -627,7 +627,7 @@ int main(int argc, char **argv)
                 for(std::size_t g=0; g < NumGaussPoint1D; g++){
 
                     matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] += \
-                     (normal[ed*2]*coefF[0] + normal[ed*2+1]*coefF[1]) * bf1D[g*NumGaussPoint1D + i] * bf1D[g*NumGaussPoint1D + j] \
+                     (normal[ed*2]*coefF[0] + normal[ed*2+1]*coefF[1]) * bf1D[g*NumNodesSide + i] * bf1D[g*NumNodesSide + j] \
                      * intpts1D[3 + 4*g] * det1DSorted[ed*NumGaussPoint1D + g];
 
                 }
