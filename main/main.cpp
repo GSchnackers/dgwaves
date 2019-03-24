@@ -10,7 +10,6 @@ int main(int argc, char **argv)
     std::size_t i, j;
 
     std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
-    std::vector<int> normals; // Vector containing the normal to each frontier element.
     struct Element mainElements; // The main elements of the mesh.
     struct Element frontierElement; // The frontier elements of the mesh.
 
@@ -26,7 +25,7 @@ int main(int argc, char **argv)
 
     // Initialization of the elements of the mesh.
     gmsh::logger::write("Initializing the main elements of the mesh...");
-    Initialization(mainElements, 2, 3);
+    Initialization(mainElements, 2, "Gauss3");
     std::cout << "Done." << std::endl;
 
     // Sorting of the nodes at the frontier of each element.
@@ -41,9 +40,17 @@ int main(int argc, char **argv)
 
     // Initialization of the element representing the frontiers.
     gmsh::logger::write("Initialization of the frontier elements...");
-    Initialization(frontierElement, 1, 3);
+    Initialization(frontierElement, 1, "Gauss3", true);
     std::cout << "Done." << std::endl;
 
+    // getting the normals of the edges.
+    gmsh::logger::write("Computation of the normals at the frontier elements...");
+    normals(frontierElement);
+    std::cout << "Done." << std::endl;
+
+    for(i = 0; i< frontierElement.normals.size(); ++i)
+        std::cout<< frontierElement.normals[i] << std::endl;
+    
 
     gmsh::finalize(); // Closes gmsh
     return 0;

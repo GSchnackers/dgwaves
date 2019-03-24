@@ -13,6 +13,8 @@ struct Element{
     // Type of element, its true nature
     std::vector<int> elementType;
 
+    int entityTag; // stores the entity of the element if it is confined in one particular entity.
+
     // Those three properties define the true nature of the element.
     std::string name; // Name of the element.
     int dim; // dimension of the element.
@@ -26,22 +28,25 @@ struct Element{
     int numNodes; // Number of nodes of the element.
 
     std::vector<double> shapeFunctionsParam; // Shape functions at the Gauss points in parametric coordinates.
-    int numShapeFunctions; // Number of shape functions.
+    int numCompoShape; // Number of shape functions.
+    int numCompoShapeGrad; // number of components of the gradient of shape functions.
 
     std::vector<double> shapeFunctionsGrad; // Shape functions gradient at the Gauss points in real coordinates.
     std::vector<double> shapeFunctionsGradParam; // Shape functions gradient at the Gauss points in parametric coordinates.
     
-    std::vector<double> gaussPointsParam; // Gauss points in parametric coordinates.
+    std::vector<double> gaussPointsParam; // Gauss points in parametric coordinates for shape functions.
+    std::vector<double> gaussPointsParamGrad; // Gauss points param for gradient of shape functions.
     std::vector<double> gaussPoints; // Gauss points real coordinates.
 
-    int gaussType; // Contains the number of gauss points on the element.
+    int numGp; // Contains the number of gauss points on the element.
 
     int numberFrontierNode; // The number of nodes per edge of an element.
 
     std::vector<double> massMatrix; // Mass matrix of the element.
     std::vector<double> stiffnessMatrix; // stiffness matrix of the element.
 
-    std::vector<double> jacobians; // Jacobians of the element at the gauss points.
+    std::vector<double> jacobians; // Jacobians of the element at the gauss points in real coordinates.
+    std::vector<double> jacobiansInverse; // Inverse of the real jacobian.
     std::vector<double> jacobiansDet; // Jacobians of the element at the gauss points.
 
     std::vector<int> frontierNode; // Nodes at the frontier of the element.

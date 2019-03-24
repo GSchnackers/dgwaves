@@ -6,18 +6,14 @@
 
 // Function that initializes the characteristics of the elements represented by element.
 
-void Initialization(Element & element, const int meshDim, const int gaussType){
+void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier){
 
     std::size_t i, j; // Index variables
 
     gmsh::vectorpair entities; // Vector pair used to contain the dimension and tags of entities.
 
     std::vector<double> bin; // Variable used to collect useless results.
-
-    element.gaussType = gaussType;
-
-    // Integration Type definition.
-    std::string integrationType = "Gauss" + std::to_string(gaussType);
+    int bin1;
 
     // Loading of the entities.
     gmsh::model::getEntities(entities, meshDim); // Load the entities of dimension meshDim tag in the memory.
@@ -49,7 +45,10 @@ void Initialization(Element & element, const int meshDim, const int gaussType){
     }
 
     // Gets the elements tag of the entities, the node tags of the geometry.
-    gmsh::model::mesh::getElementsByType(element.elementType[0], element.elementTag, element.nodeTags);
+    if(!frontier)
+        gmsh::model::mesh::getElementsByType(element.elementType[0], element.elementTag, element.nodeTags);
+    else
+        gmsh::model::mesh::getElementsByType(element.elementType[0], element.elementTag, element.nodeTags, element.entityTag);
 
     // Gets the frontier nodes of the main elements. Depends on the mesh dimension. 
     if(meshDim == 3)    
@@ -65,16 +64,27 @@ void Initialization(Element & element, const int meshDim, const int gaussType){
 
     // Gets the shape functions of the elements at the Gauss points;
     gmsh::model::mesh::getBasisFunctions(element.elementType[0], integrationType, "IsoParametric",\
-                                element.gaussPointsParam, element.numShapeFunctions,\
-                                element.shapeFunctionsParam);
+                                element.gaussPointsParam, element.numCompoShape, element.shapeFunctionsParam);
 
     // Gets the gradient of the shape functions of the elements at the Gauss points;
     gmsh::model::mesh::getBasisFunctions(element.elementType[0], integrationType, "GradLagrange",\
-                                            bin, element.numShapeFunctions,\
-                                            element.shapeFunctionsGradParam);
+                                         element.gaussPointsParamGrad, element.numCompoShapeGrad,\
+                                         element.shapeFunctionsGradParam);
 
     // Gets the jacobian at each Gauss point of the elements.
-    gmsh::model::mesh::getJacobians(element.elementType[0], integrationType, element.jacobians,\
+    if(frontier)
+        gmsh::model::mesh::getJacobians(element.elementType[0], integrationType, element.jacobians,\
+                                    element.jacobiansDet, element.gaussPoints, element.entityTag);
+    else
+        gmsh::model::mesh::getJacobians(element.elementType[0], integrationType, element.jacobians,\
                                     element.jacobiansDet, element.gaussPoints);
+
+    element.numGp = element.gaussPoints.size()/(3*element.elementTag.size());
+    
+    // Gets the inverse of the jacobian of each elements represented by element.
+    getJacobiansInverse(element);
+
+    // Gets the gradient in real coordinates of the shape function of each elements represented by element.
+    getRealGradient(element);
 
 }

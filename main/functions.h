@@ -2,7 +2,7 @@
 #define FUNCTIONS_H
 #include "structures.h"
 // Initialization of the properties of the element of a certain dim and a certain type with a number of Gauss points given by GaussType.
-void Initialization(Element & element, const int meshDim, const int gaussType);
+void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier = false);
 
 // Creation of the frontier of the main elements. Each frontier is only counted once.
 void frontierCreation(const Element mainElement, Element & frontierElement, const int meshDim,\
@@ -12,22 +12,22 @@ void frontierCreation(const Element mainElement, Element & frontierElement, cons
 void sortingNeighbouring(const Element & mainElement, Element & frontierElement,\
                          std::vector<int> & nodeSorted);
 
-/*// Return the normals at each edges
-void normal(const std::vector<int> nodes, std::vector<double> & normal2D,\
-            std::vector<double> & nodeCoords, std::vector<double> & nodeCoordParam);
+// Functions that allows to inverse a matrix.
+void invert(std::vector<double> matrix, std::vector<double> & inverse);
 
-// Compute the integration of Gauss
+// Function that inverses the jacobian.
+void getJacobiansInverse(Element & element);
+
+// Gets the gradient in real coordinates of the shape function of each elements represented by element.
+void getRealGradient(Element & element);
+
+// Gets the normal to all edge elements.
+void normals(Element & frontierElement);
+
+
+/*// Compute the integration of Gauss
 void gaussIntegration(const std::vector<double> & integrationPoints, const std::vector<double> & functions,
  const std::vector<double> & determinants, std::vector<double> & matrix,
-  const int numElements, const int numGaussPoints, const int numNodes);
-
-// Computes the gradient of a lagrangian shape function at one point.
-void gradient(const double f,const  std::vector<double> pointsPositions,\
-                             const std::vector<double> nodesPositions, std::vector<double> & grad);
-
-// Allow to compute the neighbours of each edges.
-
-void neighbours(const std::vector<int> nodeTags, const int nodeNumber,\
-               const std::vector<int> elementTags, std::vector<int> & nodes); */
+  const int numElements, const int numGaussPoints, const int numNodes); */
 
 #endif
