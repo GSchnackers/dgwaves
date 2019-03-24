@@ -36,11 +36,11 @@ void sortingNeighbouring(const Element & mainElement, Element & frontierElement,
 
     // Neighbours initializations.
     tmpNeighbours[0].first = 0;
-    tmpNeighbours[1].first = 1;
+    tmpNeighbours[0].second = -1;
     ++countNeigh;
 
     // Loop over the frontier nodes. i is the index of the frontier nodes.
-    for (i = mainElement.numberFrontierNode; i < mainElement.frontierNode.size(); i += mainElement.numberFrontierNode)
+    for (i = 0; i < mainElement.frontierNode.size(); i += mainElement.numberFrontierNode)
     {
         int elemIndexi = i/totalNumberFrontierNode; // Index of an element with respect to i
         int gradIndexi = 3*elemIndexi; // Index of the gradient.
@@ -65,7 +65,7 @@ void sortingNeighbouring(const Element & mainElement, Element & frontierElement,
                 
                 if(tmpNeighbours[frontierIndexj].first != elemIndexi)
                     tmpNeighbours[frontierIndexj].second = elemIndexi;
-                
+                    
                 break;
             }
 

@@ -22,26 +22,25 @@ void normals(Element & frontierElement){
     if(frontierElement.dim == 1)
         for(i = 0; i < frontierElement.elementTag.size(); ++i) // Run through the elements
             for(j = 0; j < frontierElement.numGp; ++j) // run through the gauss points of a given element.
-                for(k = 0; k < frontierElement.numCompoShapeGrad; ++k){ // run through the components of the gradient.
+            {
 
-                    int frontierIndex = 3 * i;
-                    int gradIndex = i * frontierElement.numGp * frontierElement.numNodes \
-                                    * frontierElement.numCompoShapeGrad + \
-                                    j * frontierElement.numGp * frontierElement.numCompoShapeGrad + \
-                                    k * frontierElement.numCompoShapeGrad; // Index of the first gradient component of interest.
+                int frontierIndex = 3 * i;
+                int gradIndex = i * frontierElement.numNodes * frontierElement.numGp \
+                                * frontierElement.numCompoShapeGrad + \
+                                j * frontierElement.numCompoShapeGrad; // Index of the first gradient component of interest.
 
-                    double norm = sqrt(frontierElement.shapeFunctionsGrad[gradIndex + 1] *\
-                                    frontierElement.shapeFunctionsGrad[gradIndex + 1] +\
-                                    frontierElement.shapeFunctionsGrad[gradIndex] *
-                                    frontierElement.shapeFunctionsGrad[gradIndex]); // Normalization.
+                double norm = sqrt(frontierElement.shapeFunctionsGrad[gradIndex + 1] *\
+                                frontierElement.shapeFunctionsGrad[gradIndex + 1] +\
+                                frontierElement.shapeFunctionsGrad[gradIndex] *
+                                frontierElement.shapeFunctionsGrad[gradIndex]); // Normalization.
 
-                    tmpNorm[frontierIndex] = \
-                                            frontierElement.shapeFunctionsGrad[gradIndex + 1]/norm;
-                    tmpNorm[frontierIndex + 1] = \
-                                            -frontierElement.shapeFunctionsGrad[gradIndex]/norm;
-                    tmpNorm[frontierIndex + 2] = 0.;
+                tmpNorm[frontierIndex] = \
+                                        frontierElement.shapeFunctionsGrad[gradIndex + 1]/norm;
+                tmpNorm[frontierIndex + 1] = \
+                                        -frontierElement.shapeFunctionsGrad[gradIndex]/norm;
+                tmpNorm[frontierIndex + 2] = 0.;
 
-                }
+            }
 
         
 

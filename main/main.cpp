@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     std::cout << "Done." << std::endl;
 
     for(i = 0; i< frontierElement.normals.size(); ++i)
-        std::cout<< frontierElement.normals[i] << std::endl;
+        std::cout<< std::right << frontierElement.normals[i] << " " << mainElements.elementTag[frontierElement.neighbours[i/3].first] << " " << mainElements.elementTag[frontierElement.neighbours[i/3].second] << std::endl;
     
 
     gmsh::finalize(); // Closes gmsh
