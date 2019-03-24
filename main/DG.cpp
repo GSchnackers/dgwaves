@@ -475,7 +475,7 @@ int main(int argc, char **argv)
     
 
         //fill the tags for BC in nodeTags2DPlusBC
-        if(neighbours1D[i/(NumNodesSide)] == -1 || neighbours1D[i/(NumNodesSide) + 1] == -1){
+        if(neighbours1D[i/(NumNodesSide)*2] == -1 || neighbours1D[i/(NumNodesSide)*2 + 1] == -1){
             
             check1 = 0;
             check2 = 0;
