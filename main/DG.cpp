@@ -401,11 +401,11 @@ int main(int argc, char **argv)
 
     }
 
-    /* TEST
+    
     for(size_t i = 0; i < normal.size(); i++){
         std::cout << "normal[" << std::to_string(i) << "]  : " << std::to_string(normal[i]) << "\n";
     }
-    */
+    
 
     ////////////////////////////////////////////////////////////////////////////
     ////////// Find the neighbours of the edges and Find the BC tags ///////////
@@ -457,8 +457,8 @@ int main(int argc, char **argv)
                 gmsh::model::mesh::getNode(edgeNodes2D[neighbour1D_tmp*NumNodesSide*NumSide2D + index_tmp], nodeCoord2, nodeCoordParam2);
 
                 //inner product
-                innerProduct = normal[i/(NumNodesSide)]*(nodeCoord2[0]-nodeCoord1[0]) + \
-                                normal[i/(NumNodesSide)+1]*(nodeCoord2[1]-nodeCoord1[1]);
+                innerProduct = normal[i/(NumNodesSide)*2]*(nodeCoord2[0]-nodeCoord1[0]) + \
+                                normal[i/(NumNodesSide)*2+1]*(nodeCoord2[1]-nodeCoord1[1]);
 
                 //if the neighbour is positionned conventionnaly with respect to the normal, its number is registered in first position,
                 //if not, its number is registered in second position.
