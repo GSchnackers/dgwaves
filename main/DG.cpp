@@ -463,10 +463,10 @@ int main(int argc, char **argv)
                 //if the neighbour is positionned conventionnaly with respect to the normal, its number is registered in first position,
                 //if not, its number is registered in second position.
                 if(innerProduct <= 0){
-                    neighbours1D[i/(NumNodesSide)] = neighbour1D_tmp;
+                    neighbours1D[2*i/(NumNodesSide)] = neighbour1D_tmp;
                 }
                 else{
-                    neighbours1D[i/(NumNodesSide) + 1] = neighbour1D_tmp;
+                    neighbours1D[2*i/(NumNodesSide) + 1] = neighbour1D_tmp;
                 }
 
             } // end check if neighbour
