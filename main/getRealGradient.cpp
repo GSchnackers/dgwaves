@@ -11,10 +11,8 @@ void getRealGradient(Element & element)
 {
     std::size_t i, j, k, l;
 
-    // Temporary vector for shape functions.
-    
+    // Resize of the shap function gradient vector.
     element.shapeFunctionsGrad.resize(element.shapeFunctionsGradParam.size() * element.elementTag.size());
-    std::cout << element.shapeFunctionsGrad.size() << std::endl;
     
     // Multiplication of the isoparametric shape functions gradient by the inverse of the jacobian.
     for(i = 0; i < element.elementTag.size(); ++i) // Loop over the elements. 

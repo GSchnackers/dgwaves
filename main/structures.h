@@ -43,7 +43,11 @@ struct Element{
     int numberFrontierNode; // The number of nodes per edge of an element.
 
     std::vector<double> massMatrix; // Mass matrix of the element.
-    std::vector<double> stiffnessMatrix; // stiffness matrix of the element.
+    std::vector<double> massMatrixInverse; // Inverse of the mass matrix of the element.
+
+    std::vector<double> stiffnessMatrixX; // stiffness matrix of the element (x component).
+    std::vector<double> stiffnessMatrixY; // stiffness matrix of the element (y component).
+    std::vector<double> stiffnessMatrixZ; // stiffness matrix of the element (z component).
 
     std::vector<double> jacobians; // Jacobians of the element at the gauss points in real coordinates.
     std::vector<double> jacobiansInverse; // Inverse of the real jacobian.

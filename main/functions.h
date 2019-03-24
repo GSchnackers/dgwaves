@@ -1,6 +1,8 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 #include "structures.h"
+
+
 // Initialization of the properties of the element of a certain dim and a certain type with a number of Gauss points given by GaussType.
 void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier = false);
 
@@ -23,6 +25,9 @@ void getRealGradient(Element & element);
 
 // Gets the normal to all edge elements.
 void normals(Element & frontierElement);
+
+// Functions that computes the main matrices of the DG fem, that is the mass and the stiffiness matrices.
+void matrixMaker(Element & element, std::string matrixType);
 
 
 /*// Compute the integration of Gauss

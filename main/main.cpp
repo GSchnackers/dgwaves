@@ -48,8 +48,37 @@ int main(int argc, char **argv)
     normals(frontierElement);
     std::cout << "Done." << std::endl;
 
-    for(i = 0; i< frontierElement.normals.size(); ++i)
-        std::cout<< std::right << frontierElement.normals[i] << " " << mainElements.elementTag[frontierElement.neighbours[i/3].first] << " " << mainElements.elementTag[frontierElement.neighbours[i/3].second] << std::endl;
+    // Matrix M of the elements loading.
+    gmsh::logger::write("Computation of the mass matrix of each element...");
+    matrixMaker(mainElements, "M");
+    std::cout << "Done." << std::endl;
+
+    // Mass matrix inversion.
+    gmsh::logger::write("Computation of the inverse of the mass matrix of each element...");
+    for(i = 0; i < mainElements.massMatrix.size(); i += mainElements.numNodes * mainElements.numNodes)
+    {
+        std::vector<double> tmp(mainElements.numNodes * mainElements.numNodes);
+        std::vector<double> inverseTmp(mainElements.numNodes * mainElements.numNodes);
+
+        for(j = 0; j < mainElements.numNodes * mainElements.numNodes; ++j)
+            tmp[j] = mainElements.massMatrix[i + j];
+
+        invert(tmp, inverseTmp);
+
+        mainElements.massMatrixInverse.resize(mainElements.massMatrix.size());
+
+        for(j = 0; j < mainElements.numNodes * mainElements.numNodes; ++j)
+            mainElements.massMatrixInverse[i + j] = inverseTmp[j];
+
+    }
+    std::cout << "Done." << std::endl;
+
+    // Matrix S of the elements loading.
+    gmsh::logger::write("Computation of the stiffness matrix of each element...");
+    matrixMaker(mainElements, "SX");
+    if(mainElements.dim >= 2) matrixMaker(mainElements, "SY");
+    if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
+    std::cout << "Done." << std::endl;
     
 
     gmsh::finalize(); // Closes gmsh
