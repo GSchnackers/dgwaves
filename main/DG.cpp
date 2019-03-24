@@ -154,43 +154,45 @@ int main(int argc, char **argv)
                 detS2D[numGaussPoints2D*e + g] = 1;
             }
         }// fin d'invertion
-
+        /*
         for(std::size_t e=0; e<elementTags2D.size();e++){
             for(std::size_t g=0; g<numGaussPoints2D; g++){
-                std::cout << "e" << std::to_string(e) << " g" << std::to_string(g) << "\n";
+                std::cout << "e" << std::to_string(e) << " g" << std::to_string(g)\
+                << " x = " << std::to_string(intpts2D[4*g]) << " | y = " << std::to_string(intpts2D[4*g+1]) << "\n";
                 for(std::size_t i=0; i<3; i++){
                     for(std::size_t j=0; j<3; j++){
-                        std::cout << std::to_string(jac2DInverted[e*numGaussPoints2D*9 + g*9 + i*3 + j]);
+                        std::cout << std::to_string(jac2D[e*numGaussPoints2D*9 + g*9 + i*3 + j]);
                     }
                     std::cout << "\n";
                 }
                 std::cout << "\n";
             }
         }
-
+        */
 
         // function to integrate with Gauss integration to get the matrix S
         std::vector<double> functionS;
         double dfdx = 0, dfdy = 0;
 
         // [g1 df1/du, g1 df1/dv, g1 df1/dw, g1 df2/du ..., g1 dfN/dw, g2 df1/du, ...] in gradbf2D (N number of nodes of 2D element)
-
+        
         for(std::size_t e = 0; e < numElements2D; e++){
             for(std::size_t i = 0; i < numNodes2D; i++)
                 for(std::size_t j = 0; j < numNodes2D; j++)
                     for(std::size_t g = 0; g < numGaussPoints2D; g++){
                         for(std::size_t k = 0; k < 2; k++){
-                            dfdx += (gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3]);
-                            dfdy += (gradbf2D[3*(numNodes2D*g + i) + k] * jac2DInverted[9*e + k*3 + 1]);
+                            dfdx += gradbf2D[3*numNodes2D*g + 3*j + k] * jac2DInverted[e*9*numGaussPoints2D + 9*g + k];
+                            dfdy += gradbf2D[3*numNodes2D*g + 3*j + k] * jac2DInverted[e*9*numGaussPoints2D + 9*g + k + 3];
                         }
-                        functionS.push_back(jac2DInverted[9*e + 8] * (coefF[0]*dfdx + coefF[1]*dfdy)*bf2D[numNodes2D*g + i]);
+
+                        functionS.push_back((coefF[0]*dfdx + coefF[1]*dfdy)*bf2D[numNodes2D*g + i]);
                         dfdx = 0;
                         dfdy = 0;
                     }
         }
         
         std::vector<double> matrixS;
-        gaussIntegration(intpts2D, functionS, detS2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
+        gaussIntegration(intpts2D, functionS, det2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
         
         for(std::size_t e = 0; e < numElements2D; e++){
             for(std::size_t i = 0; i < numNodes2D; i++){
