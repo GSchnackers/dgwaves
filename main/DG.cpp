@@ -358,6 +358,16 @@ int main(int argc, char **argv)
         }// fin de boucle sur j   
     }//fin de boucle sur i
 
+    /* TEST
+    std::cout << "edgeNodes1DSorted.size() = " << std::to_string(edgeNodes1DSorted.size()) << "\n";
+    std::cout << "tagElement1DSorted.size() = " << std::to_string(tagElement1DSorted.size()) << "\n";
+    std::cout << "det1DSorted.size() = " << std::to_string(det1DSorted.size()) << "\n";
+    */
+
+   // TEST
+    for(size_t i = 0; i < edgeNodes1DSorted.size(); i++){
+        std::cout << "edgeNodes1DSorted[" << std::to_string(i) << "]  : " << std::to_string(edgeNodes1DSorted[i]) << "\n";
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     ///////////////// Calculer les normales des éléments triés ///////////////////
@@ -370,24 +380,30 @@ int main(int argc, char **argv)
 
     for(std::size_t i=0; i<edgeNodes1DSorted.size(); i+= NumNodesSide){
 
-    //calcul de la normale au bord
-    gmsh::model::mesh::getNode(edgeNodes1DSorted[i], nodeCoord1, nodeCoordParam1);
-    gmsh::model::mesh::getNode(edgeNodes1DSorted[i+NumNodesSide-1], nodeCoord2, nodeCoordParam2);
+        //calcul de la normale au bord
+        gmsh::model::mesh::getNode(edgeNodes1DSorted[i], nodeCoord1, nodeCoordParam1);
+        gmsh::model::mesh::getNode(edgeNodes1DSorted[i+NumNodesSide-1], nodeCoord2, nodeCoordParam2);
 
-    // Computation of the normal. n = (-y , x)/(x^2+y^2)^(1/2)
+        // Computation of the normal. n = (-y , x)/(x^2+y^2)^(1/2)
 
-    normal[(i/NumNodesSide)*2] = nodeCoord1[1] - nodeCoord2[1]; // -y
-    normal[(i/NumNodesSide)*2+1] = nodeCoord2[0] - nodeCoord1[0]; // x
-    //(i/NumNodesSide)*2 est la place dans normale seulement le edge
+        normal[(i/NumNodesSide)*2] = nodeCoord1[1] - nodeCoord2[1]; // -y
+        normal[(i/NumNodesSide)*2+1] = nodeCoord2[0] - nodeCoord1[0]; // x
+        //(i/NumNodesSide)*2 est la place dans normale seulement le edge
 
-    double norm = sqrt(normal[(i/NumNodesSide)*2] * normal[(i/NumNodesSide)*2] + \
-                        normal[(i/NumNodesSide)*2+1] * normal[(i/NumNodesSide)*2+1]); //sqrt(x^2 + y^2)
+        double norm = sqrt(normal[(i/NumNodesSide)*2] * normal[(i/NumNodesSide)*2] + \
+                            normal[(i/NumNodesSide)*2+1] * normal[(i/NumNodesSide)*2+1]); //sqrt(x^2 + y^2)
 
-    // Final norm.
-    normal[(i/NumNodesSide)*2] /= norm;
-    normal[(i/NumNodesSide)*2+1] /= norm;
+        // Final norm.
+        normal[(i/NumNodesSide)*2] /= norm;
+        normal[(i/NumNodesSide)*2+1] /= norm;
 
     }
+
+    /* TEST
+    for(size_t i = 0; i < normal.size(); i++){
+        std::cout << "normal[" << std::to_string(i) << "]  : " << std::to_string(normal[i]) << "\n";
+    }
+    */
 
     ////////////////////////////////////////////////////////////////////////////
     ////////// Find the neighbours of the edges and Find the BC tags ///////////
@@ -444,7 +460,7 @@ int main(int argc, char **argv)
 
                 //if the neighbour is positionned conventionnaly with respect to the normal, its number is registered in first position,
                 //if not, its number is registered in second position.
-                if(innerProduct >= 0){
+                if(innerProduct <= 0){
                     neighbours1D[i/(NumNodesSide)] = neighbour1D_tmp;
                 }
                 else{
@@ -483,7 +499,18 @@ int main(int argc, char **argv)
         } // end fill tags of BC
 
     }//fin de boucle sur i
+
+    for(size_t i = 0; i < neighbours1D.size(); i++){
+        std::cout << "neighbours1D[" << std::to_string(i) << "]  : " << std::to_string(neighbours1D[i]) << "\n";
+    }
     
+    for(size_t i = 0; i < edgeNodes2D.size(); i++){
+        std::cout << "edgeNodes2D[" << std::to_string(i) << "]  : " << std::to_string(edgeNodes2D[i]) << "\n";
+    }
+
+    for(size_t i = 0; i < nodeTags2DPlusBC.size(); i++){
+        std::cout << "nodeTags2DPlusBC[" << std::to_string(i) << "]  : " << std::to_string(nodeTags2DPlusBC[i]) << "\n";
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////
     // association of the nodes of edgeNodes1DSorted with their indices in nodeTags2D //
@@ -594,7 +621,6 @@ int main(int argc, char **argv)
         }
     }
 
-
     std::cout << "TIME LOOP\n";
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -633,6 +659,12 @@ int main(int argc, char **argv)
             boundaryConditions(nodeCoord, time, value);
             uPlusBC[i]=value;
         }
+
+        /* TEST
+        for(size_t i = 0; i < uPlusBC.size(); i++){
+            std::cout << "uPlusBC[" << std::to_string(i) << "]  : " << std::to_string(uPlusBC[i]) << " at time " << std::to_string(time) << "\n";
+        }
+        */
 
         // initialisation to 0 of vector F
         for(std::size_t i=0; i<vectorF.size(); i++){
