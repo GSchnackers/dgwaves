@@ -5,6 +5,7 @@
 #include "structures.h"
 
 // Matrix maker builds any stiffness or mass matrix that exists provided the element and the matrix type.
+// The matrix builded are assumed to be symmetric.
 
 void matrixMaker(Element & element, std::string matrixType)
 {
@@ -42,9 +43,10 @@ void matrixMaker(Element & element, std::string matrixType)
 
     for(i = 0; i < element.elementTag.size(); ++i)
         for(j = 0; j < element.numNodes; ++j)
-            for(k = 0; k < element.numNodes; ++k)
+            for(k = j; k < element.numNodes; ++k)
             {
                 int indexMatrix = i * element.numNodes * element.numNodes + j * element.numNodes + k;
+                int indexMatrixTranspose = i * element.numNodes * element.numNodes + k * element.numNodes + j;
 
                 for(l = 0; l < element.numGp; ++l)
                 {
@@ -52,7 +54,7 @@ void matrixMaker(Element & element, std::string matrixType)
                     int index2 = k * element.numGp + l;
                     int indexJacob = i * element.numGp + l;
                     int indexGPoint1 = j * element.numGp + 3;
-                    int indexGPoint2 = 3 * element.numGp + 3;
+                    int indexGPoint2 = k * element.numGp + 3;
 
                     matrixTmp[indexMatrix] += tmp1[index1] * tmp2[index2] * \
                                               element.jacobiansDet[indexJacob] * \
@@ -60,6 +62,9 @@ void matrixMaker(Element & element, std::string matrixType)
                                               element.gaussPointsParam[indexGPoint2];
                     
                 }
+
+                matrixTmp[indexMatrixTranspose] = matrixTmp[indexMatrix];
+
             }
 
     switch (compo)
