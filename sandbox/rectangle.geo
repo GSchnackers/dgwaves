@@ -1,6 +1,6 @@
 // 2D Rectangle
 // List of points
-d = 1;
+d = 0.1;
 x = 1;
 y = 1;
 Point(1) = {0, 0, 0, d};
