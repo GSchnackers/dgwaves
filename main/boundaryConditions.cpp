@@ -8,6 +8,6 @@ void boundaryConditions(std::vector<double> & coord,double mytime, double & valu
     
     double T = 0.5; //longueur d'onde
     
-    value= 1 + sin(2*M_PI*mytime/T);
+    value = 1 + sin(2*M_PI*mytime/T);
     
 }
