@@ -13,7 +13,7 @@
 
 void Forward_Euler_method(std::vector<double> & u, const double timestep, const std::vector<double> & dudt){
 
-    for(std::size_t i=0; i < u.size();i++)
-        u[i]=u[i]+dudt[i]*timestep;
+    for(std::size_t i=0; i < u.size(); i++)
+        u[i] += dudt[i]*timestep;
     
 }

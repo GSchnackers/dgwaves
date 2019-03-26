@@ -616,7 +616,7 @@ int main(int argc, char **argv)
     ///////////////////////////// Matrix F ////////////////////////////////
     ///////////////////////////////////////////////////////////////////////
 
-    std::vector<double> matrixF(tagElement1DSorted.size()*NumNodesSide*NumNodesSide);
+    std::vector<double> matrixF(tagElement1DSorted.size()*NumNodesSide*NumNodesSide,0);
 
     //gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
     //                                     intpts1D, numComp1D, bf1D);
@@ -641,6 +641,7 @@ int main(int argc, char **argv)
         }
     }
 
+    // TEST
     for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
         std::cout << "e " << std::to_string(ed) << "\n";
         //loop for i of F_{ij}
@@ -662,8 +663,8 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     double mytime = 0;
-    double timeStep = 0.2;
-    double endTime = 10;
+    double timeStep = 0.001;
+    double endTime = 0.02;
     int numStep = endTime/timeStep;
 
     std::vector<double> VectorSu(elementTags2D.size()*numNodes2D);
@@ -681,8 +682,12 @@ int main(int argc, char **argv)
 
     gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, mytime, 1);
 
-    // declaration vector F (mytime dependent)
+    // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
+
+    for(size_t i = 0; i < u.size(); i++){
+        std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
+    }
 
 
 
@@ -693,14 +698,14 @@ int main(int argc, char **argv)
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
             gmsh::model::mesh::getNode(nodeTags2DPlusBC[i], nodeCoord, nodeCoordParam);
             boundaryConditions(nodeCoord, mytime, value);
-            uPlusBC[i]=value;
+            uPlusBC[i] = value;
         }
 
-        /* TEST
+        // TEST
         for(size_t i = 0; i < uPlusBC.size(); i++){
             std::cout << "uPlusBC[" << std::to_string(i) << "]  : " << std::to_string(uPlusBC[i]) << " at mytime " << std::to_string(mytime) << "\n";
         }
-        */
+        
 
         // initialisation to 0 of vector F
         for(std::size_t i=0; i<vectorF.size(); i++){
@@ -718,16 +723,26 @@ int main(int argc, char **argv)
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei1[ed*NumNodesSide + i]] += \
                             -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]]);
+                            
+                            //tentative de correction
+                            /*
+                            if(neighbours1D[ed*2 + 1] != -1){
+                                vectorF[indicesNei2[ed*NumNodesSide + i]] += \
+                                matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]];
+                            }
+                            */
                         }
                     }
-
+                    //tentative de correction
+                    /*
                     if(neighbours1D[ed*2 + 1] != -1){
                         for(std::size_t copy=0; copy<NumNodesSide; copy++){
                             vectorF[indicesNei2[ed*NumNodesSide + copy]] += -vectorF[indicesNei1[ed*NumNodesSide + copy]];
                         }
                     }
+                    */
                 }
-                if(neighbours1D[ed*2] == -1){
+                if(neighbours1D[ed*2 + 1] != -1){
                     //vectorF[indicesNei2] = -... (produit mat)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
@@ -750,14 +765,15 @@ int main(int argc, char **argv)
                             -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei2[ed*NumNodesSide + j]]);
                         }
                     }
-
+                    /*
                     if(neighbours1D[ed*2 + 1] != -1){
                         for(std::size_t copy=0; copy<NumNodesSide; copy++){
                             vectorF[indicesNei2[ed*NumNodesSide + copy]] += -vectorF[indicesNei1[ed*NumNodesSide + copy]];
                         }
                     }
+                    */
                 }
-                if(neighbours1D[ed*2] == -1){
+                if(neighbours1D[ed*2 + 1] != -1){
                     //vectorF[indicesNei2] = -... (produit mat)
                     for(std::size_t i=0; i<NumNodesSide; i++){
                         for(std::size_t j=0; j<NumNodesSide; j++){
@@ -769,6 +785,25 @@ int main(int argc, char **argv)
                 }        
             }
         }// end computation vector F
+
+
+        // TEST vector F at each time
+        
+        std::cout <<"time = " << std::to_string(mytime) << "\n";
+        
+        for(std::size_t el=0; el < elementTags2D.size(); el++){
+            std::cout << "el " << std::to_string(el) << "\n";
+            //loop for i of F_{ij}
+            for(std::size_t i=0; i < numNodes2D; i++){
+                
+                std::cout << std::to_string(vectorF[el*numNodes2D + i]) << " ";
+                
+            std::cout << "\n";
+            }
+        std::cout << "\n";
+        }
+        
+
 
         // VectorSu à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
@@ -809,6 +844,16 @@ int main(int argc, char **argv)
 
         // Forward Euler method
         Forward_Euler_method(u, timeStep, dudt);
+
+        // update uPlusBC
+        for(std::size_t i=0; i<u.size(); i++){
+            uPlusBC[i] = u[i];
+        }
+
+        // TEST u
+        for(size_t i = 0; i < u.size(); i++){
+            std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
+        }
 
         //fill data with u
         for(std::size_t e=0; e<elementTags2D.size(); e++){
