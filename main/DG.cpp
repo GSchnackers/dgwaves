@@ -723,17 +723,9 @@ int main(int argc, char **argv)
                         for(std::size_t j=0; j<NumNodesSide; j++){
                             vectorF[indicesNei1[ed*NumNodesSide + i]] += \
                             -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]]);
-                            
-                            //tentative de correction
-                            /*
-                            if(neighbours1D[ed*2 + 1] != -1){
-                                vectorF[indicesNei2[ed*NumNodesSide + i]] += \
-                                matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]];
-                            }
-                            */
                         }
                     }
-                    //tentative de correction
+                    //avant correction
                     /*
                     if(neighbours1D[ed*2 + 1] != -1){
                         for(std::size_t copy=0; copy<NumNodesSide; copy++){
