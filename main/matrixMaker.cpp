@@ -10,7 +10,7 @@
 void matrixMaker(Element & element, std::string matrixType)
 {
 
-    std::size_t i, j, k, l; // Indiex variable.
+    std::size_t i, j = 0, k, l; // Indiex variable.
 
     // Matrix containing all values for all elements and all gauss points.
     std::vector<double> tmp1 = element.shapeFunctionsParam, tmp2;
@@ -30,8 +30,11 @@ void matrixMaker(Element & element, std::string matrixType)
 
         tmp2.resize(tmp1.size());
 
-        for(i = compo; i < element.shapeFunctionsGradParam.size(); i += 3) 
+        for(i = compo; i < element.shapeFunctionsGradParam.size(); i += 3)
+        {
             tmp2[i/3] = element.shapeFunctionsGradParam[i];
+            std::cout << tmp2[i/3] << std::endl;
+        }
             
     }
 
@@ -42,30 +45,22 @@ void matrixMaker(Element & element, std::string matrixType)
     }
 
     for(i = 0; i < element.elementTag.size(); ++i)
-        for(j = 0; j < element.numNodes; ++j)
-            for(k = j; k < element.numNodes; ++k)
-            {
-                int indexMatrix = i * element.numNodes * element.numNodes + j * element.numNodes + k;
-                int indexMatrixTranspose = i * element.numNodes * element.numNodes + k * element.numNodes + j;
-
-                for(l = 0; l < element.numGp; ++l)
+        for(j = 0; j < element.numGp; ++j)
+            for(k = 0; k < element.numNodes; ++k)
+                for(l = 0; l < element.numNodes; ++l)
                 {
-                    int index1 = j * element.numGp + l;
-                    int index2 = k * element.numGp + l;
-                    int indexJacob = i * element.numGp + l;
-                    int indexGPoint1 = j * element.numGp + 3;
-                    int indexGPoint2 = k * element.numGp + 3;
+                    int indexMatrix = i * element.numNodes * element.numNodes + k * element.numNodes + l;
+                    
+                    int index1 = j * element.numNodes + k;
+                    int index2 = j * element.numNodes + l;
+                    int indexJacob = i * element.numGp + j;
+                    int indexGPoint = 4 * j + 3;
 
                     matrixTmp[indexMatrix] += tmp1[index1] * tmp2[index2] * \
                                               element.jacobiansDet[indexJacob] * \
-                                              element.gaussPointsParam[indexGPoint1] * \
-                                              element.gaussPointsParam[indexGPoint2];
-                    
+                                              element.gaussPointsParam[indexGPoint];
+
                 }
-
-                matrixTmp[indexMatrixTranspose] = matrixTmp[indexMatrix];
-
-            }
 
     switch (compo)
     {

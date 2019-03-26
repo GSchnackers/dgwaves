@@ -25,7 +25,7 @@ void normals(Element & frontierElement){
             {
 
                 int frontierIndex = 3 * i;
-                int gradIndex = i * frontierElement.numNodes * frontierElement.numGp \
+                int gradIndex = i * frontierElement.numGp * frontierElement.numNodes \
                                 * frontierElement.numCompoShapeGrad + \
                                 j * frontierElement.numCompoShapeGrad; // Index of the first gradient component of interest.
 
@@ -35,14 +35,12 @@ void normals(Element & frontierElement){
                                 frontierElement.shapeFunctionsGrad[gradIndex]); // Normalization.
 
                 tmpNorm[frontierIndex] = \
-                                        frontierElement.shapeFunctionsGrad[gradIndex + 1]/norm;
+                                        -frontierElement.shapeFunctionsGrad[gradIndex + 1]/norm;
                 tmpNorm[frontierIndex + 1] = \
-                                        -frontierElement.shapeFunctionsGrad[gradIndex]/norm;
+                                        frontierElement.shapeFunctionsGrad[gradIndex]/norm;
                 tmpNorm[frontierIndex + 2] = 0.;
 
             }
-
-        
 
     // 3D case mesh. gmsh directly implements the normal to an element face.
     else if(frontierElement.dim == 2)

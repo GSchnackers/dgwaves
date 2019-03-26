@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
     // Initialization of the elements of the mesh.
     gmsh::logger::write("Initializing the main elements of the mesh...");
-    Initialization(mainElements, 2, "Gauss3");
+    Initialization(mainElements, 2, "Gauss4");
     std::cout << "Done." << std::endl;
 
     // Sorting of the nodes at the frontier of each element.
@@ -53,6 +53,7 @@ int main(int argc, char **argv)
     matrixMaker(mainElements, "M");
     std::cout << "Done." << std::endl;
 
+
     // Mass matrix inversion.
     gmsh::logger::write("Computation of the inverse of the mass matrix of each element...");
     for(i = 0; i < mainElements.massMatrix.size(); i += mainElements.numNodes * mainElements.numNodes)
@@ -79,6 +80,13 @@ int main(int argc, char **argv)
     if(mainElements.dim >= 2) matrixMaker(mainElements, "SY");
     if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
     std::cout << "Done." << std::endl;
+
+    for(i = 0; i < mainElements.stiffnessMatrixX.size(); ++i)
+    {
+        if(!(i%3) && i) std::cout << std::endl;
+        if(!(i%9) && i) std::cout << std::endl;
+        std::cout << mainElements.stiffnessMatrixX[i] << " ";
+    }
     
 
     gmsh::finalize(); // Closes gmsh
