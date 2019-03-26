@@ -130,6 +130,17 @@ int main(int argc, char **argv)
         
         }
 
+        for(std::size_t e = 0; e < numElements2D; e++){
+            std::cout << "e " << std::to_string(e) << std::endl;
+            for(std::size_t i = 0; i < numNodes2D; i++){
+                for(std::size_t j = 0; j < numNodes2D; j++)
+                {
+                    std::cout << std::to_string(matrixM_Inverted[numNodes2D*(numNodes2D*e + i) + j]) << " ";
+                }
+                std::cout << "\n";
+            }
+            std::cout << "\n";
+        }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -691,6 +702,7 @@ int main(int argc, char **argv)
 
 
     for(std::size_t step = 1; mytime < endTime; step++){
+
 
         // BC
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
