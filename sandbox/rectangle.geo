@@ -15,7 +15,7 @@ Line(3) = {4, 2};
 Line(4) = {2, 1};
 
 // Surface
-Curve Loop(1) = {2, 3, 4, 1};
+Curve Loop(1) = {-4, -3, -2, -1};
 Plane Surface(1) = {1};
 
 Physical Surface(1) = {1};

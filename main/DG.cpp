@@ -188,8 +188,8 @@ int main(int argc, char **argv)
         // [g1 df1/du, g1 df1/dv, g1 df1/dw, g1 df2/du ..., g1 dfN/dw, g2 df1/du, ...] in gradbf2D (N number of nodes of 2D element)
         
         for(std::size_t e = 0; e < numElements2D; e++){
-            for(std::size_t i = 0; i < numNodes2D; i++)
-                for(std::size_t j = 0; j < numNodes2D; j++)
+            for(std::size_t j = 0; j < numNodes2D; j++)
+                for(std::size_t i = 0; i < numNodes2D; i++)
                     for(std::size_t g = 0; g < numGaussPoints2D; g++){
                         for(std::size_t k = 0; k < 2; k++){
                             dfdx += gradbf2D[3*numNodes2D*g + 3*j + k] * jac2DInverted[e*9*numGaussPoints2D + 9*g + k];
@@ -675,7 +675,7 @@ int main(int argc, char **argv)
 
     double mytime = 0;
     double timeStep = 0.001;
-    double endTime = 0.02;
+    double endTime = 1;
     int numStep = endTime/timeStep;
 
     std::vector<double> VectorSu(elementTags2D.size()*numNodes2D);
@@ -700,16 +700,6 @@ int main(int argc, char **argv)
         std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
     }
 
-
-    /*
-    // Initial
-    for(std::size_t i=0; i<nodeTags2D.size(); i++){
-        gmsh::model::mesh::getNode(nodeTags2D[i], nodeCoord, nodeCoordParam);
-        initialCondition(nodeCoord, value);
-        u[i] = value;
-        uPlusBC[i] = value;
-    }
-    */
 
     for(std::size_t step = 1; mytime < endTime; step++){
 
@@ -777,6 +767,7 @@ int main(int argc, char **argv)
                             -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei2[ed*NumNodesSide + j]]);
                         }
                     }
+                    //avant correction
                     /*
                     if(neighbours1D[ed*2 + 1] != -1){
                         for(std::size_t copy=0; copy<NumNodesSide; copy++){
@@ -833,6 +824,18 @@ int main(int argc, char **argv)
                     VectorSu[el*numNodes2D + i] += matrixS[el*numNodes2D*numNodes2D + i*numNodes2D + j] * u[el*numNodes2D + j];
                 }
             }
+        }
+
+        // TEST Su
+        for(std::size_t el=0; el < elementTags2D.size(); el++){
+            std::cout << "el " << std::to_string(el) << "\n";
+            //loop for i of F_{ij}
+            for(std::size_t i=0; i < numNodes2D; i++){
+                
+                std::cout << "Su["<< std::to_string(el*numNodes2D + i) << "] = " << std::to_string(VectorSu[el*numNodes2D + i]) << "\n";
+                
+            }
+        std::cout << "\n";
         }
 
         // dudt à zéro
