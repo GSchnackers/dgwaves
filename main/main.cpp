@@ -7,87 +7,20 @@
 int main(int argc, char **argv)
 {
 
-    std::size_t i, j;
-
-    std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
-    struct Element mainElements; // The main elements of the mesh.
-    struct Element frontierElement; // The frontier elements of the mesh.
-
     if (argc < 2)
     {
         std::cout << "Usage: " << argv[0] << " file.msh [options]" << std::endl;
         return 0;
     }
 
+    struct Element mainElements; // The main elements of the mesh.
+    struct Element frontierElement; // The frontier elements of the mesh.
+
     gmsh::initialize(argc, argv); // Initialization of gmsh library.
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
     gmsh::open(argv[1]);                            // reads the msh file
 
-    // Initialization of the elements of the mesh.
-    gmsh::logger::write("Initializing the main elements of the mesh...");
-    Initialization(mainElements, 2, "Gauss4");
-    std::cout << "Done." << std::endl;
-
-    // Sorting of the nodes at the frontier of each element.
-    gmsh::logger::write("Collection of the information for creating the frontier elements...");
-    sortingNeighbouring(mainElements, frontierElement, sortedNodes);
-    std::cout << "Done." << std::endl;
-
-    // Creation of the frontier elements on the basis of the vector of sorted nodes.
-    gmsh::logger::write("Creation of the frontier elements...");
-    frontierCreation(mainElements, frontierElement, 2, sortedNodes);
-    std::cout << "Done." << std::endl;
-
-    // Initialization of the element representing the frontiers.
-    gmsh::logger::write("Initialization of the frontier elements...");
-    Initialization(frontierElement, 1, "Gauss3", true);
-    std::cout << "Done." << std::endl;
-
-    // getting the normals of the edges.
-    gmsh::logger::write("Computation of the normals at the frontier elements...");
-    normals(frontierElement);
-    std::cout << "Done." << std::endl;
-
-    // Matrix M of the elements loading.
-    gmsh::logger::write("Computation of the mass matrix of each element...");
-    matrixMaker(mainElements, "M");
-    std::cout << "Done." << std::endl;
-
-
-    // Mass matrix inversion.
-    gmsh::logger::write("Computation of the inverse of the mass matrix of each element...");
-    for(i = 0; i < mainElements.massMatrix.size(); i += mainElements.numNodes * mainElements.numNodes)
-    {
-        std::vector<double> tmp(mainElements.numNodes * mainElements.numNodes);
-        std::vector<double> inverseTmp(mainElements.numNodes * mainElements.numNodes);
-
-        for(j = 0; j < mainElements.numNodes * mainElements.numNodes; ++j)
-            tmp[j] = mainElements.massMatrix[i + j];
-
-        invert(tmp, inverseTmp);
-
-        mainElements.massMatrixInverse.resize(mainElements.massMatrix.size());
-
-        for(j = 0; j < mainElements.numNodes * mainElements.numNodes; ++j)
-            mainElements.massMatrixInverse[i + j] = inverseTmp[j];
-
-    }
-    std::cout << "Done." << std::endl;
-
-    // Matrix S of the elements loading.
-    gmsh::logger::write("Computation of the stiffness matrix of each element...");
-    matrixMaker(mainElements, "SX");
-    if(mainElements.dim >= 2) matrixMaker(mainElements, "SY");
-    if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
-    std::cout << "Done." << std::endl;
-
-    for(i = 0; i < mainElements.stiffnessMatrixX.size(); ++i)
-    {
-        if(!(i%3) && i) std::cout << std::endl;
-        if(!(i%9) && i) std::cout << std::endl;
-        std::cout << mainElements.stiffnessMatrixX[i] << " ";
-    }
-    
+    meshLoader(mainElements, frontierElement);
 
     gmsh::finalize(); // Closes gmsh
     return 0;

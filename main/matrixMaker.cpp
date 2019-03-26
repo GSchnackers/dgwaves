@@ -31,10 +31,7 @@ void matrixMaker(Element & element, std::string matrixType)
         tmp2.resize(tmp1.size());
 
         for(i = compo; i < element.shapeFunctionsGradParam.size(); i += 3)
-        {
             tmp2[i/3] = element.shapeFunctionsGradParam[i];
-            std::cout << tmp2[i/3] << std::endl;
-        }
             
     }
 
