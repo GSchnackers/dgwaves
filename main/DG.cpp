@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 
     // The user has to choose the values he wants for coefF
     coefF[0] = 5; //example
-    coefF[1] = 5; //example
+    coefF[1] = 0; //example
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -254,10 +254,11 @@ int main(int argc, char **argv)
             initialCondition(nodeCoord, value);
             u[i]=value;
         }
-
+        /*
         for(size_t i = 0; i < u.size(); i++){
             std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
         }
+        */
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// Entity 1D ////////////////////////////////////////////////////
