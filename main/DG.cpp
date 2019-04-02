@@ -9,8 +9,8 @@ int main(int argc, char **argv)
     std::vector<double> coefF(2);
 
     // The user has to choose the values he wants for coefF
-    coefF[0] = 1; //example
-    coefF[1] = 0; //example
+    coefF[0] = 5; //example
+    coefF[1] = 5; //example
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -129,7 +129,8 @@ int main(int argc, char **argv)
             matrixM_Inverted.insert( matrixM_Inverted.end(), matrix_tmpInverted.begin(), matrix_tmpInverted.end() );
         
         }
-
+        // TEST
+        /*
         for(std::size_t e = 0; e < numElements2D; e++){
             std::cout << "e " << std::to_string(e) << std::endl;
             for(std::size_t i = 0; i < numNodes2D; i++){
@@ -141,6 +142,7 @@ int main(int argc, char **argv)
             }
             std::cout << "\n";
         }
+        */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,6 +167,8 @@ int main(int argc, char **argv)
                 detS2D[numGaussPoints2D*e + g] = 1;
             }
         }// fin d'invertion
+
+        // TEST
         /*
         for(std::size_t e=0; e<elementTags2D.size();e++){
             for(std::size_t g=0; g<numGaussPoints2D; g++){
@@ -205,6 +209,8 @@ int main(int argc, char **argv)
         std::vector<double> matrixS;
         gaussIntegration(intpts2D, functionS, det2D, matrixS, numElements2D, numGaussPoints2D, numNodes2D);
         
+        // TEST
+        /*
         for(std::size_t e = 0; e < numElements2D; e++){
             for(std::size_t i = 0; i < numNodes2D; i++){
                 for(std::size_t j = 0; j < numNodes2D; j++)
@@ -215,6 +221,7 @@ int main(int argc, char **argv)
             }
             std::cout << "\n";
         }
+        */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////// Nodal values of u and list of nodes for each element ///////////////////////////////////////
@@ -377,10 +384,12 @@ int main(int argc, char **argv)
     std::cout << "det1DSorted.size() = " << std::to_string(det1DSorted.size()) << "\n";
     */
 
-   // TEST
+    // TEST
+    /*
     for(size_t i = 0; i < edgeNodes1DSorted.size(); i++){
         std::cout << "edgeNodes1DSorted[" << std::to_string(i) << "]  : " << std::to_string(edgeNodes1DSorted[i]) << "\n";
     }
+    */
 
     //////////////////////////////////////////////////////////////////////////////
     ///////////////// Calculer les normales des éléments triés ///////////////////
@@ -514,20 +523,21 @@ int main(int argc, char **argv)
 
     }//fin de boucle sur i
 
+    // TEST
+    /*
     for(size_t i = 0; i < neighbours1D.size(); i++){
         std::cout << "neighbours1D[" << std::to_string(i) << "]  : " << std::to_string(neighbours1D[i]) << "\n";
     }
 
-    // TEST
-    /*
+    
     for(size_t i = 0; i < edgeNodes2D.size(); i++){
         std::cout << "edgeNodes2D[" << std::to_string(i) << "]  : " << std::to_string(edgeNodes2D[i]) << "\n";
     }
-    */
+    
     for(size_t i = 0; i < nodeTags2DPlusBC.size(); i++){
         std::cout << "nodeTags2DPlusBC[" << std::to_string(i) << "]  : " << std::to_string(nodeTags2DPlusBC[i]) << "\n";
     }
-    
+    */
 
     ////////////////////////////////////////////////////////////////////////////////////
     // association of the nodes of edgeNodes1DSorted with their indices in nodeTags2D //
@@ -585,6 +595,8 @@ int main(int argc, char **argv)
 
     }// end loop on i
 
+    //TEST
+    /*
     for(size_t i = 0; i < indicesNei1.size(); i++){
         std::cout << "indicesNei1[" << std::to_string(i) << "]  : " << std::to_string(indicesNei1[i]) << "\n";
     }
@@ -592,6 +604,7 @@ int main(int argc, char **argv)
     for(size_t i = 0; i < indicesNei2.size(); i++){
         std::cout << "indicesNei2[" << std::to_string(i) << "]  : " << std::to_string(indicesNei2[i]) << "\n";
     }
+    */
 
 
     ///////////////////////////////////////////////////////////////////////
@@ -653,6 +666,7 @@ int main(int argc, char **argv)
     }
 
     // TEST
+    /*
     for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
         std::cout << "e " << std::to_string(ed) << "\n";
         //loop for i of F_{ij}
@@ -665,6 +679,7 @@ int main(int argc, char **argv)
         }
         std::cout << "\n";
     }
+    */
 
     std::cout << "TIME LOOP\n";
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -696,10 +711,12 @@ int main(int argc, char **argv)
     // declaration vector F (time dependent)
     std::vector<double> vectorF(nodeTags2D.size());
 
+    //TEST
+    /*
     for(size_t i = 0; i < u.size(); i++){
         std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
     }
-
+    */
 
     for(std::size_t step = 1; mytime < endTime; step++){
 
@@ -712,10 +729,11 @@ int main(int argc, char **argv)
         }
 
         // TEST
+        /*
         for(size_t i = 0; i < uPlusBC.size(); i++){
             std::cout << "uPlusBC[" << std::to_string(i) << "]  : " << std::to_string(uPlusBC[i]) << " at mytime " << std::to_string(mytime) << "\n";
         }
-        
+        */
 
         // initialisation to 0 of vector F
         for(std::size_t i=0; i<vectorF.size(); i++){
@@ -735,14 +753,7 @@ int main(int argc, char **argv)
                             -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei1[ed*NumNodesSide + j]]);
                         }
                     }
-                    //avant correction
-                    /*
-                    if(neighbours1D[ed*2 + 1] != -1){
-                        for(std::size_t copy=0; copy<NumNodesSide; copy++){
-                            vectorF[indicesNei2[ed*NumNodesSide + copy]] += -vectorF[indicesNei1[ed*NumNodesSide + copy]];
-                        }
-                    }
-                    */
+                    
                 }
                 if(neighbours1D[ed*2 + 1] != -1){
                     //vectorF[indicesNei2] = -... (produit mat)
@@ -767,14 +778,7 @@ int main(int argc, char **argv)
                             -(matrixF[ed*NumNodesSide*NumNodesSide + i*NumNodesSide + j] * uPlusBC[indicesNei2[ed*NumNodesSide + j]]);
                         }
                     }
-                    //avant correction
-                    /*
-                    if(neighbours1D[ed*2 + 1] != -1){
-                        for(std::size_t copy=0; copy<NumNodesSide; copy++){
-                            vectorF[indicesNei2[ed*NumNodesSide + copy]] += -vectorF[indicesNei1[ed*NumNodesSide + copy]];
-                        }
-                    }
-                    */
+                    
                 }
                 if(neighbours1D[ed*2 + 1] != -1){
                     //vectorF[indicesNei2] = -... (produit mat)
@@ -791,7 +795,7 @@ int main(int argc, char **argv)
 
 
         // TEST vector F at each time
-        
+        /*
         std::cout <<"time = " << std::to_string(mytime) << "\n";
         
         for(std::size_t el=0; el < elementTags2D.size(); el++){
@@ -805,7 +809,7 @@ int main(int argc, char **argv)
             }
         std::cout << "\n";
         }
-        
+        */
 
 
         // VectorSu à zéro
@@ -827,6 +831,7 @@ int main(int argc, char **argv)
         }
 
         // TEST Su
+        /*
         for(std::size_t el=0; el < elementTags2D.size(); el++){
             std::cout << "el " << std::to_string(el) << "\n";
             //loop for i of F_{ij}
@@ -837,6 +842,7 @@ int main(int argc, char **argv)
             }
         std::cout << "\n";
         }
+        */
 
         // dudt à zéro
         for(std::size_t el=0; el<elementTags2D.size(); el++){
@@ -866,9 +872,11 @@ int main(int argc, char **argv)
         }
 
         // TEST u
+        /*
         for(size_t i = 0; i < u.size(); i++){
             std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
         }
+        */
 
         //fill data with u
         for(std::size_t e=0; e<elementTags2D.size(); e++){
@@ -890,21 +898,3 @@ int main(int argc, char **argv)
     gmsh::finalize();
     return 0;
 }
-
-
-
-/* Notes sur le code
-
-ligne 370, peut être pas assez robuste, si jamais le produit scalaire vaut exactement 0,
- le deuxième voisin va être écrit en effaçant le premier:
-
- if(innerProduct >= 0){
-                    neighbours1D[i/(NumNodesSide)] = neighbour1D_tmp;
-                }
-                else{
-                    neighbours1D[i/(NumNodesSide) + 1] = neighbour1D_tmp;
-                }
-
-
-
-*/
