@@ -24,6 +24,11 @@ void normals(Element & frontierElement){
             for(j = 0; j < frontierElement.numGp; ++j) // run through the gauss points of a given element.
             {
 
+                int jacobDetIndex = i *  frontierElement.numGp + j;
+                int direction = 1;
+
+                if(frontierElement.jacobiansDet[jacobDetIndex] < 0) direction = -1;
+
                 int frontierIndex = 3 * i;
                 int gradIndex = i * frontierElement.numGp * frontierElement.numNodes \
                                 * frontierElement.numCompoShapeGrad + \
@@ -34,10 +39,12 @@ void normals(Element & frontierElement){
                                 frontierElement.shapeFunctionsGrad[gradIndex] *
                                 frontierElement.shapeFunctionsGrad[gradIndex]); // Normalization.
 
-                tmpNorm[frontierIndex] = \
-                                        -frontierElement.shapeFunctionsGrad[gradIndex + 1]/norm;
-                tmpNorm[frontierIndex + 1] = \
-                                        frontierElement.shapeFunctionsGrad[gradIndex]/norm;
+                int jacobIndex = frontierElement.neighbours[frontierIndex].first;
+
+                tmpNorm[frontierIndex] = direction * \
+                                        frontierElement.shapeFunctionsGrad[gradIndex + 1]/norm;
+                tmpNorm[frontierIndex + 1] = direction * \
+                                        -frontierElement.shapeFunctionsGrad[gradIndex]/norm;
                 tmpNorm[frontierIndex + 2] = 0.;
 
             }

@@ -16,6 +16,10 @@ Line(44) = {34, 31};
 Curve Loop(51) = {43, 44, 41, 42};
 Plane Surface(61) = {51};
 
+Physical Curve("Entry100") = {31, 34};
+Physical Curve("Wall1") = {34, 33};
+Physical Curve("Wall2") = {31, 32};
+
 // transfinite mesh
 Transfinite Curve {44, 42} = ny+1 Using Progression 1;
 Transfinite Curve {43, 41} = nx+1 Using Progression 1;
