@@ -31,10 +31,11 @@ void normals(Element & frontierElement);
 // Functions that computes the main matrices of the DG fem, that is the mass and the stiffiness matrices.
 void matrixMaker(Element & element, std::string matrixType);
 
+/*This functions computes the approximated function (Galerkin) at the Gauss points of the elements
+described by "element" in parametric coordinates. It stores the results in the "result" vector in the form
+[e1G1, e1G2, ... , e2G1, e2G2, ...].*/
+void valGp(const std::vector<double> u, const Element & element, std::vector<double> & result);
 
-/*// Compute the integration of Gauss
-void gaussIntegration(const std::vector<double> & integrationPoints, const std::vector<double> & functions,
- const std::vector<double> & determinants, std::vector<double> & matrix,
-  const int numElements, const int numGaussPoints, const int numNodes); */
+
 
 #endif
