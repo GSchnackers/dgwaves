@@ -67,4 +67,15 @@ struct Element{
 
 typedef struct Element Element;
 
+struct View{
+
+    std::string name;
+    std::string dataType;
+
+    int tag;
+
+};
+
+typedef struct View View;
+
 #endif

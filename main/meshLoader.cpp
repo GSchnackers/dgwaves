@@ -67,4 +67,9 @@ void meshLoader(Element & mainElements, Element & frontierElement){
     if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
     std::cout << "Done." << std::endl;
 
+    // Setting of the boundary types.
+    gmsh::logger::write("Setting the boundary condition type...");
+    setBoundaryConditions(frontierElement);
+    std::cout << "Done." << std::endl;
+
 }

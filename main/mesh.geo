@@ -13,15 +13,17 @@ Line(42) = {32, 33};
 Line(43) = {33, 34};
 Line(44) = {34, 31};
 
+// Physical curves taking into account the boundaries.
+Physical Curve("Sinusoidal1", 1) = {44};
+Physical Curve("Wall1", 2) = {43};
+Physical Curve("Wall2", 3) = {41};
+Physical Curve("Out", 4) = {42};
+
 Curve Loop(51) = {43, 44, 41, 42};
 Plane Surface(61) = {51};
-
-Physical Curve("Entry100") = {31, 34};
-Physical Curve("Wall1") = {34, 33};
-Physical Curve("Wall2") = {31, 32};
 
 // transfinite mesh
 Transfinite Curve {44, 42} = ny+1 Using Progression 1;
 Transfinite Curve {43, 41} = nx+1 Using Progression 1;
-Transfinite Surface {61};
 
+Transfinite Surface {61};

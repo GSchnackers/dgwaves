@@ -36,6 +36,12 @@ described by "element" in parametric coordinates. It stores the results in the "
 [e1G1, e1G2, ... , e2G1, e2G2, ...].*/
 void valGp(const std::vector<double> u, const Element & element, std::vector<double> & result);
 
+// Functions that computes the physical flux on an element at the nodes and the gauss points.
+void fluxComp(const Element & element, const std::vector<double> u, const std::vector<double> & uGp,\
+              const std::vector<double> & velocity, const std::vector<double> & velocityGp,\
+              std::vector<double> & fluxPhysGp, std::vector<double> & fluxPhys);
 
+// This function set the specific type of boundary condition applied to the specific place of the frontier.
+void setBoundaryConditions(Element & frontierElement);
 
 #endif
