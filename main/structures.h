@@ -67,15 +67,28 @@ struct Element{
 
 typedef struct Element Element;
 
+// Structure that deals with the viewing of the results.
 struct View{
 
-    std::string name;
-    std::string dataType;
-
-    int tag;
+    std::string name; // The name of the view.
+    std::string dataType; // The datatype to be put inside the view
+    int tag; // The view tag.
+    std::vector<std::vector<double>> data; // The data to be viewed.
 
 };
 
 typedef struct View View;
+
+// Deals with the unknowns of the problem and the fluxes.
+struct Quantity{
+
+    std::vector<double> node; // Values of the quantity at the nodes of the elements.
+    std::vector<std::pair<double, double>> gp; // Values of the quantity at the Gauss Points on each sides of the frontiers.
+    std::vector<double> next; // Values of the quantity at the next timestep.
+    std::vector<std::pair<double, double>> numGp; // numerical value of the quantity at the Gauss points on each side of the frontiers.
+
+};
+
+typedef struct Quantity Quantity;
 
 #endif

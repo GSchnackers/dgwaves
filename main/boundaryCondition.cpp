@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <iostream>
 #include <gmsh.h>
+#include <cmath>
 #include "functions.h"
 #include "structures.h"
 
@@ -51,6 +52,9 @@ void setBoundaryConditions(Element & frontierElement){
                 if(count == frontierElement.numNodes)
                 {
 
+                    if(physicalName.find("Output") != std::string::npos)
+                        frontierElement.neighbours[j].second = -1;
+
                     if(physicalName.find("Wall") != std::string::npos)
                         frontierElement.neighbours[j].second = -2;
 
@@ -60,20 +64,46 @@ void setBoundaryConditions(Element & frontierElement){
                     else if(physicalName.find("Sinusoidal") != std::string::npos)
                         frontierElement.neighbours[j].second = -4;
 
-                    else if(physicalName.find("Out") != std::string::npos)
-                        frontierElement.neighbours[j].second = -5;
-
                     else
                     {
                         gmsh::logger::write("The initial condition is not known.", "error");
                         exit(-1);
                     }
                     
-                    
                 }
             }
         }
 
     }
+
+}
+
+// At first, very simple boundary conditions. They are applied at the gauss points of the boundaries of the
+// domain, since the fluxes are appleid there.
+void computeBoundaryCondition(const Element & frontierElement, Quantity & u, const double t){
+
+    std::size_t i, j;
+
+    for(i = 0; i < frontierElement.elementTag.size(); ++i)
+        for(j = 0; j < frontierElement.numGp; ++j)
+        {
+            int index = i * frontierElement.numGp + j;
+
+            if(t == 0) // The fixed boundary condition with time do not need to be reevaluated farther.
+                switch (frontierElement.neighbours[i].second)
+                {
+                    case -2:
+                        u.gp[index].second = 0;
+                        break;
+
+                    case -3:
+                        u.gp[index].second = 1;
+                        break;
+                }
+
+            if(frontierElement.neighbours[i].second == -4)
+                u.gp[index].second = sin(t);
+
+        }
 
 }

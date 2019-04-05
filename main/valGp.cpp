@@ -8,22 +8,37 @@
 #include "functions.h"
 #include "structures.h"
 
-void valGp(const std::vector<double> u, const Element & element, std::vector<double> & result){
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement){
 
     std::size_t i, j, k;
 
-    std::fill(result.begin(), result.end(), 0);
+    u.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp);
 
-    for(i = 0; i < element.elementTag.size(); ++i) // loop over the elements
-        for(j = 0; j < element.numGp; ++j) // loop over the Gauss Points
-            for(k = 0; k < element.numNodes ; ++k) // Loope over the nodes (i.e. the shape functions) of the element.
+    std::fill(u.gp.begin(), u.gp.end(), 0);
+
+    for(i = 0; i < frontierElement.elementTag.size(); ++i) // Loop over the elements
+        for(j = 0; j < frontierElement.numGp; ++j) // Loop over the Gauss Points
+            for(k = 0; k < frontierElement.numNodes ; ++k) // Loop over the nodes (i.e. the shape functions) of the element.
             {
 
-                int resIndex = i * element.numGp + j; // index of the result.
-                int uIndex = i * element.numNodes + k; // index of the u vector.
-                int shapeIndex = k * element.numGp + j; // index of the gauss point coordinates.
+                int indexGp = i * frontierElement.numGp + j;
+                int indexNode1 = frontierElement.neighbours[i].first * frontierElement.numNodes + k;
+                int indexShape = j * frontierElement.numNodes + k;
 
-                result[resIndex] += u[uIndex] * element.shapeFunctionsParam[shapeIndex];
+                u.gp[indexGp].first += u.node[indexNode1] * frontierElement.shapeFunctionsParam[indexShape];
+
+                // Case we do not have a frontier.
+                if(frontierElement.neighbours[i].second > -1)
+                {
+                    int indexNode2 = frontierElement.neighbours[i].second * frontierElement.numNodes + k;
+                    
+                    u.gp[indexGp].second += u.node[indexNode2] * frontierElement.shapeFunctionsParam[indexShape];
+
+                }
+
+                // In case we have a frontier.
+                else if(frontierElement.neighbours[i].second == -1)
+                    u.gp[indexGp].second += u.node[indexNode1] * frontierElement.shapeFunctionsParam[indexShape];
 
             }
 

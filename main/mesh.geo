@@ -17,7 +17,7 @@ Line(44) = {34, 31};
 Physical Curve("Sinusoidal1", 1) = {44};
 Physical Curve("Wall1", 2) = {43};
 Physical Curve("Wall2", 3) = {41};
-Physical Curve("Out", 4) = {42};
+Pysical Curve("Output1", 4) = {42};
 
 Curve Loop(51) = {43, 44, 41, 42};
 Plane Surface(61) = {51};

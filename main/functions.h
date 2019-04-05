@@ -31,17 +31,21 @@ void normals(Element & frontierElement);
 // Functions that computes the main matrices of the DG fem, that is the mass and the stiffiness matrices.
 void matrixMaker(Element & element, std::string matrixType);
 
-/*This functions computes the approximated function (Galerkin) at the Gauss points of the elements
-described by "element" in parametric coordinates. It stores the results in the "result" vector in the form
-[e1G1, e1G2, ... , e2G1, e2G2, ...].*/
-void valGp(const std::vector<double> u, const Element & element, std::vector<double> & result);
+// Solver of the DG-FEM.
+void solver(Element & mainElement, Element & frontierElement);
 
-// Functions that computes the physical flux on an element at the nodes and the gauss points.
-void fluxComp(const Element & element, const std::vector<double> u, const std::vector<double> & uGp,\
-              const std::vector<double> & velocity, const std::vector<double> & velocityGp,\
-              std::vector<double> & fluxPhysGp, std::vector<double> & fluxPhys);
+
+// Computes the values of u at the Gauss Points.
+void valGp(Quantity & u, const Element & element, const Element & frontierElement);
+
+// Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
+void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
+                Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
 void setBoundaryConditions(Element & frontierElement);
+
+// Computes the values of u on the basis of the boundary conditions that were set.
+void computeBoundaryCondition(const Element & frontierElement, Quantity & u, const double t);
 
 #endif
