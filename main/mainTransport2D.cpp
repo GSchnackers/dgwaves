@@ -9,7 +9,7 @@ int main(int argc, char **argv)
     std::vector<double> coefF(2);
 
     // The user has to choose the values he wants for coefF
-    coefF[0] = 5; //example
+    coefF[0] = 2; //example
     coefF[1] = 0; //example
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -234,6 +234,14 @@ int main(int argc, char **argv)
         // get the nodes on the edges of the 2D elements
         gmsh::model::mesh::getElementEdgeNodes(eleType2D, edgeNodes2D, s2D);
 
+        // TEST what returns getElementEdgeNodes in edgeNodes2D
+        /*
+        for(size_t i = 0; i < edgeNodes2D.size(); i++){
+            std::cout << "edgeNodes2D[" << std::to_string(i) << "] : " << std::to_string(edgeNodes2D[i]) << "\n";
+        }
+        std::cout << "\n";
+        */
+
         //list of nodes for each element : nodeTags2D
 
         //list of nodal values
@@ -340,18 +348,20 @@ int main(int argc, char **argv)
         det1DSorted.push_back(det1D[i]);
     }
     
-    //les indices i et j sont les indices du premier noeud de chaque edge    
+    //les indices i et j sont les indices du premier noeud de chaque edge;
+    //les indices i+1 et j+1 sont les indices des noeuds à l'autre extrémité de chaque edge
+
     for(std::size_t i=0; i<edgeNodes1D.size(); i+= NumNodesSide){
 
         for(std::size_t j=0; j<edgeNodes1DSorted.size(); j+= NumNodesSide){
 
              // Check if edges is already in sortingNodes in the same direction
-            if(edgeNodes1D[i] == edgeNodes1DSorted[j] && edgeNodes1D[i+ NumNodesSide -1] == edgeNodes1DSorted[j+ NumNodesSide -1])
+            if(edgeNodes1D[i] == edgeNodes1DSorted[j] && edgeNodes1D[i+1] == edgeNodes1DSorted[j+1])
             {
                 break;
             }
             // Check if edges is already in sortingNodes in the opposite direction
-            else if(edgeNodes1D[i] == edgeNodes1DSorted[j+ NumNodesSide -1] && edgeNodes1D[i+ NumNodesSide -1] == edgeNodes1DSorted[j])
+            else if(edgeNodes1D[i] == edgeNodes1DSorted[j+1] && edgeNodes1D[i+1] == edgeNodes1DSorted[j])
             {
                 break;
             }
@@ -383,17 +393,21 @@ int main(int argc, char **argv)
     }//fin de boucle sur i
 
     // TEST
+    /*
     std::cout << "edgeNodes1DSorted.size() = " << std::to_string(edgeNodes1DSorted.size()) << "\n";
     std::cout << "tagElement1DSorted.size() = " << std::to_string(tagElement1DSorted.size()) << "\n";
     std::cout << "det1DSorted.size() = " << std::to_string(det1DSorted.size()) << "\n";
-    
-
-    // TEST
+    std::cout << "\n";
     
     for(size_t i = 0; i < edgeNodes1DSorted.size(); i++){
         std::cout << "edgeNodes1DSorted[" << std::to_string(i) << "]  : " << std::to_string(edgeNodes1DSorted[i]) << "\n";
     }
-    
+    std::cout << "\n";
+    for(size_t i = 0; i < tagElement1DSorted.size(); i++){
+        std::cout << "tagElement1DSorted[" << std::to_string(i) << "]  : " << std::to_string(tagElement1DSorted[i]) << "\n";
+    }
+    std::cout << "\n";
+    */
 
     //////////////////////////////////////////////////////////////////////////////
     ///////////////// Calculer les normales des éléments triés ///////////////////
@@ -408,7 +422,7 @@ int main(int argc, char **argv)
 
         //calcul de la normale au bord
         gmsh::model::mesh::getNode(edgeNodes1DSorted[i], nodeCoord1, nodeCoordParam1);
-        gmsh::model::mesh::getNode(edgeNodes1DSorted[i+NumNodesSide-1], nodeCoord2, nodeCoordParam2);
+        gmsh::model::mesh::getNode(edgeNodes1DSorted[i+1], nodeCoord2, nodeCoordParam2);
 
         // Computation of the normal. n = (-y , x)/(x^2+y^2)^(1/2)
 
@@ -465,11 +479,11 @@ int main(int argc, char **argv)
 
         for(std::size_t j=0; j<edgeNodes2D.size(); j+= NumNodesSide){
             // Check if the edge is common to the edge of one 2D element
-            if((edgeNodes2D[j] == edgeNodes1DSorted[i] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i+ NumNodesSide -1]) \
-                ||(edgeNodes2D[j] == edgeNodes1DSorted[i+ NumNodesSide -1] && edgeNodes2D[j+ NumNodesSide -1] == edgeNodes1DSorted[i])){
+            if((edgeNodes2D[j] == edgeNodes1DSorted[i] && edgeNodes2D[j+1] == edgeNodes1DSorted[i+1]) \
+                ||(edgeNodes2D[j] == edgeNodes1DSorted[i+1] && edgeNodes2D[j+1] == edgeNodes1DSorted[i])){
                 
                 neighbour1D_tmp = j/(NumSide2D*NumNodesSide);
-                // (j/NumNodesSide) is the number("index") of the 2D element
+                // (j/NumSide2D*NumNodesSide) is the number("index") of the 2D element
 
                 // look at the inner product between the vector constructed with two node coordinates of the 2D element (one positioned on the edge)
                 // and the vector normal to the edge to know if the normal is in the conventional direction or not
@@ -502,6 +516,16 @@ int main(int argc, char **argv)
         //fill the tags for BC in nodeTags2DPlusBC
         if(neighbours1D[i/(NumNodesSide)*2] == -1 || neighbours1D[i/(NumNodesSide)*2 + 1] == -1){
             
+            //nodes which are not at the extremities are not yet in nodeTags2DPlusBC 
+            //while the nodes at the extremities are maybe already in there so we will check if there are already there or not.
+
+            for(std::size_t copy=2; copy<NumNodesSide; copy++){
+
+                nodeTags2DPlusBC.push_back(edgeNodes1DSorted[i + copy]);
+                uPlusBC.push_back(0);
+            }
+            
+
             check1 = 0;
             check2 = 0;
             // check if the tag of the node is already in the BC tags
@@ -509,7 +533,7 @@ int main(int argc, char **argv)
                 if(nodeTags2DPlusBC[c] == edgeNodes1DSorted[i]){
                     check1 = 1;
                 }
-                if(nodeTags2DPlusBC[c] == edgeNodes1DSorted[i + NumNodesSide -1]){
+                if(nodeTags2DPlusBC[c] == edgeNodes1DSorted[i + 1]){
                     check2 = 1;
                 }
             }
@@ -519,7 +543,7 @@ int main(int argc, char **argv)
                 uPlusBC.push_back(0);
             }
             if(check2 == 0){
-                nodeTags2DPlusBC.push_back(edgeNodes1DSorted[i + NumNodesSide -1]);
+                nodeTags2DPlusBC.push_back(edgeNodes1DSorted[i + 1]);
                 uPlusBC.push_back(0);
             }
 
@@ -685,7 +709,7 @@ int main(int argc, char **argv)
     }
     */
 
-    std::cout << "TIME LOOP\n";
+    std::cout << "\n TIME LOOP \n \n";
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////           TIME LOOP           /////////////////////////////////////////////////
