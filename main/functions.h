@@ -16,14 +16,14 @@ void frontierCreation(const Element mainElement, Element & frontierElement, cons
 void sortingNeighbouring(const Element & mainElement, Element & frontierElement,\
                          std::vector<int> & nodeSorted);
 
+// This function links the nodes of the frontier elements with their indices in the global numerotation.
+void correspondance(const Element & mainElement, Element & frontierElement);
+
 // Functions that allows to inverse a matrix.
 void invert(std::vector<double> matrix, std::vector<double> & inverse);
 
 // Function that inverses the jacobian.
 void getJacobiansInverse(Element & element);
-
-// Gets the gradient in real coordinates of the shape function of each elements represented by element.
-void getRealGradient(Element & element);
 
 // Gets the normal to all edge elements.
 void normals(Element & frontierElement);
@@ -32,11 +32,10 @@ void normals(Element & frontierElement);
 void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
-void solver(Element & mainElement, Element & frontierElement);
+//void solver(Element & mainElement, Element & frontierElement);
 
-
-// Computes the values of u at the Gauss Points.
-void valGp(Quantity & u, const Element & element, const Element & frontierElement);
+// Computes the values of u at the gauss points.
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
 
 // Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
@@ -47,5 +46,11 @@ void setBoundaryConditions(Element & frontierElement);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
 void computeBoundaryCondition(const Element & frontierElement, Quantity & u, const double t);
+
+// Computes the numerical fluxes at the interface of elements.
+void numFluxUpwind(const Element & frontierElement, Quantity & flux);
+
+// This function compute the product of the stiffness matrix and the physical flux vector at nodal values.
+void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod);
 
 #endif

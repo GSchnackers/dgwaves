@@ -12,7 +12,7 @@ void normals(Element & frontierElement){
     std::size_t i, j, k;
 
     // Temporary vector for the normals.
-    std::vector<double> tmpNorm(3 * frontierElement.elementTag.size());
+    std::vector<double> tmpNorm(frontierElement.elementTag.size() * frontierElement.numGp * 3);
 
     // 2D mesh case. The normal is simply the vectorial product of the gradient of one of the shape
     // function (which is perpendicular to the element edge) and the normal to the plane
@@ -24,27 +24,19 @@ void normals(Element & frontierElement){
             for(j = 0; j < frontierElement.numGp; ++j) // run through the gauss points of a given element.
             {
 
-                int jacobDetIndex = i *  frontierElement.numGp + j;
-                int direction = 1;
+                int jacobianIndex = i *  frontierElement.numGp * 9 + j * 9;
 
-                if(frontierElement.jacobiansDet[jacobDetIndex] < 0) direction = -1;
+                int frontierIndex = i * frontierElement.numGp * 3 + j * 3;
 
-                int frontierIndex = 3 * i;
-                int gradIndex = i * frontierElement.numGp * frontierElement.numNodes \
-                                * frontierElement.numCompoShapeGrad + \
-                                j * frontierElement.numCompoShapeGrad; // Index of the first gradient component of interest.
-
-                double norm = sqrt(frontierElement.shapeFunctionsGrad[gradIndex + 1] *\
-                                frontierElement.shapeFunctionsGrad[gradIndex + 1] +\
-                                frontierElement.shapeFunctionsGrad[gradIndex] *
-                                frontierElement.shapeFunctionsGrad[gradIndex]); // Normalization.
+                double norm = sqrt(frontierElement.jacobiantInverseTranspose[jacobianIndex + 3] *\
+                                frontierElement.jacobiantInverseTranspose[jacobianIndex + 3] +\
+                                frontierElement.jacobiantInverseTranspose[jacobianIndex] *
+                                frontierElement.jacobiantInverseTranspose[jacobianIndex]); // Normalization.
 
                 int jacobIndex = frontierElement.neighbours[frontierIndex].first;
 
-                tmpNorm[frontierIndex] = direction * \
-                                        frontierElement.shapeFunctionsGrad[gradIndex + 1]/norm;
-                tmpNorm[frontierIndex + 1] = direction * \
-                                        -frontierElement.shapeFunctionsGrad[gradIndex]/norm;
+                tmpNorm[frontierIndex] = frontierElement.jacobiantInverseTranspose[jacobianIndex + 3]/norm;
+                tmpNorm[frontierIndex + 1] = -frontierElement.jacobiantInverseTranspose[jacobianIndex ]/norm;
                 tmpNorm[frontierIndex + 2] = 0.;
 
             }

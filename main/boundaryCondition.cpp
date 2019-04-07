@@ -19,8 +19,6 @@ void setBoundaryConditions(Element & frontierElement){
 
     gmsh::model::getPhysicalGroups(physicalGroupsTags);
 
-    std::cout << physicalGroupsTags.size() << std::endl;
-
     for(i = 0; i < physicalGroupsTags.size(); ++i)
     {
 
@@ -55,7 +53,7 @@ void setBoundaryConditions(Element & frontierElement){
                     if(physicalName.find("Output") != std::string::npos)
                         frontierElement.neighbours[j].second = -1;
 
-                    if(physicalName.find("Wall") != std::string::npos)
+                    else if(physicalName.find("Wall") != std::string::npos)
                         frontierElement.neighbours[j].second = -2;
 
                     else if(physicalName.find("Constant") != std::string::npos)
@@ -67,6 +65,7 @@ void setBoundaryConditions(Element & frontierElement){
                     else
                     {
                         gmsh::logger::write("The initial condition is not known.", "error");
+                        std::cout << std::string::npos << std::endl;
                         exit(-1);
                     }
                     
@@ -82,28 +81,28 @@ void setBoundaryConditions(Element & frontierElement){
 // domain, since the fluxes are appleid there.
 void computeBoundaryCondition(const Element & frontierElement, Quantity & u, const double t){
 
-    std::size_t i, j;
+    std::size_t i;
 
-    for(i = 0; i < frontierElement.elementTag.size(); ++i)
-        for(j = 0; j < frontierElement.numGp; ++j)
-        {
-            int index = i * frontierElement.numGp + j;
+    u.bc.resize(frontierElement.nodeTags.size());
 
-            if(t == 0) // The fixed boundary condition with time do not need to be reevaluated farther.
-                switch (frontierElement.neighbours[i].second)
-                {
-                    case -2:
-                        u.gp[index].second = 0;
-                        break;
+    for(i = 0; i < frontierElement.nodeTags.size(); ++i)
+    {
+        if(t == 0) // The fixed boundary condition with time do not need to be revaluated farther.
+            switch (frontierElement.neighbours[i/frontierElement.numNodes].second)
+            {
+                case -2:
+                    u.bc[i].second = 0;
+                    break;
 
-                    case -3:
-                        u.gp[index].second = 1;
-                        break;
-                }
+                case -3:
+                    u.bc[i].second = 1;
+                    break;
+            }
 
-            if(frontierElement.neighbours[i].second == -4)
-                u.gp[index].second = sin(t);
+        if(frontierElement.neighbours[i].second == -4)
+            u.bc[i].second = sin(t);
+    }
 
-        }
+        
 
 }

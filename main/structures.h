@@ -31,7 +31,6 @@ struct Element{
     int numCompoShape; // Number of shape functions.
     int numCompoShapeGrad; // number of components of the gradient of shape functions.
 
-    std::vector<double> shapeFunctionsGrad; // Shape functions gradient at the Gauss points in real coordinates.
     std::vector<double> shapeFunctionsGradParam; // Shape functions gradient at the Gauss points in parametric coordinates.
     
     std::vector<double> gaussPointsParam; // Gauss points in parametric coordinates for shape functions.
@@ -51,6 +50,8 @@ struct Element{
 
     std::vector<double> jacobians; // Jacobians of the element at the gauss points in real coordinates.
     std::vector<double> jacobiansInverse; // Inverse of the real jacobian.
+    std::vector<double> jacobianTranspose; // Transpose of the jacobian.
+    std::vector<double> jacobiantInverseTranspose; // Transpose of the inverse of the jacobian.
     std::vector<double> jacobiansDet; // Jacobians of the element at the gauss points.
 
     std::vector<int> frontierNode; // Nodes at the frontier of the element.
@@ -60,6 +61,7 @@ struct Element{
     std::vector<int> nodeTags; // Tags of the node of each elements. e1N1,e1N2,...,e1Nn, e2N1,...
 
     std::vector<std::pair<int,int>> neighbours;// Neighbours of the elements. Useful only for the frontier elements.
+    std::vector<std::pair<int, int>> nodeCorrespondance; // Vector of pair. nodecorrespondance[i * numNodes + j] contains the indices of the jth neighbour nodes on the ith frontier. firs is for the first element neighbour, second is for the second neighbour.  
 
     std::vector<double> normals; // Vector containing the normals. Only useful for frontier elements.
 
@@ -83,9 +85,9 @@ typedef struct View View;
 struct Quantity{
 
     std::vector<double> node; // Values of the quantity at the nodes of the elements.
-    std::vector<std::pair<double, double>> gp; // Values of the quantity at the Gauss Points on each sides of the frontiers.
     std::vector<double> next; // Values of the quantity at the next timestep.
-    std::vector<std::pair<double, double>> numGp; // numerical value of the quantity at the Gauss points on each side of the frontiers.
+    std::vector<std::pair<double, double>> num; // numerical value of the quantity at the nodes.
+    std::vector<std::pair<double, double>> bc; // Gets the bc from one side or another of a frontier element.
 
 };
 

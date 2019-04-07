@@ -10,16 +10,16 @@
 void matrixMaker(Element & element, std::string matrixType)
 {
 
-    std::size_t i, j = 0, k, l; // Indiex variable.
+    std::size_t i, j = 0, k, l; // Index variable.
 
     // Matrix containing all values for all elements and all gauss points.
-    std::vector<double> tmp1 = element.shapeFunctionsParam, tmp2;
+    std::vector<double> tmp1, tmp2 = element.shapeFunctionsParam;
     std::vector<double> matrixTmp(element.numNodes * element.numNodes * element.elementTag.size(), 0);
 
     int compo = -1; // Keeps in memory the component of the gradient to use in the building of x. It is -1 for M, 0, 1 and 2 for SX SY and SZ respectively.
 
     if(!matrixType.compare("M"))
-        tmp2 = tmp1;
+        tmp1 = tmp2; 
 
     else if(!matrixType.compare("SX") || !matrixType.compare("SY") || !matrixType.compare("SZ"))
     {
@@ -28,10 +28,10 @@ void matrixMaker(Element & element, std::string matrixType)
         else if(matrixType.find("Y") != std::string::npos) compo = 1;
         else compo = 2;
 
-        tmp2.resize(tmp1.size());
+        tmp1.resize(tmp2.size());
 
         for(i = compo; i < element.shapeFunctionsGradParam.size(); i += 3)
-            tmp2[i/3] = element.shapeFunctionsGradParam[i];
+            tmp1[i/3] = element.shapeFunctionsGradParam[i];
             
     }
 
@@ -41,6 +41,7 @@ void matrixMaker(Element & element, std::string matrixType)
         exit(-1);
     }
 
+    // Computes the resulting matrix.
     for(i = 0; i < element.elementTag.size(); ++i)
         for(j = 0; j < element.numGp; ++j)
             for(k = 0; k < element.numNodes; ++k)
@@ -48,8 +49,8 @@ void matrixMaker(Element & element, std::string matrixType)
                 {
                     int indexMatrix = i * element.numNodes * element.numNodes + k * element.numNodes + l;
                     
-                    int index1 = j * element.numNodes + k;
-                    int index2 = j * element.numNodes + l;
+                    int index1 = j * element.numNodes + l;
+                    int index2 = j * element.numNodes + k;
                     int indexJacob = i * element.numGp + j;
                     int indexGPoint = 4 * j + 3;
 

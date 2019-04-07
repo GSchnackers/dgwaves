@@ -8,7 +8,7 @@
 
 void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier){
 
-    std::size_t i, j; // Index variables
+    std::size_t i, j, k, l; // Index variables
 
     gmsh::vectorpair entities; // Vector pair used to contain the dimension and tags of entities.
 
@@ -84,7 +84,18 @@ void Initialization(Element & element, const int meshDim, std::string integratio
     // Gets the inverse of the jacobian of each elements represented by element.
     getJacobiansInverse(element);
 
-    // Gets the gradient in real coordinates of the shape function of each elements represented by element.
-    getRealGradient(element);
+    element.jacobiantInverseTranspose.resize(element.jacobians.size());
+    element.jacobianTranspose.resize(element.jacobians.size());
 
+    // Computes the transpose of the jacobians.
+    for(i = 0; i < element.elementTag.size(); ++i)
+        for(j = 0; j < element.numGp; ++j)
+            for(k = 0; k < 3; ++k)
+                for(l = 0; l < 3; ++l)
+                {
+                    int index1 = i * element.numGp * 9 + j * 9 + k * 3 + l;
+                    int index2 = i * element.numGp * 9 + j * 9 + l * 3 + k;
+                    element.jacobianTranspose[index1] = element.jacobians[index2];
+                    element.jacobiantInverseTranspose[index1] = element.jacobiansInverse[index2];
+                }
 }

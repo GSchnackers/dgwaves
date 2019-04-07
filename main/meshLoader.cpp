@@ -34,11 +34,16 @@ void meshLoader(Element & mainElements, Element & frontierElement){
     normals(frontierElement);
     std::cout << "Done." << std::endl;
 
+    // Correspondance computation between the nodes of each frontier element and its index in the general indexations.
+    // This function links the nodes of the frontier elements with their indices in the global numerotation.
+    gmsh::logger::write("Correspondace computation...");
+    correspondance(mainElements, frontierElement);
+    std::cout << "Done." << std::endl;
+
     // Matrix M of the elements loading.
     gmsh::logger::write("Computation of the mass matrix of each element...");
     matrixMaker(mainElements, "M");
     std::cout << "Done." << std::endl;
-
 
     // Mass matrix inversion.
     gmsh::logger::write("Computation of the inverse of the mass matrix of each element...");
