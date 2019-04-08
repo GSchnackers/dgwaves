@@ -25,46 +25,18 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
 }
 
 // Computes a fairly simple upwind flux: it choses the flux from which information comes from.
-void numFluxCuUpwind(const Element & mainElement, Quantity & flux){
+void numFluxCuUpwind(const Element & frontierElement, Quantity & flux){
 
-    std::size_t i, j;
-    std::vector<double> c = {1, 0, 0};
+    std::size_t i, j, k;
 
-    for(i = 0; i < mainElement.elementTag.size(); ++i)
-        for(j = 0; j < mainElement.numNodes; ++j)
-        {
-            int scalarProd = 0;
+    
 
-            for(k = 0; k < 3; ++k)
+    for(i = 0; i < frontierElement.elementTag.size(); ++i)
+        for(j = 0; j < frontierElement.numNodes; ++j)
+            for(k = 0; k < frontierElement.numGp; ++k)
             {
-                int index = i * mainElement.numNodes * 3 + j * 3 + k;
-
-                scalarProd += flux.node[index] * mainElement.normals[index];
-
+                
             }
-
-            if(scalarProd > 0)
-                for(k = 0; k < 3; ++k)
-                {
-                    int index = i * frontierElement.numGp * 3 + j * 3 + k;
-
-                    flux.numGp[index].first = flux.gp[index].first;
-                    flux.numGp[index].second = -flux.numGp[index].first;
-
-                }
-
-            else if(scalarProd < 0)
-                for(k = 0; k < 3; ++k)
-                {
-                    int index = i * frontierElement.numGp * 3 + j * 3 + k;
-
-                    flux.numGp[index].first = flux.gp[index].second;
-                    flux.numGp[index].second = -flux.numGp[index].first;
-
-                }
-
-            
-        }    
 
 }
 

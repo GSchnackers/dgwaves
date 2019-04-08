@@ -50,8 +50,6 @@ struct Element{
 
     std::vector<double> jacobians; // Jacobians of the element at the gauss points in real coordinates.
     std::vector<double> jacobiansInverse; // Inverse of the real jacobian.
-    std::vector<double> jacobianTranspose; // Transpose of the jacobian.
-    std::vector<double> jacobiantInverseTranspose; // Transpose of the inverse of the jacobian.
     std::vector<double> jacobiansDet; // Jacobians of the element at the gauss points.
 
     std::vector<int> frontierNode; // Nodes at the frontier of the element.
