@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
     meshLoader(mainElement, frontierElement); // Initialization of all quantities required.
 
-    //solver(mainElement, frontierElement); // Solving of the PDE with DG-FEM.
+    solver(mainElement, frontierElement); // Solving of the PDE with DG-FEM.
 
 
     gmsh::finalize(); // Closes gmsh

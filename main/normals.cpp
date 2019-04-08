@@ -33,29 +33,16 @@ void normals(Element & frontierElement){
                                    frontierElement.jacobiansInverse[jacobianIndex] *
                                    frontierElement.jacobiansInverse[jacobianIndex]); // Normalization.
 
+
                 int jacobIndex = frontierElement.neighbours[frontierIndex].first;
 
-                tmpNorm[frontierIndex] = frontierElement.jacobiansInverse[jacobianIndex + 3]/norm;
-                tmpNorm[frontierIndex + 1] = -frontierElement.jacobiansInverse[jacobianIndex]/norm;
+                tmpNorm[frontierIndex] = frontierElement.jacobiansInverse[jacobianIndex + 8] * \
+                                         frontierElement.jacobiansInverse[jacobianIndex + 3]/norm;
+                tmpNorm[frontierIndex + 1] = - frontierElement.jacobiansInverse[jacobianIndex + 8] * \
+                                             frontierElement.jacobiansInverse[jacobianIndex]/norm;
                 tmpNorm[frontierIndex + 2] = 0.;
 
             }
-
-    // 3D case mesh. gmsh directly implements the normal to an element face.
-    else if(frontierElement.dim == 2)
-        for(i = 0; i < frontierElement.neighbours.size(); ++i){
-
-            int gaussIndex = 3 * frontierElement.neighbours[i].first * frontierElement.numGp;
-
-            std::vector<double> normalTmp;
-            std::vector<double> gaussTmp = {frontierElement.gaussPointsParam[gaussIndex],\
-                                            frontierElement.gaussPointsParam[gaussIndex + 1]};
-
-            gmsh::model::getNormal(frontierElement.elementTag[i], gaussTmp, normalTmp);
-
-            for(j = 0; j < normalTmp.size(); ++j) tmpNorm[3*i + j] = normalTmp[j];
-
-        } 
 
 
     frontierElement.normals = tmpNorm; 

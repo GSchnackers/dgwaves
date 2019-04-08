@@ -32,7 +32,7 @@ void normals(Element & frontierElement);
 void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
-//void solver(Element & mainElement, Element & frontierElement);
+void solver(Element & mainElement, Element & frontierElement);
 
 // Computes the values of u at the gauss points.
 void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
@@ -40,6 +40,9 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
 // Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
                 Quantity & flux);
+
+// Allow to compute the simple numerical upwind flux.
+void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
 void setBoundaryConditions(Element & frontierElement);
@@ -52,5 +55,9 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 
 // This function compute the product of the stiffness matrix and the physical flux vector at nodal values.
 void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod);
+
+// Integration of the numerical flux on the frontier of each element for all shape functions.
+void numFluxIntegration(const Quantity & flux, const Element & mainElement, const Element & frontierElement,\
+                        std::vector<double> & fMatrix);
 
 #endif

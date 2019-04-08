@@ -9,6 +9,8 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
 
     std::size_t i, j, k;
 
+    prod.resize(mainElement.nodeTags.size(), 0);
+
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
             for(k = 0; k < mainElement.numNodes; ++k)

@@ -24,7 +24,7 @@ void correspondance(const Element & mainElement, Element & frontierElement){
                 
                 if(frontierElement.nodeTags[frontNodeIndex] == mainElement.nodeTags[neighIndex1])
                 {
-                    frontierElement.nodeCorrespondance[frontNodeIndex].first = neighIndex1;
+                    frontierElement.nodeCorrespondance[frontNodeIndex].first = k;
                     break;
                 }
 
@@ -37,7 +37,7 @@ void correspondance(const Element & mainElement, Element & frontierElement){
 
                     if(frontierElement.nodeTags[frontNodeIndex] == mainElement.nodeTags[neighIndex2])
                     {
-                        frontierElement.nodeCorrespondance[frontNodeIndex].second = neighIndex2;
+                        frontierElement.nodeCorrespondance[frontNodeIndex].second = k;
                         break;
                     }
                     

@@ -81,27 +81,29 @@ void setBoundaryConditions(Element & frontierElement){
 // domain, since the fluxes are appleid there.
 void computeBoundaryCondition(const Element & frontierElement, Quantity & u, const double t){
 
-    std::size_t i;
+    std::size_t i, j;
 
-    u.bc.resize(frontierElement.nodeTags.size());
+    u.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp);
 
-    for(i = 0; i < frontierElement.nodeTags.size(); ++i)
-    {
-        if(t == 0) // The fixed boundary condition with time do not need to be revaluated farther.
-            switch (frontierElement.neighbours[i/frontierElement.numNodes].second)
-            {
-                case -2:
-                    u.bc[i].second = 0;
-                    break;
+    for(i = 0; i < frontierElement.elementTag.size(); ++i)
+        for(j = 0; j < frontierElement.numGp; ++j)
+        {
+            int index = i * frontierElement.numGp + j;
+            if(t == 0) // The fixed boundary condition with time do not need to be revaluated farther.
+                switch (frontierElement.neighbours[i/frontierElement.numNodes].second)
+                {
+                    case -2:
+                        u.numGp[index].second = 0;
+                        break;
 
-                case -3:
-                    u.bc[i].second = 1;
-                    break;
-            }
+                    case -3:
+                        u.numGp[index].second = 1;
+                        break;
+                }
 
-        if(frontierElement.neighbours[i].second == -4)
-            u.bc[i].second = sin(t);
-    }
+            if(frontierElement.neighbours[i].second == -4)
+                u.numGp[index].second = sin(t);
+        }
 
         
 
