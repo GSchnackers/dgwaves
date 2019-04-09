@@ -6,7 +6,7 @@
 
 void boundaryConditions(std::vector<double> & coord,double mytime, double & value){
     
-    //value=1;
+    //value = 1;
 
     
     double T = 0.5; //période de l'onde
