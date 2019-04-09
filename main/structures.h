@@ -85,6 +85,7 @@ struct Quantity{
     std::vector<double> node; // Values of the quantity at the nodes of the elements.
     std::vector<double> next; // Values of the quantity at the next timestep.
     std::vector<std::pair<double, double>> numGp; // numerical value of the quantity at the nodes.
+    std::vector<double> bound;
 
 };
 

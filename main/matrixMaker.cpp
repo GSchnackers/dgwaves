@@ -43,16 +43,16 @@ void matrixMaker(Element & element, std::string matrixType)
 
     // Computes the resulting matrix.
     for(i = 0; i < element.elementTag.size(); ++i)
-        for(j = 0; j < element.numGp; ++j)
+        for(j = 0; j < element.numNodes; ++j)
             for(k = 0; k < element.numNodes; ++k)
-                for(l = 0; l < element.numNodes; ++l)
+                for(l = 0; l < element.numGp; ++l)
                 {
-                    int indexMatrix = i * element.numNodes * element.numNodes + k * element.numNodes + l;
+                    int indexMatrix = i * element.numNodes * element.numNodes + j * element.numNodes + k;
                     
-                    int index1 = j * element.numNodes + l;
-                    int index2 = j * element.numNodes + k;
-                    int indexJacob = i * element.numGp + j;
-                    int indexGPoint = 4 * j + 3;
+                    int index1 = l * element.numNodes + j;
+                    int index2 = l * element.numNodes + k;
+                    int indexJacob = i * element.numGp + l;
+                    int indexGPoint = 4 * l + 3;
 
                     matrixTmp[indexMatrix] += tmp1[index1] * tmp2[index2] * \
                                               element.jacobiansDet[indexJacob] * \

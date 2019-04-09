@@ -48,7 +48,8 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 void setBoundaryConditions(Element & frontierElement);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
-void computeBoundaryCondition(const Element & frontierElement, Quantity & u, const double t);
+void computeBoundaryCondition(const Element & mainElement, const Element & frontierElement, Quantity & u,\
+                              const double t);
 
 // Computes the numerical fluxes at the interface of elements.
 void numFluxUpwind(const Element & frontierElement, Quantity & flux);

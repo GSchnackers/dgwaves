@@ -64,7 +64,7 @@ void setBoundaryConditions(Element & frontierElement){
 
                     else
                     {
-                        gmsh::logger::write("The initial condition is not known.", "error");
+                        gmsh::logger::write("An initial condition is not known or not applied.", "error");
                         std::cout << std::string::npos << std::endl;
                         exit(-1);
                     }
@@ -79,30 +79,43 @@ void setBoundaryConditions(Element & frontierElement){
 
 // At first, very simple boundary conditions. They are applied at the gauss points of the boundaries of the
 // domain, since the fluxes are appleid there.
-void computeBoundaryCondition(const Element & frontierElement, Quantity & u, const double t){
+void computeBoundaryCondition(const Element & mainElement, const Element & frontierElement, Quantity & u,\
+                              const double t){
 
     std::size_t i, j;
 
-    u.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp);
+    u.bound.resize(frontierElement.nodeTags.size());
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
-        for(j = 0; j < frontierElement.numGp; ++j)
+        for(j = 0; j < frontierElement.numNodes; ++j)
         {
             int index = i * frontierElement.numGp + j;
+
             if(t == 0) // The fixed boundary condition with time do not need to be revaluated farther.
-                switch (frontierElement.neighbours[i/frontierElement.numNodes].second)
+                switch (frontierElement.neighbours[i].second)
                 {
                     case -2:
-                        u.numGp[index].second = 0;
+                        u.bound[index] = 0;
                         break;
 
                     case -3:
-                        u.numGp[index].second = 1;
+                        u.bound[index] = 1;
                         break;
                 }
 
             if(frontierElement.neighbours[i].second == -4)
-                u.numGp[index].second = sin(t);
+            {
+
+                int mainNodeIndex = frontierElement.neighbours[i].first * mainElement.numNodes + \
+                                    frontierElement.nodeCorrespondance[index].first;
+
+                u.bound[index] = u.node[mainNodeIndex];
+
+            }
+            if(frontierElement.neighbours[i].second == -4)
+            {
+                u.bound[index] = sin(t);
+            }
         }
 
         

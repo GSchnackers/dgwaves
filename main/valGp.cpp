@@ -23,21 +23,28 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
                 int frontNodeIndex = i * frontierElement.numNodes + k; // index of the nodes on the frontier elements.
 
                 int mainNodes1 = frontierElement.neighbours[i].first * mainElement.numNodes + \
-                                 frontierElement.nodeCorrespondance[frontNodeIndex].first; // Index of the node on the first neighbour corresponding to the node on the frontier element.
+                                 frontierElement.nodeCorrespondance[frontNodeIndex].first; 
 
+                // First neighbour.
                 u.numGp[frontGpIndex].first += u.node[mainNodes1] * mainElement.shapeFunctionsParam[j];
 
+                // If there is another neighbour to the considered frontier element.
                 if(frontierElement.neighbours[i].second >= 0)
                 {
-
+                    // Index of the second node in general numbering.
                     int mainNodes2 = frontierElement.neighbours[i].second * mainElement.numNodes + \
-                                    frontierElement.nodeCorrespondance[frontNodeIndex].second; // Index of the node on the first neighbour corresponding to the node on the frontier element.
+                                    frontierElement.nodeCorrespondance[frontNodeIndex].second; 
 
                     u.numGp[frontGpIndex].second += u.node[mainNodes2] * mainElement.shapeFunctionsParam[j];
                 }
-
-                else if (frontierElement.neighbours[i].second == -1) // In case of output, the same values of u is attributed on both sides of the frontier element.
-                    u.numGp[frontGpIndex].second = u.numGp[frontGpIndex].first;
+                
+                // Case we encounter a boundary condition.
+                else
+                {
+                    u.numGp[frontGpIndex].second += u.bound[frontNodeIndex] * \
+                                                    mainElement.shapeFunctionsParam[j];
+                }
+                
 
             }
 
