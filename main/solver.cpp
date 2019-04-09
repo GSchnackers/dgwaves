@@ -21,7 +21,7 @@ void solver(Element & mainElement, Element & frontierElement){
     u.node.resize(mainElement.nodeTags.size());
     u.next.resize(u.node.size());
 
-    for(t = 0; t < 100 * step; t += step){
+    for(t = 0; t < 25 * step; t += step){
 
         computeBoundaryCondition(mainElement, frontierElement, u, t);
         valGp(u, mainElement, frontierElement);
@@ -29,8 +29,6 @@ void solver(Element & mainElement, Element & frontierElement){
         numFluxUpwind(frontierElement, flux);
         stiffnessFluxProd(mainElement, flux, SFProd);
         numFluxIntegration(flux, mainElement, frontierElement, fVector);
-        for(i = 0; i < fVector.size(); ++i)
-                std::cout << fVector[i] << std::endl;
 
         for(i = 0; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)
@@ -43,12 +41,17 @@ void solver(Element & mainElement, Element & frontierElement){
                     int mIndex = i * mainElement.numNodes * mainElement.numNodes + j * mainElement.numNodes + k;
                     int vecIndex = i * mainElement.numNodes + k;
 
-                    u.next[uIndex] += u.node[uIndex] * step * mainElement.massMatrixInverse[mIndex] * \
+                    u.next[uIndex] += u.node[uIndex] + step * mainElement.massMatrixInverse[mIndex] * \
                                      (SFProd[vecIndex] + fVector[vecIndex]);
+
                 }
+
+
             }
         
         u.node = u.next;
+
+        
 
     }
 

@@ -114,7 +114,7 @@ void computeBoundaryCondition(const Element & mainElement, const Element & front
             }
             if(frontierElement.neighbours[i].second == -4)
             {
-                u.bound[index] = sin(t);
+                u.bound[index] = sin(0.2 * t);
             }
         }
 

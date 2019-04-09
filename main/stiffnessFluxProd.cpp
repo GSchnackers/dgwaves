@@ -15,15 +15,15 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
         for(j = 0; j < mainElement.numNodes; ++j)
             for(k = 0; k < mainElement.numNodes; ++k)
             {
-                int stiffIndex = i * mainElement.numNodes * mainElement.numNodes + \
-                                    j * mainElement.numNodes + k;
-                int fluxIndex = i * mainElement.numNodes * 3 + k * 3;
+                int stiffIndex = i * mainElement.numNodes * mainElement.numNodes + k * mainElement.numNodes + \
+                                 + k;
+
+                int vecIndex = i * mainElement.numNodes * 3 + k;
                 int prodIndex = i * mainElement.numNodes + j;
 
-                prod[prodIndex] += mainElement.stiffnessMatrixX[stiffIndex] * flux.node[fluxIndex] + \
-                                    mainElement.stiffnessMatrixY[stiffIndex] * flux.node[fluxIndex + 1] + \
-                                    mainElement.stiffnessMatrixZ[stiffIndex] * flux.node[fluxIndex + 2];
-
+                prod[prodIndex] += mainElement.stiffnessMatrixX[stiffIndex] * flux.node[vecIndex] + \
+                                   mainElement.stiffnessMatrixY[stiffIndex] * flux.node[vecIndex + 1] + \
+                                   mainElement.stiffnessMatrixZ[stiffIndex] * flux.node[vecIndex + 2];
             }
 
 }
