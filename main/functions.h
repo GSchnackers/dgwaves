@@ -36,4 +36,20 @@ void boundaryConditions(std::vector<double> & coord,double time, double & value)
 // Inversion of a square dense matrix.
 void invert(std::vector<double> matrix, std::vector<double> & inverse);
 
+// Compute slope of u
+void slope(std::vector<int> & nodeTags2D, std::vector<int> & nodeTags2DPlusBC, std::vector<double> & nodeCoord,\
+            std::vector<double> & nodeCoordParam, double mytime, double value, std::vector<double> & matrixF,\
+            std::vector<double> & uPlusBC, std::vector<double> & u, std::vector<double> & matrixS,\
+            std::vector<int> & tagElement1DSorted, std::vector<int> & upwind, std::vector<int> & neighbours1D,\
+            std::vector<int> & indicesNei1, std::vector<int> & indicesNei2, std::vector<double> & matrixM_Inverted,\
+            std::vector<double> & dudt, std::vector<int> & elementTags2D, int numNodes2D, int NumNodesSide);
+
+// Runge Kutta of order 4
+void RungeKutta4(std::vector<int> & nodeTags2D, std::vector<int> & nodeTags2DPlusBC, std::vector<double> & nodeCoord,\
+            std::vector<double> & nodeCoordParam, double mytime, double value, std::vector<double> & matrixF,\
+            std::vector<double> & uPlusBC, std::vector<double> & u, std::vector<double> & matrixS, double timeStep,\
+            std::vector<int> & tagElement1DSorted, std::vector<int> & upwind, std::vector<int> & neighbours1D,\
+            std::vector<int> & indicesNei1, std::vector<int> & indicesNei2, std::vector<double> & matrixM_Inverted,\
+            std::vector<double> & dudt, std::vector<int> & elementTags2D, int numNodes2D, int NumNodesSide);
+
 #endif
