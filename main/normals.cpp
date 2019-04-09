@@ -28,18 +28,18 @@ void normals(Element & frontierElement){
 
                 int frontierIndex = i * frontierElement.numGp * 3 + j * 3;
 
-                double norm = sqrt(frontierElement.jacobiansInverse[jacobianIndex + 3] *\
-                                   frontierElement.jacobiansInverse[jacobianIndex + 3] +\
-                                   frontierElement.jacobiansInverse[jacobianIndex] *
-                                   frontierElement.jacobiansInverse[jacobianIndex]); // Normalization.
+                double norm = sqrt(frontierElement.jacobiansInverse[jacobianIndex + 1] *\
+                                   frontierElement.jacobiansInverse[jacobianIndex + 1] +\
+                                   frontierElement.jacobiansInverse[jacobianIndex + 4] *
+                                   frontierElement.jacobiansInverse[jacobianIndex + 4]); // Normalization.
 
 
                 int jacobIndex = frontierElement.neighbours[frontierIndex].first;
 
-                tmpNorm[frontierIndex] = frontierElement.jacobiansInverse[jacobianIndex + 8] * \
-                                         frontierElement.jacobiansInverse[jacobianIndex + 3]/norm;
-                tmpNorm[frontierIndex + 1] = - frontierElement.jacobiansInverse[jacobianIndex + 8] * \
-                                             frontierElement.jacobiansInverse[jacobianIndex]/norm;
+                tmpNorm[frontierIndex] = -frontierElement.jacobiansInverse[jacobianIndex + 8] * \
+                                         frontierElement.jacobiansInverse[jacobianIndex + 1]/norm;
+                tmpNorm[frontierIndex + 1] = -frontierElement.jacobiansInverse[jacobianIndex + 8] * \
+                                             frontierElement.jacobiansInverse[jacobianIndex + 4]/norm;
                 tmpNorm[frontierIndex + 2] = 0.;
 
             }

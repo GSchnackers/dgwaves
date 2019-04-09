@@ -34,6 +34,11 @@ void meshLoader(Element & mainElements, Element & frontierElement){
     normals(frontierElement);
     std::cout << "Done." << std::endl;
 
+    for(i = 0; i < frontierElement.normals.size(); ++i)
+    {
+        std::cout << frontierElement.normals[i] << std::endl;
+    }
+
     // Correspondance computation between the nodes of each frontier element and its index in the general indexations.
     // This function links the nodes of the frontier elements with their indices in the global numerotation.
     gmsh::logger::write("Correspondace computation...");
