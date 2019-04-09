@@ -83,17 +83,17 @@ int main(int argc, char **argv)
         // Get basis functions of 2D elements
         std::vector<double> intpts2D, bf2D, gradIntPts2D, gradbf2D;
         int numComp2D, gradNumComp2D;
-        gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "IsoParametric",
+        gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss10", "IsoParametric",
                                             intpts2D, numComp2D, bf2D);
 
         // getBasisFunctions with option "GradLagrange" puts 
         // [g1 df1/du, g1 df1/dv, g1 df1/dw, ..., g1 dfC/dw, g2 df1/du, ...] in basis function
-        gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "GradLagrange",
+        gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss10", "GradLagrange",
                                             gradIntPts2D, gradNumComp2D, gradbf2D);
         
         // Get jacobian and its determinant of 2D elements
         std::vector<double> jac2D, det2D, pts2D, jac2DInverted;
-        gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac2D, det2D, pts2D, s2D);
+        gmsh::model::mesh::getJacobians(eleType2D, "Gauss10", jac2D, det2D, pts2D, s2D);
 
         std::vector<double> detS2D(det2D.size());
         
@@ -308,12 +308,12 @@ int main(int argc, char **argv)
     // Get basis functions of 1D elements
     std::vector<double> intpts1D, bf1D;
     int numComp1D;
-    gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
+    gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss10", "IsoParametric",
                                          intpts1D, numComp1D, bf1D);
 
     // Get jacobian and its determinant of 1D elements
     std::vector<double> jac1D, det1D, pts1D;
-    gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);
+    gmsh::model::mesh::getJacobians(eleType1D, "Gauss10", jac1D, det1D, pts1D, c);
 
     // Get 1D elements of type eleType1D
     std::vector<int> elementTags1D, nodeTags1D;
@@ -682,10 +682,10 @@ int main(int argc, char **argv)
 
     std::vector<double> matrixF(tagElement1DSorted.size()*NumNodesSide*NumNodesSide,0);
 
-    //gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
+    //gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss4", "IsoParametric",
     //                                     intpts1D, numComp1D, bf1D);
 
-    //gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac1D, det1D, pts1D, c);  det1DSorted
+    //gmsh::model::mesh::getJacobians(eleType1D, "Gauss4", jac1D, det1D, pts1D, c);  det1DSorted
     
     //loop for each edge
     for(std::size_t ed=0; ed < tagElement1DSorted.size(); ed++){
@@ -729,8 +729,8 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     double mytime = 0;
-    double timeStep = 0.001;
-    double endTime = 1;
+    double timeStep = 0.0001;
+    double endTime = 0.2;
     int numStep = endTime/timeStep;
 
     std::vector<double> VectorSu(elementTags2D.size()*numNodes2D);
@@ -903,6 +903,14 @@ int main(int argc, char **argv)
             }
         }
 
+        // TEST dudt
+        /*
+        for(size_t i = 0; i < dudt.size(); i++){
+            std::cout << "dudt[" << std::to_string(i) << "] : " << std::to_string(dudt[i]) << "\n";
+        }
+        std::cout << "\n";
+        */
+
         // Forward Euler method
         Forward_Euler_method(u, timeStep, dudt);
 
@@ -916,6 +924,7 @@ int main(int argc, char **argv)
         for(size_t i = 0; i < u.size(); i++){
             std::cout << "u[" << std::to_string(i) << "] : " << std::to_string(u[i]) << "\n";
         }
+        std::cout << "\n";
         */
 
         //fill data with u
@@ -925,11 +934,13 @@ int main(int argc, char **argv)
                 data[e][i] = u[e*numNodes2D + i];
             }
         }
+        
 
         // Backup of u(t+dt)
         gmsh::view::addModelData(viewtag, step, modelName, dataType, elementTags2D, data, mytime, 1);
 
         mytime += timeStep;
+        
     }
 
     gmsh::view::write(viewtag, std::string("results.msh"));
