@@ -25,4 +25,4 @@ Physical Curve("BC_Up") = {2};
 Physical Curve("BC_Down") = {4};
 Physical Curve("BC_Right") = {3};
 
-
+Transfinite Surface{1};
