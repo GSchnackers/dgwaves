@@ -25,10 +25,12 @@ int main(int argc, char **argv)
 
     gmsh::model::list(modelNames);
 
-    mainView.name = "Main View";
+    mainView.name = "MainView";
     mainView.tag = gmsh::view::add(mainView.name);
-    mainView.dataType = "ElementNodeData";
+    mainView.dataType = "NodeData";
     mainView.modelName = modelNames[0];
+
+    std::cout << mainView.modelName << std::endl;
 
     meshLoader(mainElement, frontierElement); // Initialization of all quantities required.
 

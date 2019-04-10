@@ -54,7 +54,6 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
                     u.next[uIndex] += u.node[uIndex] + step * mainElement.massMatrixInverse[mIndex] * \
                                      (SFProd[vecIndex] + fVector[vecIndex]);
 
-                    std::cout << u.next[uIndex] << std::endl;
 
                 }
 
@@ -70,7 +69,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
         gmsh::view::addModelData(mainView.tag, int(t/0.01), mainView.modelName, mainView.dataType, \
                                  mainElement.nodeTags, data, t, 1);
-        gmsh::view::write(mainView.tag, "test1.geo", true);
+        gmsh::view::write(mainView.tag, "results.msh");
 
     }
 
