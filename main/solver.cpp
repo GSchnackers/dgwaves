@@ -29,8 +29,8 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size());
     fVector.resize(mainElement.nodeTags.size());
 
-    for(t = 0; t < 15 * step; t += step){
-        
+    for(t = 0; t < 1; t += step)
+    {    
         computeBoundaryCondition(mainElement, frontierElement, u, t);
         valGp(u, mainElement, frontierElement);
         physFluxCu(u, mainElement, frontierElement, flux);
@@ -46,14 +46,14 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
                 for(k = 0; k < mainElement.numNodes; ++k)
                 {
-                    int mIndex = i * mainElement.numNodes * mainElement.numNodes + j * mainElement.numNodes + k;
+                    int mIndex = i * mainElement.numNodes * mainElement.numNodes + \
+                                 j * mainElement.numNodes + k;
                     int vecIndex = i * mainElement.numNodes + k;
 
                     u.next[uIndex] += u.node[uIndex] + step * mainElement.massMatrixInverse[mIndex] * \
                                      (SFProd[vecIndex] + fVector[vecIndex]);
 
                 }
-
 
             }
         
@@ -63,12 +63,12 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
             for(j = 0; j < mainElement.numNodes; ++j)
                 mainView.data[i][j] = u.node[i * mainElement.numNodes + j];
             
-    std::cout<< mainView.tag << std::endl;
         gmsh::view::addModelData(mainView.tag, int(t/step), mainView.modelName, mainView.dataType, \
                                  mainElement.elementTag, mainView.data, t, 1);
 
     }
 
+    
     gmsh::view::write(mainView.tag, "results.msh");
 
 }

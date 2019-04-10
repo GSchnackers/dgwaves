@@ -17,7 +17,7 @@ void setBoundaryConditions(Element & frontierElement){
     // It is assumed here that all physical groups have the same dimension (1 or 2), representing
     // where the BC's have to be applied.
 
-    gmsh::model::getPhysicalGroups(physicalGroupsTags);
+    gmsh::model::getPhysicalGroups(physicalGroupsTags, frontierElement.dim);
 
     for(i = 0; i < physicalGroupsTags.size(); ++i)
     {

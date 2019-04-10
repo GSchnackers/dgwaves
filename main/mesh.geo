@@ -28,4 +28,6 @@ Physical Curve("Wall1", 2) = {43};
 Physical Curve("Wall2", 3) = {41};
 Physical Curve("Output1", 4) = {42};
 
+Physical Surface("Domain") = {61};
+
 Mesh.SaveAll = 1;

@@ -7,7 +7,6 @@
 int main(int argc, char **argv)
 {
 
-    std::size_t i;
     if (argc < 2)
     {
         std::cout << "Usage: " << argv[0] << " file.msh [options]" << std::endl;
@@ -23,6 +22,7 @@ int main(int argc, char **argv)
 
     gmsh::initialize(argc, argv); // Initialization of gmsh library.
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
+    gmsh::option::setNumber("Mesh.SaveAll", 1);
     gmsh::open(argv[1]);                          // reads the msh file
 
 
@@ -32,7 +32,6 @@ int main(int argc, char **argv)
 
     mainView.name = "MainView";
     mainView.tag = gmsh::view::add(mainView.name);
-    std::cout << mainView.tag << std::endl;
     mainView.dataType = "ElementNodeData";
     
     mainView.modelName = modelNames[0];
