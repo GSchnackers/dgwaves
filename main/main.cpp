@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
     mainView.name = "MainView";
     mainView.tag = gmsh::view::add(mainView.name);
-    mainView.dataType = "NodeData";
+    mainView.dataType = "ElementNodeData";
     mainView.modelName = modelNames[0];
 
     std::cout << mainView.modelName << std::endl;

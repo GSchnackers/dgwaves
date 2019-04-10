@@ -17,7 +17,8 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     std::vector<double> SFProd;
     std::vector<double> fVector;
 
-    std::vector<std::vector<double>> data(mainElement.nodeTags.size(), std::vector<double>(1));
+    std::vector<std::vector<double>> data(mainElement.elementTag.size(), \
+                                          std::vector<double>(mainElement.numNodes));
 
     // Initialization of the nodal values.
     u.node.resize(mainElement.nodeTags.size());
@@ -62,13 +63,14 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
         
         u.node = u.next;
 
-        for(i = 0 ; i < u.node.size(); ++i)
-            data[i][0] = u.node[i];
+        for(i = 0 ; i < mainElement.elementTag.size(); ++i)
+            for(j = 0; j < mainElement.numNodes; ++j)
+                data[i][j] = u.node[i * mainElement.numNodes + j];
 
         std::cout << u.node.size() << std::endl;
 
         gmsh::view::addModelData(mainView.tag, int(t/0.01), mainView.modelName, mainView.dataType, \
-                                 mainElement.nodeTags, data, t, 1);
+                                 mainElement.elementTag, data, t, 1);
         gmsh::view::write(mainView.tag, "results.msh");
 
     }
