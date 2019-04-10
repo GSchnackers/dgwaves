@@ -32,7 +32,7 @@ void normals(Element & frontierElement);
 void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
-void solver(Element & mainElement, Element & frontierElement);
+void solver(Element & mainElement, Element & frontierElement, View & mainView);
 
 // Computes the values of u at the gauss points.
 void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);

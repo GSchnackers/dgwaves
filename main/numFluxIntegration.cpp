@@ -10,8 +10,6 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
 
     std::size_t i, j, k, l;
 
-    fVector.resize(mainElement.nodeTags.size(), 0);
-
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
         for(j = 0; j < frontierElement.numNodes; ++j)
             for(k = 0; k < frontierElement.numGp; ++k)
@@ -23,6 +21,8 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
                                     frontierElement.nodeCorrespondance[gaussIndex].first;
                 int dVecIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes + \
                                     frontierElement.nodeCorrespondance[gaussIndex].second;
+
+                fVector[dVecIndex1] = fVector[dVecIndex2] =  0;
 
                 for(l = 0; l < 3; ++l)
                 {

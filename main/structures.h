@@ -71,6 +71,7 @@ typedef struct Element Element;
 struct View{
 
     std::string name; // The name of the view.
+    std::string modelName; // The name of the model attached to view.
     std::string dataType; // The datatype to be put inside the view
     int tag; // The view tag.
     std::vector<std::vector<double>> data; // The data to be viewed.

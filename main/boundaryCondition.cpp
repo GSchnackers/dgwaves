@@ -84,8 +84,6 @@ void computeBoundaryCondition(const Element & mainElement, const Element & front
 
     std::size_t i, j;
 
-    u.bound.resize(frontierElement.nodeTags.size());
-
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
         for(j = 0; j < frontierElement.numNodes; ++j)
         {

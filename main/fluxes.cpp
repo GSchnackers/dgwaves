@@ -13,9 +13,6 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
     std::size_t i, j, k;
     std::vector<double> c = {1, 0, 0};
 
-    flux.node.resize(mainElement.nodeTags.size() * 3, 0);
-    flux.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp * 3, std::make_pair(0,0));
-
     for(i = 0; i < mainElement.nodeTags.size(); ++i) // loop over the nodes of the main elements.
         for(j = 0; j < 3; ++j) // Loop over the components of the physical flux.
         {
@@ -55,20 +52,16 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
             }
 
             // Selection of the upwind flux.
-            if(scalarProd > 0)
-                for(k = 0; k < 3; ++k)
-                {
-                    int index = fluxIndex + k;
-                    flux.numGp[index].second = -flux.numGp[index].first;
-                }
-
-            else if(scalarProd <= 0)   
-                 for(k = 0; k < 3; ++k)
-                 {
-                    int index = fluxIndex + k;
-                    flux.numGp[index].first = -flux.numGp[index].second;
-                 }
             
+            for(k = 0; k < 3; ++k)
+            {
+                int index = fluxIndex + k;
+                if(scalarProd > 0)
+                    flux.numGp[index].second = -flux.numGp[index].first;
+                else
+                    flux.numGp[index].first = -flux.numGp[index].second;
+            }
+
             
         } 
     }   

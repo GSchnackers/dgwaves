@@ -13,6 +13,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    std::vector<std::string> modelNames; // string that contains the name of the models.
     Element mainElement; // The main elements of the mesh.
     Element frontierElement; // The frontier elements of the mesh.
 
@@ -20,15 +21,18 @@ int main(int argc, char **argv)
 
     gmsh::initialize(argc, argv); // Initialization of gmsh library.
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
-    gmsh::open(argv[1]);                            // reads the msh file
+    gmsh::open(argv[1]);                          // reads the msh file
+
+    gmsh::model::list(modelNames);
 
     mainView.name = "Main View";
     mainView.tag = gmsh::view::add(mainView.name);
     mainView.dataType = "ElementNodeData";
+    mainView.modelName = modelNames[0];
 
     meshLoader(mainElement, frontierElement); // Initialization of all quantities required.
 
-    solver(mainElement, frontierElement); // Solving of the PDE with DG-FEM.
+    solver(mainElement, frontierElement, mainView); // Solving of the PDE with DG-FEM.
 
 
     gmsh::finalize(); // Closes gmsh

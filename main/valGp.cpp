@@ -12,14 +12,16 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
 
     std::size_t i, j, k;
 
-    u.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
-
     for(i = 0; i < frontierElement.elementTag.size(); ++i) // Loop over the elements
         for(j = 0; j < frontierElement.numGp; ++j) // Loop over the Gauss Points
+        { 
+            int frontGpIndex = i * frontierElement.numGp + j; // index of the gauss points at the frontier elements.
+            u.numGp[frontGpIndex] = std::make_pair(0,0);
+
             for(k = 0; k < frontierElement.numNodes ; ++k) // Loop over the nodes (i.e. the shape functions) of the element.
             {
 
-                int frontGpIndex = i * frontierElement.numGp + j; // index of the gauss points at the frontier elements.
+                
                 int frontNodeIndex = i * frontierElement.numNodes + k; // index of the nodes on the frontier elements.
 
                 int mainNodes1 = frontierElement.neighbours[i].first * mainElement.numNodes + \
@@ -47,5 +49,6 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
                 
 
             }
+        }
 
 }
