@@ -7,6 +7,7 @@
 int main(int argc, char **argv)
 {
 
+    std::size_t i;
     if (argc < 2)
     {
         std::cout << "Usage: " << argv[0] << " file.msh [options]" << std::endl;
@@ -23,16 +24,23 @@ int main(int argc, char **argv)
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
     gmsh::open(argv[1]);                          // reads the msh file
 
-    gmsh::model::list(modelNames);
 
+    meshLoader(mainElement, frontierElement); // Initialization of all quantities required.
+
+    for(i = 0; i < mainElement.elementTag.size(); ++i)
+    std::cout << mainElement.elementTag[i] << std::endl;
+
+    std::cout << std::endl;
+
+    for(i = 0; i < frontierElement.elementTag.size(); ++i)
+    std::cout << frontierElement.elementTag[i] << std::endl;
+
+    gmsh::model::list(modelNames);
     mainView.name = "MainView";
     mainView.tag = gmsh::view::add(mainView.name);
     mainView.dataType = "ElementNodeData";
     mainView.modelName = modelNames[0];
-
-    std::cout << mainView.modelName << std::endl;
-
-    meshLoader(mainElement, frontierElement); // Initialization of all quantities required.
+    mainView.data.resize(mainElement.elementTag.size(), std::vector<double>(mainElement.numNodes));
 
     solver(mainElement, frontierElement, mainView); // Solving of the PDE with DG-FEM.
 

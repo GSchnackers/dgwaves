@@ -13,12 +13,6 @@ Line(42) = {32, 33};
 Line(43) = {33, 34};
 Line(44) = {34, 31};
 
-// Physical curves taking into account the boundaries.
-Physical Curve("Sinusoidal1", 1) = {44};
-Physical Curve("Wall1", 2) = {43};
-Physical Curve("Wall2", 3) = {41};
-Physical Curve("Output1", 4) = {42};
-
 Curve Loop(51) = {43, 44, 41, 42};
 Plane Surface(61) = {51};
 
@@ -27,3 +21,11 @@ Transfinite Curve {44, 42} = ny+1 Using Progression 1;
 Transfinite Curve {43, 41} = nx+1 Using Progression 1;
 
 Transfinite Surface {61};
+
+// Physical curves taking into account the boundaries.
+Physical Curve("Sinusoidal1", 1) = {44};
+Physical Curve("Wall1", 2) = {43};
+Physical Curve("Wall2", 3) = {41};
+Physical Curve("Output1", 4) = {42};
+
+Mesh.SaveAll = 1;

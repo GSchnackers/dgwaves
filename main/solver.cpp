@@ -17,9 +17,6 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     std::vector<double> SFProd;
     std::vector<double> fVector;
 
-    std::vector<std::vector<double>> data(mainElement.elementTag.size(), \
-                                          std::vector<double>(mainElement.numNodes));
-
     // Initialization of the nodal values.
     u.node.resize(mainElement.nodeTags.size());
     u.next.resize(u.node.size());
@@ -33,14 +30,14 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     fVector.resize(mainElement.nodeTags.size());
 
     for(t = 0; t < 2 * step; t += step){
-
+        
         computeBoundaryCondition(mainElement, frontierElement, u, t);
         valGp(u, mainElement, frontierElement);
         physFluxCu(u, mainElement, frontierElement, flux);
         numFluxUpwind(frontierElement, flux);
         stiffnessFluxProd(mainElement, flux, SFProd);
         numFluxIntegration(flux, mainElement, frontierElement, fVector);
-
+        
         for(i = 0; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)
             {
@@ -55,9 +52,6 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
                     u.next[uIndex] += u.node[uIndex] + step * mainElement.massMatrixInverse[mIndex] * \
                                      (SFProd[vecIndex] + fVector[vecIndex]);
 
-                    std::cout << u.next[uIndex] << std::endl;
-
-
                 }
 
 
@@ -67,10 +61,14 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
         for(i = 0 ; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)
-                data[i][j] = u.node[i * mainElement.numNodes + j];
+            {
+                mainView.data[i][j] = u.node[i * mainElement.numNodes + j];
+                std::cout << mainView.data[i][j] << std::endl;
+            }
+            
 
         gmsh::view::addModelData(mainView.tag, int(t/step), mainView.modelName, mainView.dataType, \
-                                 mainElement.elementTag, data, t, 1);
+                                 mainElement.elementTag, mainView.data, t, 1);
 
     }
 
