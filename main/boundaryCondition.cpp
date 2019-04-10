@@ -85,6 +85,8 @@ void computeBoundaryCondition(const Element & mainElement, const Element & front
     std::size_t i, j;
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
+    {
+        // Nodes initialization.
         for(j = 0; j < frontierElement.numNodes; ++j)
         {
             int index = i * frontierElement.numGp + j;
@@ -101,7 +103,7 @@ void computeBoundaryCondition(const Element & mainElement, const Element & front
                         break;
                 }
 
-            if(frontierElement.neighbours[i].second == -4)
+            if(frontierElement.neighbours[i].second == -1)
             {
 
                 int mainNodeIndex = frontierElement.neighbours[i].first * mainElement.numNodes + \
@@ -110,11 +112,45 @@ void computeBoundaryCondition(const Element & mainElement, const Element & front
                 u.bound[index] = u.node[mainNodeIndex];
 
             }
-            if(frontierElement.neighbours[i].second == -4)
-            {
-                u.bound[index] = sin(0.2 * t);
-            }
+            else if(frontierElement.neighbours[i].second == -4)
+                u.bound[index] = sin(t);
+            
         }
+
+        // Gauss points initialization.
+        for(j = 0; j < frontierElement.numGp; ++j)
+        {
+            int index = i * frontierElement.numGp + j;
+
+            if(t == 0) // The fixed boundary condition with time do not need to be revaluated farther.
+                switch (frontierElement.neighbours[i].second)
+                {
+                    case -2:
+                        u.numGp[index].second = 0;
+                        break;
+
+                    case -3:
+                        u.numGp[index].second = 1;
+                        break;
+                }
+
+            /* if(frontierElement.neighbours[i].second == -1)
+            {
+
+                int mainNodeIndex = frontierElement.neighbours[i].first * mainElement.numNodes + \
+                                    frontierElement.nodeCorrespondance[index].first;
+
+                u.numGp[index].second = u.node[mainNodeIndex];
+
+            } */
+            else if(frontierElement.neighbours[i].second == -4)
+                u.numGp[index].second = sin(t);
+
+            std::cout << u.numGp[index].second << std::endl;
+
+        }
+
+    }
 
         
 

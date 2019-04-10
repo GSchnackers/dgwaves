@@ -29,12 +29,26 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size());
     fVector.resize(mainElement.nodeTags.size());
 
-    for(t = 0; t < 1; t += step)
+    for(t = 0; t < 20*step; t += step)
     {    
         computeBoundaryCondition(mainElement, frontierElement, u, t);
         valGp(u, mainElement, frontierElement);
         physFluxCu(u, mainElement, frontierElement, flux);
         numFluxUpwind(frontierElement, flux);
+        for(i = 0; i < frontierElement.elementTag.size(); ++i)
+            for(j = 0; j < frontierElement.numGp; ++j)
+                for(k = 0; k < 3; ++k)
+                {
+                    int index = i * frontierElement.numGp * 3 + j * 3 + k;
+                    if(frontierElement.neighbours[i].second >= 0)
+                    {
+                        std::cout << frontierElement.neighbours[i].second << std::endl;
+                        std::cout << flux.numGp[index].second << " " << frontierElement.normals[index] << " " << flux.numGp[index].second * frontierElement.normals[index] << " " << mainElement.elementTag[frontierElement.neighbours[i].first] << " " << mainElement.elementTag[frontierElement.neighbours[i].second] << std::endl;
+                    }
+                    else
+                        std::cout << flux.numGp[index].second << " " << frontierElement.normals[index] << " " << flux.numGp[index].second * frontierElement.normals[index] << " " << mainElement.elementTag[frontierElement.neighbours[i].first] << std::endl;
+                        
+                }
         stiffnessFluxProd(mainElement, flux, SFProd);
         numFluxIntegration(flux, mainElement, frontierElement, fVector);
         
