@@ -29,7 +29,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size());
     fVector.resize(mainElement.nodeTags.size());
 
-    for(t = 0; t < 2 * step; t += step){
+    for(t = 0; t < 15 * step; t += step){
         
         computeBoundaryCondition(mainElement, frontierElement, u, t);
         valGp(u, mainElement, frontierElement);
@@ -61,12 +61,9 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
         for(i = 0 ; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)
-            {
                 mainView.data[i][j] = u.node[i * mainElement.numNodes + j];
-                std::cout << mainView.data[i][j] << std::endl;
-            }
             
-
+    std::cout<< mainView.tag << std::endl;
         gmsh::view::addModelData(mainView.tag, int(t/step), mainView.modelName, mainView.dataType, \
                                  mainElement.elementTag, mainView.data, t, 1);
 

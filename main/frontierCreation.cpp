@@ -22,7 +22,7 @@ void frontierCreation(const Element mainElement, Element & frontierElement, cons
     frontierElement.elementType[0] = gmsh::model::mesh::getElementType(frontierName, mainElement.order);
 
     // Set the elements in the model associated to the new discrete entity.
-    gmsh::model::mesh::setElementsByType(meshDim - 1, frontierElement.entityTag, frontierElement.elementType[0], {},\
-                                         sortedNodes);
+    gmsh::model::mesh::setElementsByType(meshDim - 1, frontierElement.entityTag, frontierElement.elementType[0],\
+                                         {}, sortedNodes);
 
 }

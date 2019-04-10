@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     }
 
     std::vector<std::string> modelNames; // string that contains the name of the models.
+    
     Element mainElement; // The main elements of the mesh.
     Element frontierElement; // The frontier elements of the mesh.
 
@@ -27,18 +28,13 @@ int main(int argc, char **argv)
 
     meshLoader(mainElement, frontierElement); // Initialization of all quantities required.
 
-    for(i = 0; i < mainElement.elementTag.size(); ++i)
-    std::cout << mainElement.elementTag[i] << std::endl;
-
-    std::cout << std::endl;
-
-    for(i = 0; i < frontierElement.elementTag.size(); ++i)
-    std::cout << frontierElement.elementTag[i] << std::endl;
-
     gmsh::model::list(modelNames);
+
     mainView.name = "MainView";
     mainView.tag = gmsh::view::add(mainView.name);
+    std::cout << mainView.tag << std::endl;
     mainView.dataType = "ElementNodeData";
+    
     mainView.modelName = modelNames[0];
     mainView.data.resize(mainElement.elementTag.size(), std::vector<double>(mainElement.numNodes));
 
