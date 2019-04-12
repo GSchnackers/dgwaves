@@ -14,34 +14,34 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i) // Loop over the elements
         for(j = 0; j < frontierElement.numGp; ++j) // Loop over the Gauss Points
-        { 
-            int frontGpIndex = i * frontierElement.numGp + j; // index of the gauss points at the frontier elements.
-            if(frontierElement.neighbours[i].second >= 0)
-                u.numGp[frontGpIndex] = std::make_pair(0,0);
-            else
-                 u.numGp[frontGpIndex].first = 0;
+        {
+            int gpIndex = i * frontierElement.numGp + j;
+            u.numGp[gpIndex].first = u.numGp[gpIndex].second = 0;
+            
+            for(k = 0; k < frontierElement.numNodes; ++k)
+            { 
+                
+                int frontNodeIndex = i * frontierElement.numNodes + k;
+                int mainNodeIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes + \
+                                     frontierElement.nodeCorrespondance[frontNodeIndex].first;
+                int mainNodeIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes + \
+                                     frontierElement.nodeCorrespondance[frontNodeIndex].second;
+                int shapeIndex = j * frontierElement.numNodes + k;
+                
 
-            for(k = 0; k < frontierElement.numNodes ; ++k) // Loop over the nodes (i.e. the shape functions) of the element.
-            {
+                u.numGp[gpIndex].first += u.node[mainNodeIndex1] * \
+                                          frontierElement.shapeFunctionsParam[shapeIndex];
 
-                int frontNodeIndex = i * frontierElement.numNodes + k; // index of the nodes on the frontier elements.
+                if(frontierElement.neighbours[i].second < 0)
+                    u.numGp[gpIndex].second = u.numGp[gpIndex].first;
 
-                int mainNodes1 = frontierElement.neighbours[i].first * mainElement.numNodes + \
-                                 frontierElement.nodeCorrespondance[frontNodeIndex].first; 
-
-                // First neighbour.
-                u.numGp[frontGpIndex].first += u.node[mainNodes1] * mainElement.shapeFunctionsParam[j];
-
-                // If there is another neighbour to the considered frontier element.
-                if(frontierElement.neighbours[i].second >= 0)
-                {
-                    // Index of the second node in general numbering.
-                    int mainNodes2 = frontierElement.neighbours[i].second * mainElement.numNodes + \
-                                    frontierElement.nodeCorrespondance[frontNodeIndex].second; 
-
-                    u.numGp[frontGpIndex].second += u.node[mainNodes2] * mainElement.shapeFunctionsParam[j];
-                }              
+                else
+                    u.numGp[gpIndex].second += u.node[mainNodeIndex2] * \
+                                          frontierElement.shapeFunctionsParam[shapeIndex];
+                
             }
+
+
         }
 
 }

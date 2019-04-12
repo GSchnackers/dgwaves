@@ -4,14 +4,14 @@
 #include "functions.h"
 #include "structures.h"
 
-void meshLoader(Element & mainElements, Element & frontierElement){
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType){
 
     std::size_t i, j;
     std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
 
     // Initialization of the elements of the mesh.
     gmsh::logger::write("Initializing the main elements of the mesh...");
-    Initialization(mainElements, 2, "Gauss4");
+    Initialization(mainElements, 2, gaussType);
     std::cout << "Done." << std::endl;
 
     // Sorting of the nodes at the frontier of each element.
@@ -26,7 +26,7 @@ void meshLoader(Element & mainElements, Element & frontierElement){
 
     // Initialization of the element representing the frontiers.
     gmsh::logger::write("Initialization of the frontier elements...");
-    Initialization(frontierElement, 1, "Gauss3", true);
+    Initialization(frontierElement, 1, gaussType, true);
     std::cout << "Done." << std::endl;
 
     // getting the normals of the edges.
@@ -72,11 +72,6 @@ void meshLoader(Element & mainElements, Element & frontierElement){
     else mainElements.stiffnessMatrixY.resize(mainElements.stiffnessMatrixX.size());
     if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
     else mainElements.stiffnessMatrixZ.resize(mainElements.stiffnessMatrixX.size());
-    std::cout << "Done." << std::endl;
-
-    // Setting of the boundary types.
-    gmsh::logger::write("Setting the boundary condition type...");
-    setBoundaryConditions(frontierElement);
     std::cout << "Done." << std::endl;
 
 }

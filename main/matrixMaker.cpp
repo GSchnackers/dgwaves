@@ -37,7 +37,7 @@ void matrixMaker(Element & element, std::string matrixType)
 
     else
     {
-        gmsh::logger::write("There matrix type is not recognized.", "error");
+        gmsh::logger::write("The matrix type is not recognized.", "error");
         exit(-1);
     }
 

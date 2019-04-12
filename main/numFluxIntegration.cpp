@@ -6,42 +6,53 @@
 #include "structures.h"
 
 void numFluxIntegration(const Quantity & flux, const Element & mainElement, const Element & frontierElement,\
-                        std::vector<double> & fVector){
+                        std::vector<double> & fluxVector){
 
     std::size_t i, j, k, l;
 
+    std::vector<double> intTemp(frontierElement.nodeTags.size(), 0); // variable that stores for each node the evaluation of the integral.
+
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
         for(j = 0; j < frontierElement.numNodes; ++j)
+        {
+
+            int nodeIndex = i * frontierElement.numNodes + j;
+
+            int vecIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes + \
+                                    frontierElement.nodeCorrespondance[nodeIndex].first;
+            int vecIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes + \
+                                    frontierElement.nodeCorrespondance[nodeIndex].second;
+
+
             for(k = 0; k < frontierElement.numGp; ++k)
             {
-                int gaussIndex = i * frontierElement.numGp + k;
-                int shapeIndex = k * frontierElement.numGp + j;
                 
-                int dVecIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes + \
-                                    frontierElement.nodeCorrespondance[gaussIndex].first;
-                int dVecIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes + \
-                                    frontierElement.nodeCorrespondance[gaussIndex].second;
+                int shapeIndex = k * frontierElement.numNodes + j;
 
-                fVector[dVecIndex1] = fVector[dVecIndex2] =  0;
+                int detIndex = i * frontierElement.numGp + k;
+
+                double prodScal = 0;
 
                 for(l = 0; l < 3; ++l)
                 {
                     
                     int fluxIndex = i * frontierElement.numGp * 3 + k * 3 + l;
-                    
-                    fVector[dVecIndex1] += flux.numGp[fluxIndex].first * \
-                                           frontierElement.normals[fluxIndex] * \
-                                           frontierElement.shapeFunctionsParam[shapeIndex] * \
-                                           frontierElement.gaussPointsParam[4 * k + 3];
 
-                    if(frontierElement.neighbours[i].second >= 0)
-                        fVector[dVecIndex2] += flux.numGp[fluxIndex].second * \
-                                               frontierElement.normals[fluxIndex] * \
-                                               frontierElement.shapeFunctionsParam[shapeIndex] * \
-                                               frontierElement.gaussPointsParam[4 * k + 3];
+                    prodScal += flux.numGp[fluxIndex].first * frontierElement.normals[fluxIndex];
 
                 }
+                    
+                intTemp[nodeIndex] += prodScal * \
+                                       frontierElement.shapeFunctionsParam[shapeIndex] * \
+                                       frontierElement.gaussPointsParam[4 * k + 3] * 
+                                       frontierElement.jacobiansDet[detIndex];
+ 
             }
+
+            fluxVector[vecIndex1] += intTemp[nodeIndex];
+            if(frontierElement.neighbours[i].second >= 0) fluxVector[vecIndex2] -= intTemp[nodeIndex];
+
+        }
 
         
 }

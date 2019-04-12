@@ -24,9 +24,6 @@ Transfinite Surface {61};
 
 // Physical curves taking into account the boundaries.
 Physical Curve("Sinusoidal1", 1) = {44};
-Physical Curve("Wall1", 2) = {43};
-Physical Curve("Wall2", 3) = {41};
-Physical Curve("Output1", 4) = {42};
 
 Physical Surface("Domain") = {61};
 

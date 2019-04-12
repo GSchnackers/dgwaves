@@ -3,7 +3,7 @@
 #include "structures.h"
 
 // Function that loads the mesh (main and frontier elements).
-void meshLoader(Element & mainElements, Element & frontierElement);
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType);
 
 // Initialization of the properties of the element of a certain dim and a certain type with a number of Gauss points given by GaussType.
 void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier = false);
@@ -45,11 +45,10 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
 void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
-void setBoundaryConditions(Element & frontierElement);
+void setBoundaryConditions(Element & mainElement, Quantity & u);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
-void computeBoundaryCondition(const Element & mainElement, const Element & frontierElement, Quantity & u,\
-                              const double t);
+void computeBoundaryCondition(const Element & mainElement, Quantity & u, const double t);
 
 // Computes the numerical fluxes at the interface of elements.
 void numFluxUpwind(const Element & frontierElement, Quantity & flux);
@@ -59,6 +58,6 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
 
 // Integration of the numerical flux on the frontier of each element for all shape functions.
 void numFluxIntegration(const Quantity & flux, const Element & mainElement, const Element & frontierElement,\
-                        std::vector<double> & fMatrix);
+                        std::vector<double> & fluxVector);
 
 #endif

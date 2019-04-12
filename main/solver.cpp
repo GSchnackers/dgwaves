@@ -15,63 +15,61 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     Quantity flux; // fluxs of the problem.
     
     std::vector<double> SFProd;
-    std::vector<double> fVector;
+    std::vector<double> fluxVector;
 
     // Initialization of the nodal values.
-    u.node.resize(mainElement.nodeTags.size());
-    u.next.resize(u.node.size());
-    u.bound.resize(frontierElement.nodeTags.size());
-    u.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp);
+    u.node.resize(mainElement.nodeTags.size(), 0);
+    u.next.resize(u.node.size(), 0);
+    u.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
+    u.bound.resize(mainElement.nodeTags.size(), 0);
 
-    flux.node.resize(mainElement.nodeTags.size() * 3);
-    flux.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp * 3);
+    flux.node.resize(mainElement.nodeTags.size() * 3, 0);
+    flux.numGp.resize(frontierElement.elementTag.size() * frontierElement.numGp * 3, std::make_pair(0,0));
+    flux.direction.resize(flux.numGp.size(), 0);
 
-    SFProd.resize(mainElement.nodeTags.size());
-    fVector.resize(mainElement.nodeTags.size());
+    // Setting of the boundary types.
+    gmsh::logger::write("Setting the boundary condition type...");
+    setBoundaryConditions(mainElement, u);
+    std::cout << "Done." << std::endl;
 
-    for(t = 0; t < 20*step; t += step)
+    SFProd.resize(mainElement.nodeTags.size(), 0);
+    fluxVector.resize(mainElement.nodeTags.size(), 0);
+
+    for(t = 0; t < 0.5; t += step)
     {    
-        computeBoundaryCondition(mainElement, frontierElement, u, t);
+        computeBoundaryCondition(mainElement, u, t);
+        
         valGp(u, mainElement, frontierElement);
         physFluxCu(u, mainElement, frontierElement, flux);
         numFluxUpwind(frontierElement, flux);
-        for(i = 0; i < frontierElement.elementTag.size(); ++i)
-            for(j = 0; j < frontierElement.numGp; ++j)
-                for(k = 0; k < 3; ++k)
-                {
-                    int index = i * frontierElement.numGp * 3 + j * 3 + k;
-                    if(frontierElement.neighbours[i].second >= 0)
-                    {
-                        std::cout << frontierElement.neighbours[i].second << std::endl;
-                        std::cout << flux.numGp[index].second << " " << frontierElement.normals[index] << " " << flux.numGp[index].second * frontierElement.normals[index] << " " << mainElement.elementTag[frontierElement.neighbours[i].first] << " " << mainElement.elementTag[frontierElement.neighbours[i].second] << std::endl;
-                    }
-                    else
-                        std::cout << flux.numGp[index].second << " " << frontierElement.normals[index] << " " << flux.numGp[index].second * frontierElement.normals[index] << " " << mainElement.elementTag[frontierElement.neighbours[i].first] << std::endl;
-                        
-                }
         stiffnessFluxProd(mainElement, flux, SFProd);
-        numFluxIntegration(flux, mainElement, frontierElement, fVector);
+        numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
         
         for(i = 0; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)
             {
                 int uIndex = i * mainElement.numNodes + j;
-                u.next[uIndex] = 0;
+                double tmpProd = 0;
 
-                for(k = 0; k < mainElement.numNodes; ++k)
+                for(k = 0; k < mainElement.numNodes && u.bound[uIndex] > -1; ++k)
                 {
-                    int mIndex = i * mainElement.numNodes * mainElement.numNodes + \
+                    int matrixIndex = i * mainElement.numNodes * mainElement.numNodes + \
                                  j * mainElement.numNodes + k;
                     int vecIndex = i * mainElement.numNodes + k;
 
-                    u.next[uIndex] += u.node[uIndex] + step * mainElement.massMatrixInverse[mIndex] * \
-                                     (SFProd[vecIndex] + fVector[vecIndex]);
-
+                    tmpProd += mainElement.massMatrixInverse[matrixIndex] * (SFProd[vecIndex] - fluxVector[vecIndex]);
+                    
                 }
+
+                u.next[uIndex] = u.node[uIndex] + step * tmpProd;
 
             }
         
         u.node = u.next;
+
+        std::fill(u.next.begin(), u.next.end(), 0);
+        std::fill(fluxVector.begin(), fluxVector.end(), 0);
+        std::fill(SFProd.begin(), SFProd.end(), 0);
 
         for(i = 0 ; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)

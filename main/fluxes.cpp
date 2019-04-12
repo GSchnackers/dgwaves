@@ -16,17 +16,24 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
     for(i = 0; i < mainElement.nodeTags.size(); ++i) // loop over the nodes of the main elements.
         for(j = 0; j < 3; ++j) // Loop over the components of the physical flux.
             flux.node[i * 3 + j] = c[j] * u.node[i];
+        
 
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
         for(j = 0; j < frontierElement.numGp; ++j)
+        {
+            int smallIndex = i * frontierElement.numGp + j;
+            
             for(k = 0; k < 3; ++k)
             {
                 int index = i * frontierElement.numGp * 3 + j * 3 + k;
-                int smallIndex = i * frontierElement.numGp + j;
+
                 flux.numGp[index].first = u.numGp[smallIndex].first * c[k];
                 flux.numGp[index].second = u.numGp[smallIndex].second * c[k];
+
+                flux.direction[index] = c[k];
             }
+        }
 
 }
 
@@ -40,16 +47,13 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
         for(j = 0; j < frontierElement.numGp; ++j)
         {
             double scalarProd = 0;
-            double scalarProdBis = 0;
             int fluxIndex = i * frontierElement.numGp * 3 + j * 3;
 
             // Computation of the scalar product at the gauss point.
             for(k = 0; k < 3; ++k)
             {
                 int index = fluxIndex + k;
-                scalarProd += flux.numGp[index].first * frontierElement.normals[index];
-                scalarProdBis += flux.numGp[index].second * frontierElement.normals[index];
-
+                scalarProd += flux.direction[index] * frontierElement.normals[index];
             }
 
             // Selection of the upwind flux.
@@ -57,20 +61,20 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
             for(k = 0; k < 3; ++k)
             {
                 int index = fluxIndex + k;
-                
+
                 if(scalarProd > 0)
-                    flux.numGp[index].second = -flux.numGp[index].first;
+                    flux.numGp[index].second = flux.numGp[index].first;
 
-                else if(scalarProdBis < 0)
-                    flux.numGp[index].first = -flux.numGp[index].second;
-
+                else if(scalarProd < 0)
+                    flux.numGp[index].first = flux.numGp[index].second;
+                
                 else
-                    flux.numGp[index].first = flux.numGp[index].second = 0;
+                    flux.numGp[index].first = flux.numGp[index].second;
 
             }
-
             
         } 
+
     } 
 
 }
