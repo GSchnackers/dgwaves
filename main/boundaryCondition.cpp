@@ -40,6 +40,8 @@ void setBoundaryConditions(Element & mainElement, Quantity & u){
                 
                     if(physicalName.find("Sinusoidal") != std::string::npos)
                         u.bound[j] = -1;
+                    if(physicalName.find("Constant") != std::string::npos)
+                        u.bound[j] = -2;
                     
                 }
             
@@ -50,7 +52,7 @@ void setBoundaryConditions(Element & mainElement, Quantity & u){
 }
 
 // At first, very simple boundary conditions. They are applied at the gauss points of the boundaries of the
-// domain, since the fluxes are appleid there. The effects of those boundary conditions are only felt at the
+// domain, since the fluxes are applied there. The effects of those boundary conditions are only felt at the
 // Gauss points of the frontier element.
 void computeBoundaryCondition(const Element & mainElement, Quantity & u, const double t){
 
@@ -60,7 +62,8 @@ void computeBoundaryCondition(const Element & mainElement, Quantity & u, const d
     {
         if(u.bound[i] == -1)
              u.node[i] = sin(t);
-        
+        if(u.bound[i] == -2)
+             u.node[i] = 1;        
     }
 
 

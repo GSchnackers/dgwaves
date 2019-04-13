@@ -26,7 +26,7 @@ void invert(std::vector<double> matrix, std::vector<double> & inverse);
 void getJacobiansInverse(Element & element);
 
 // Gets the normal to all edge elements.
-void normals(Element & frontierElement);
+void normals(Element & frontierElement, Element & mainElement);
 
 // Functions that computes the main matrices of the DG fem, that is the mass and the stiffiness matrices.
 void matrixMaker(Element & element, std::string matrixType);

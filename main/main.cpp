@@ -40,7 +40,6 @@ int main(int argc, char **argv)
 
     solver(mainElement, frontierElement, mainView); // Solving of the PDE with DG-FEM.
 
-
     gmsh::finalize(); // Closes gmsh
     return 0;
 }

@@ -31,8 +31,11 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
 
     // getting the normals of the edges.
     gmsh::logger::write("Computation of the normals at the frontier elements...");
-    normals(frontierElement);
+    normals(frontierElement, mainElements);
     std::cout << "Done." << std::endl;
+
+    for(i = 0; i < frontierElement.normals.size(); ++i)
+        std::cout << frontierElement.normals[i] << " " << mainElements.elementTag[frontierElement.neighbours[i/(3 * frontierElement.numGp)].first] << std::endl;
 
     // Correspondance computation between the nodes of each frontier element and its index in the general indexations.
     // This function links the nodes of the frontier elements with their indices in the global numerotation.

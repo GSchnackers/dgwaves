@@ -84,10 +84,10 @@ typedef struct View View;
 struct Quantity{
 
     std::vector<double> node; // Values of the quantity at the nodes of the elements.
-    std::vector<double> next; // Values of the quantity at the next timestep.
-    std::vector<std::pair<double, double>> numGp; // numerical value of the quantity at the nodes.
+    std::vector<std::pair<double, double>> gp; // value of the quantity at the gauss points.
     std::vector<double> direction; // The direction in which the information propagates.
     std::vector<double> bound; // set of 0 and 1 value. It is 1 if the corresponding node is at the boundary, it is 0 if not.
+    std::vector<double> num;
 
 };
 

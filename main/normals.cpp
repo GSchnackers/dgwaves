@@ -7,7 +7,7 @@
 // Function that computes the normal to each element of the frontier. 
 // The normal is always outward pointing with respect to the first element of neighbours.
 
-void normals(Element & frontierElement){
+void normals(Element & frontierElement, Element & mainElement){
 
     std::size_t i, j, k;
 
@@ -23,23 +23,20 @@ void normals(Element & frontierElement){
         for(i = 0; i < frontierElement.elementTag.size(); ++i) // Run through the elements
             for(j = 0; j < frontierElement.numGp; ++j) // run through the gauss points of a given element.
             {
-
+                
                 int jacobianIndex = i *  frontierElement.numGp * 9 + j * 9;
 
                 int frontierIndex = i * frontierElement.numGp * 3 + j * 3;
+                
+                int scalarProd = 0;
 
-                double norm = sqrt(frontierElement.jacobiansInverse[jacobianIndex + 1] *\
-                                   frontierElement.jacobiansInverse[jacobianIndex + 1] +\
-                                   frontierElement.jacobiansInverse[jacobianIndex + 4] *
-                                   frontierElement.jacobiansInverse[jacobianIndex + 4]); // Normalization.
+                double compoX = frontierElement.jacobiansInverse[jacobianIndex + 1];
+                double compoY = frontierElement.jacobiansInverse[jacobianIndex + 4];
 
-
-                int jacobIndex = frontierElement.neighbours[frontierIndex].first;
-
-                tmpNorm[frontierIndex] = -frontierElement.jacobiansInverse[jacobianIndex + 8] * \
-                                         frontierElement.jacobiansInverse[jacobianIndex + 1]/norm;
-                tmpNorm[frontierIndex + 1] = -frontierElement.jacobiansInverse[jacobianIndex + 8] * \
-                                             frontierElement.jacobiansInverse[jacobianIndex + 4]/norm;
+                double norm = sqrt(compoX * compoX + compoY * compoY); // Normalization.
+                
+                tmpNorm[frontierIndex] = compoX/norm;
+                tmpNorm[frontierIndex + 1] = compoY/norm;
                 tmpNorm[frontierIndex + 2] = 0.;
 
             }

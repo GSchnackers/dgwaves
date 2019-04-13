@@ -9,13 +9,14 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
 
     std::size_t i, j, k;
 
+    // Components along x, y and z of the gradient.
     std::vector<double> fx(flux.node.size()/3), fy(flux.node.size()/3), fz(flux.node.size()/3);
 
     for(i = 0; i < flux.node.size(); i += 3)
     {
         fx[i/3] = flux.node[i];
         fy[i/3] = flux.node[i + 1];
-        fz[i/3] == flux.node[i + 2];
+        fz[i/3] = flux.node[i + 2];
     }
     
     for(i = 0; i < mainElement.elementTag.size(); ++i)

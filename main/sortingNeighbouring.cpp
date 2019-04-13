@@ -15,14 +15,14 @@ void sortingNeighbouring(const Element & mainElement, Element & frontierElement,
                          std::vector<int> & nodeSorted)
 {
     // Increment variables.
-    std::size_t i, j, k;
+    std::size_t i, j, k, l;
 
     // Temporary variables.
     std::vector<std::pair<int,int>> tmpNeighbours(mainElement.numSide * mainElement.elementTag.size());
     std::vector<int> tmpSorted(tmpNeighbours.size() * mainElement.numberFrontierNode);
 
     // Counter
-    int countNeigh = 0, countNode = 0;
+    int sizeNeigh = 0, sizeNode = 0;
 
     // Useful variables.
     int totalNumberFrontierNode = mainElement.numSide * mainElement.numberFrontierNode;
@@ -31,71 +31,72 @@ void sortingNeighbouring(const Element & mainElement, Element & frontierElement,
     for(i = 0; i < mainElement.numberFrontierNode; ++i){
 
         tmpSorted[i] = mainElement.frontierNode[i];
-        ++countNode;
     }
+
+    sizeNode += mainElement.numberFrontierNode;
 
     // Neighbours initializations.
     tmpNeighbours[0].first = 0;
     tmpNeighbours[0].second = -1;
-    ++countNeigh;
+    ++sizeNeigh;
 
     // Loop over the frontier nodes. i is the index of the frontier nodes.
-    for (i = 0; i < mainElement.frontierNode.size(); i += mainElement.numberFrontierNode)
-    {
-        int elemIndexi = i/totalNumberFrontierNode; // Index of an element with respect to i
-        int gradIndexi = 3*elemIndexi; // Index of the gradient.
-        int edgeEndi = i + mainElement.numberFrontierNode - 1; // index of the end of the edge (in the unsorted vector).
-
-        // Loop over the sorted nodes.
-        for (j = 0; j < tmpSorted.size(); j += mainElement.numberFrontierNode)
+    for(i = mainElement.numberFrontierNode; i < mainElement.frontierNode.size(); i += mainElement.numberFrontierNode)
+    { 
+        int elementIndexi = i/(mainElement.numSide * mainElement.numberFrontierNode);
+        for (j = 0; j < sizeNode; j += mainElement.numberFrontierNode) // Loop over the sorted nodes.
         {
-            int frontierIndexj = j/mainElement.numberFrontierNode; // Index of a frontier element with respect to j.
-            int edgeEndj = j + mainElement.numberFrontierNode - 1; // index of the end of the edge in the sorted vector.
+            int countNode = 0;
+            int neighbourIndexj = j/mainElement.numberFrontierNode;
+            // Comparison of the nodes of the unsorted vector and the sorted vector. If each node of the
+            // unsorted find a match with each node of the unsorted, then the frontier has already been
+            // taken into accound and is ignored. The second neighbour is set at that stage.
+            // If it is not the case, then the new frontier is added to the sorted vector.
 
-            bool condition = (mainElement.frontierNode[i] == tmpSorted[edgeEndj] \
-                            && mainElement.frontierNode[edgeEndi] == tmpSorted[j]) || \
-                            (mainElement.frontierNode[i] == tmpSorted[j] \
-                            && mainElement.frontierNode[edgeEndi] == tmpSorted[edgeEndj]); // check if two edges coincide. Two edges coincide only in opposition, that is the first node of the first edge equals the last node of the second edge etc.
+            for(k = 0; k < mainElement.numberFrontierNode; ++k)
+                for(l = 0; l < mainElement.numberFrontierNode; ++l)
+                    if(mainElement.frontierNode[i + k] == tmpSorted[j + l])
+                    {
+                        ++countNode;
+                        break;
+                    }
 
-
-            // If the edge is already in the neighbour, the element INDEX (not tag) is then added
-            // to the neighbourhood of the edge.
-            if(condition)
-            {
-                
-                if(tmpNeighbours[frontierIndexj].first != elemIndexi)
-                    tmpNeighbours[frontierIndexj].second = elemIndexi;
-                    
+            if(countNode == mainElement.numberFrontierNode)
+            {   
+                if(tmpNeighbours[neighbourIndexj].second != elementIndexi)  
+                    tmpNeighbours[neighbourIndexj].second = elementIndexi;
                 break;
             }
 
-            // If the end of the list is reached without finding a match to the edge in the 
-            // nodeSorted vector, the edge is added to the nodeSorted vector. A neighbour
-            // entry is created at the same time and filled with the index of the element
-            // and -1, assuming the element has only one neighbour at first. The normal to
-            // the edge is also created at the same time.
-
-            if(j + mainElement.numberFrontierNode == tmpSorted.size())
+            else if(j == sizeNode - mainElement.numberFrontierNode)
             {
-                for(k = 0; k < mainElement.numberFrontierNode; ++k){
-
-                    tmpSorted[countNode] = mainElement.frontierNode[i + k];
-                    ++countNode;
-
-                } 
-
-                tmpNeighbours[countNeigh].first = elemIndexi;
-                tmpNeighbours[countNeigh].second = -1;
-                ++countNeigh;
                 
+                for(k = 0; k < mainElement.numberFrontierNode; ++k)
+                {
+                    
+                    tmpSorted[sizeNode] = mainElement.frontierNode[i + k];
+                    ++sizeNode;
+                }
+
+                tmpNeighbours[sizeNeigh].first = elementIndexi;
+                tmpNeighbours[sizeNeigh].second = -1;
+                
+                ++sizeNeigh;
+                break;
             }
         }
     }
 
-    frontierElement.neighbours.resize(countNeigh);
-    nodeSorted.resize(countNode);
+    frontierElement.neighbours.resize(sizeNeigh);
+    nodeSorted.resize(sizeNode);
     
-    for(i = 0; i < countNeigh; ++i) frontierElement.neighbours[i] = tmpNeighbours[i];
-    for(i = 0; i < countNode; ++i) nodeSorted[i] = tmpSorted[i];
+
+    // Final definiton of the neighbour vector.
+    for(i = 0; i < sizeNeigh; ++i)
+        frontierElement.neighbours[i] = tmpNeighbours[i];
+
+    // Final definition of the sorted node vector.
+    for(i = 0; i < sizeNode; ++i)
+        nodeSorted[i] = tmpSorted[i];
 
 }

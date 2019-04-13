@@ -38,7 +38,7 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
                     
                     int fluxIndex = i * frontierElement.numGp * 3 + k * 3 + l;
 
-                    prodScal += flux.numGp[fluxIndex].first * frontierElement.normals[fluxIndex];
+                    prodScal += flux.num[fluxIndex] * frontierElement.normals[fluxIndex];
 
                 }
                     

@@ -15,9 +15,11 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
 
     for(i = 0; i < mainElement.nodeTags.size(); ++i) // loop over the nodes of the main elements.
         for(j = 0; j < 3; ++j) // Loop over the components of the physical flux.
+        {
             flux.node[i * 3 + j] = c[j] * u.node[i];
+            std::cout << flux.node[i * 3 + j] << std::endl;
+        }
         
-
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
         for(j = 0; j < frontierElement.numGp; ++j)
@@ -28,8 +30,9 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
             {
                 int index = i * frontierElement.numGp * 3 + j * 3 + k;
 
-                flux.numGp[index].first = u.numGp[smallIndex].first * c[k];
-                flux.numGp[index].second = u.numGp[smallIndex].second * c[k];
+                flux.gp[index].first = u.gp[smallIndex].first * c[k];
+                flux.gp[index].second = u.gp[smallIndex].second * c[k];
+
 
                 flux.direction[index] = c[k];
             }
@@ -63,13 +66,12 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
                 int index = fluxIndex + k;
 
                 if(scalarProd > 0)
-                    flux.numGp[index].second = flux.numGp[index].first;
+                    flux.num[index] = flux.gp[index].first;
 
                 else if(scalarProd < 0)
-                    flux.numGp[index].first = flux.numGp[index].second;
-                
+                    flux.num[index] = flux.gp[index].second;
                 else
-                    flux.numGp[index].first = flux.numGp[index].second;
+                    flux.num[index] = 0;
 
             }
             
