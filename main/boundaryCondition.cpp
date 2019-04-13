@@ -1,4 +1,5 @@
 // The functions in this file deal with the boundary conditions.
+#define _USE_MATH_DEFINES
 
 #include <cstdio>
 #include <iostream>
@@ -61,7 +62,7 @@ void computeBoundaryCondition(const Element & mainElement, Quantity & u, const d
     for(i = 0; i < mainElement.nodeTags.size(); ++i)
     {
         if(u.bound[i] == -1)
-             u.node[i] = sin(t);
+             u.node[i] = sin(2 * M_PI * t/0.5);
         if(u.bound[i] == -2)
              u.node[i] = 1;        
     }
