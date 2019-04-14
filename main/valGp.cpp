@@ -16,28 +16,32 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
         for(j = 0; j < frontierElement.numGp; ++j) // Loop over the Gauss Points
         {
             int gpIndex = i * frontierElement.numGp + j;
-            u.gp[gpIndex].first = u.gp[gpIndex].second = 0;
             
             for(k = 0; k < frontierElement.numNodes; ++k)
             { 
                 
                 int frontNodeIndex = i * frontierElement.numNodes + k;
+
                 int mainNodeIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes + \
                                      frontierElement.nodeCorrespondance[frontNodeIndex].first;
+
                 int mainNodeIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes + \
                                      frontierElement.nodeCorrespondance[frontNodeIndex].second;
+
                 int shapeIndex = j * frontierElement.numNodes + k;
                 
 
                 u.gp[gpIndex].first += u.node[mainNodeIndex1] * \
                                           frontierElement.shapeFunctionsParam[shapeIndex];
 
-                if(frontierElement.neighbours[i].second < 0)
-                    u.gp[gpIndex].second = u.gp[gpIndex].first;
-
-                else
+                if(frontierElement.neighbours[i].second >= 0)
                     u.gp[gpIndex].second += u.node[mainNodeIndex2] * \
                                           frontierElement.shapeFunctionsParam[shapeIndex];
+
+                else
+                    u.gp[gpIndex].second += u.bound[mainNodeIndex1] * \
+                                            frontierElement.shapeFunctionsParam[shapeIndex];
+                    
                 
             }
 

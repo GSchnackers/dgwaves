@@ -36,6 +36,8 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
                                    mainElement.stiffnessMatrixZ[stiffIndex] * fz[vecIndex];
 
             }
+
+            /* std::cout << prodIndex << std::endl; */
         }
 
 }

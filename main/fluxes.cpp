@@ -11,14 +11,11 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
                 Quantity & flux){
 
     std::size_t i, j, k;
-    std::vector<double> c = {1, 0, 0};
+    std::vector<double> c = {1 , 0 , 0};
 
     for(i = 0; i < mainElement.nodeTags.size(); ++i) // loop over the nodes of the main elements.
         for(j = 0; j < 3; ++j) // Loop over the components of the physical flux.
-        {
             flux.node[i * 3 + j] = c[j] * u.node[i];
-            std::cout << flux.node[i * 3 + j] << std::endl;
-        }
         
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
@@ -32,7 +29,6 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
 
                 flux.gp[index].first = u.gp[smallIndex].first * c[k];
                 flux.gp[index].second = u.gp[smallIndex].second * c[k];
-
 
                 flux.direction[index] = c[k];
             }
@@ -50,12 +46,11 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
         for(j = 0; j < frontierElement.numGp; ++j)
         {
             double scalarProd = 0;
-            int fluxIndex = i * frontierElement.numGp * 3 + j * 3;
 
             // Computation of the scalar product at the gauss point.
             for(k = 0; k < 3; ++k)
             {
-                int index = fluxIndex + k;
+                int index = i * frontierElement.numGp * 3 + j * 3 + k;
                 scalarProd += flux.direction[index] * frontierElement.normals[index];
             }
 
@@ -63,13 +58,17 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
             
             for(k = 0; k < 3; ++k)
             {
-                int index = fluxIndex + k;
+                int index = i * frontierElement.numGp * 3 + j * 3 + k;
 
                 if(scalarProd > 0)
                     flux.num[index] = flux.gp[index].first;
 
-                else if(scalarProd < 0)
+                else if(scalarProd <= 0)
+                {
                     flux.num[index] = flux.gp[index].second;
+                    //std::cout <<  flux.num[index] << std::endl;
+                }
+                    
                 else
                     flux.num[index] = 0;
 

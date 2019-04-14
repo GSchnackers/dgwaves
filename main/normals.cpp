@@ -35,8 +35,8 @@ void normals(Element & frontierElement, Element & mainElement){
 
                 double norm = sqrt(compoX * compoX + compoY * compoY); // Normalization.
                 
-                tmpNorm[frontierIndex] = compoX/norm;
-                tmpNorm[frontierIndex + 1] = compoY/norm;
+                tmpNorm[frontierIndex] = frontierElement.jacobiansInverse[jacobianIndex + 8] * compoX/norm;
+                tmpNorm[frontierIndex + 1] = frontierElement.jacobiansInverse[jacobianIndex + 8] * compoY/norm;
                 tmpNorm[frontierIndex + 2] = 0.;
 
             }
