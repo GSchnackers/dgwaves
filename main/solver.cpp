@@ -37,7 +37,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     fluxVector.resize(mainElement.nodeTags.size(), 0);
 
 
-    for(t = 0; t < 0.002; t += step)
+    for(t = 0; t < 0.004; t += step)
     {    
         computeBoundaryCondition(mainElement, u, t);
 
@@ -80,7 +80,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
                     
                 }
 
-                u.node[uIndex] += step * tmpProd;
+                u.node[uIndex] = step * tmpProd + u.node[uIndex];
                 mainView.data[i][j] = u.node[i * mainElement.numNodes + j];
 
             }   
@@ -88,13 +88,6 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
         gmsh::view::addModelData(mainView.tag, int(t/step), mainView.modelName, mainView.dataType, \
                                  mainElement.elementTag, mainView.data, t, 1);
         
-        
-        std::fill(fluxVector.begin(), fluxVector.end(), 0);
-        std::fill(SFProd.begin(), SFProd.end(), 0);
-        std::fill(flux.num.begin(), flux.num.end(), 0);
-        std::fill(flux.gp.begin(), flux.gp.end(), std::make_pair(0,0));
-        std::fill(flux.direction.begin(), flux.direction.end(), 0);
-        std::fill(u.gp.begin(), u.gp.end(), std::make_pair(0,0));
 
     }
 
