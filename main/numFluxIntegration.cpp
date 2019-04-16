@@ -19,7 +19,6 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
     for(i = 0; i < flux.num.size(); ++i)
     {
         scalarProds[i/3] += flux.num[i] * frontierElement.normals[i];
-        std::cout << flux.num[i] << std::endl;
     }
 
     // Computation of the integration vector.

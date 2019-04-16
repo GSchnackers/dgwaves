@@ -77,9 +77,9 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
     gmsh::logger::write("Computation of the stiffness matrix of each element...");
     matrixMaker(mainElements, "SX");
     if(mainElements.dim >= 2) matrixMaker(mainElements, "SY");
-    else mainElements.stiffnessMatrixY.resize(mainElements.stiffnessMatrixX.size());
+    else mainElements.stiffnessMatrixY.resize(mainElements.stiffnessMatrixX.size(), 0);
     if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
-    else mainElements.stiffnessMatrixZ.resize(mainElements.stiffnessMatrixX.size());
+    else mainElements.stiffnessMatrixZ.resize(mainElements.stiffnessMatrixX.size(), 0);
     std::cout << "Done." << std::endl;
 
 }

@@ -31,21 +31,12 @@ void matrixMaker(Element & element, std::string matrixType)
         tmp1.resize(tmp2.size());
 
         for(i = compo; i < element.shapeFunctionsGradParam.size(); i += 3)
+        {
             tmp1[i/3] = element.shapeFunctionsGradParam[i];
+            std::cout <<  tmp1[i/3] << std::endl;
+        }
             
     }
-
-    /* else if(!matrixType.compare("FX") || !matrixType.compare("FY") || !matrixType.compare("FZ"))
-    {
-        if(matrixType.find("X") != std::string::npos) compo = 0;
-        else if(matrixType.find("Y") != std::string::npos) compo = 1;
-        else compo = 2;
-
-        tmp1.resize(tmp2.size());
-
-        for(i = compo; i < element..size(); i += 3)
-            tmp1[i/3] = element.shapeFunctionsGradParam[i];
-    } */
 
     else
     {

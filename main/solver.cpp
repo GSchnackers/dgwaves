@@ -37,7 +37,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size(), 0);
     fluxVector.resize(mainElement.nodeTags.size(), 0);
 
-    for(t = 0; t < 0.01; t += step)
+    for(t = 0; t < 0.004; t += step)
     {    
         computeBoundaryCondition(mainElement, u, t);
 
@@ -115,22 +115,13 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
         for(i = 0; i < SFProd.size(); ++i)
             std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << SFProd[i] << std::endl;
         std::cout << std::endl;
-        /*numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
-
-       /*  for(i = 0; i < fluxVector.size(); ++i)
-            std::cout << fluxVector[i] << " " << SFProd[i] << " " << mainElement.nodeTags[i] << std::endl;
-
-        for(i = 0; i < mainElement.elementTag.size(); ++i)
-        {
-            std::cout << "Element " << mainElement.elementTag[i] << std::endl;
-            for(j = 0; j < mainElement.numNodes; ++j)
-                std::cout << fluxVector[i * mainElement.numNodes + j] << std::endl;
-
-            std::cout << std::endl;
-
-        } */
+        numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
+        std::cout << "Flux integration verifier at t = " << t << std::endl;
+        for(i = 0; i < SFProd.size(); ++i)
+            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << fluxVector[i] << std::endl;
+        std::cout << std::endl;
         
-        /* for(i = 0; i < mainElement.elementTag.size(); ++i)
+        for(i = 0; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)
             {
                 int uIndex = i * mainElement.numNodes + j;
@@ -146,17 +137,18 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
                     tmpProd += mainElement.massMatrixInverse[matrixIndex] * \
                                        (SFProd[vecIndex] - fluxVector[vecIndex]);
-                    //std::cout << fluxVector[vecIndex] << std::endl;
                     
                 }
 
 
                 mainView.data[i][j] = u.node[uIndex] += step * tmpProd;
 
-                //std::cout << u.node[uIndex] << " " << mainElement.nodeTags[uIndex] << std::endl;
-                
+            } 
 
-            }*/   
+        std::cout << "Nodal value verifier at t = " << t << std::endl;
+        for(i = 0; i < u.node.size(); ++i)
+            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << u.node[i] << std::endl;
+        std::cout << std::endl; 
             
         gmsh::view::addModelData(mainView.tag, int(t/step), mainView.modelName, mainView.dataType, \
                                  mainElement.elementTag, mainView.data, t, 1);
