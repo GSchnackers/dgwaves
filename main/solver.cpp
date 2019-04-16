@@ -37,11 +37,14 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size(), 0);
     fluxVector.resize(mainElement.nodeTags.size(), 0);
 
-    for(t = 0; t < 0.005; t += step)
+    for(t = 0; t < 0.01; t += step)
     {    
         computeBoundaryCondition(mainElement, u, t);
 
         // Boundary Conditions verification.
+        std::cout << " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+        std::cout << " %%%%%%%%%%%%%%%%%%%%% TIME STEP t = " << t << " %%%%%%%%%%%%%%%%%%%%%" << std::endl;
+        std::cout << " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
 
         std::cout << "BC's verifier at t = " << t << std::endl;
         for(i = 0; i < u.bound.size(); ++i)
@@ -81,9 +84,33 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
             std::cout << std::endl;
         }
         std::cout << std::endl;
+
+        std::cout << "Physical flux direction at the Gauss points at t = " << t << std::endl;
+        for(i = 0; i < flux.direction.size(); ++i)
+        {
+            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].first];
+            if(frontierElement.neighbours[i/(3*frontierElement.numGp)].second >= 0)
+                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].second] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.direction[i] << " ";
+            else
+                std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.direction[i] << " ";    
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
         
-        /*numFluxUpwind(frontierElement, flux);
-        stiffnessFluxProd(mainElement, flux, SFProd);
+        numFluxUpwind(frontierElement, flux);
+        std::cout << "Numerical flux at the Gauss points verifier at t = " << t << std::endl;
+        for(i = 0; i < flux.num.size(); ++i)
+        {
+            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].first];
+            if(frontierElement.neighbours[i/(3*frontierElement.numGp)].second >= 0)
+                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].second] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.num[i] << " ";
+            else
+                std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.num[i] << " ";    
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;        
+
+        /*stiffnessFluxProd(mainElement, flux, SFProd);
         numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
 
        /*  for(i = 0; i < fluxVector.size(); ++i)

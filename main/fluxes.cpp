@@ -53,7 +53,7 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
                 if(scalarProd > 0)
                     flux.num[index] = flux.gp[index].first;
 
-                else if(scalarProd = 0)
+                else if(scalarProd < 0)
                     flux.num[index] = flux.gp[index].second;
                     
                 else
