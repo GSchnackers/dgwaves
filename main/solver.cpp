@@ -110,8 +110,12 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
         }
         std::cout << std::endl;        
 
-        /*stiffnessFluxProd(mainElement, flux, SFProd);
-        numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
+        stiffnessFluxProd(mainElement, flux, SFProd);
+        std::cout << "Stiffness/Flux product verifier at t = " << t << std::endl;
+        for(i = 0; i < SFProd.size(); ++i)
+            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << SFProd[i] << std::endl;
+        std::cout << std::endl;
+        /*numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
 
        /*  for(i = 0; i < fluxVector.size(); ++i)
             std::cout << fluxVector[i] << " " << SFProd[i] << " " << mainElement.nodeTags[i] << std::endl;
