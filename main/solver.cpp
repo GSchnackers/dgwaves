@@ -37,7 +37,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size(), 0);
     fluxVector.resize(mainElement.nodeTags.size(), 0);
 
-    for(t = 0; t < 0.01; t += step)
+    for(t = 0; t < 0.007; t += step)
     {    
         computeBoundaryCondition(mainElement, u, t);
 
@@ -45,11 +45,23 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
         std::cout << "BC's verifier at t = " << t << std::endl;
         for(i = 0; i < u.bound.size(); ++i)
-            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Value: " << u.bound[i] << " " << std::endl;
+            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << u.bound[i] << " " << std::endl;
         std::cout << std::endl;
         
-        /* valGp(u, mainElement, frontierElement, 1);
-        physFluxCu(u, mainElement, frontierElement, flux);
+        valGp(u, mainElement, frontierElement, 1);
+        std::cout << "Gauss points verifier at t = " << t << std::endl;
+        
+        for(i = 0; i < u.gp.size(); ++i)
+        {
+            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/frontierElement.numGp].first] << " Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].first;
+            if(frontierElement.neighbours[i/frontierElement.numGp].second >= 0)
+                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/frontierElement.numGp].second] << " Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].second << " ";
+            else
+                std::cout << " / Element: NONE Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].second << " ";    
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+        /*physFluxCu(u, mainElement, frontierElement, flux);
         
         numFluxUpwind(frontierElement, flux);
         stiffnessFluxProd(mainElement, flux, SFProd);
