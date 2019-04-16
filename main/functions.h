@@ -34,8 +34,8 @@ void matrixMaker(Element & element, std::string matrixType);
 // Solver of the DG-FEM.
 void solver(Element & mainElement, Element & frontierElement, View & mainView);
 
-// Computes the values of u at the gauss points.
-void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
+// Computes the values of any quantity at the gauss points from its value at the nodes.
+void valGp(Quantity & q, const Element & mainElement, const Element & frontierElement, int compo);
 
 // Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\

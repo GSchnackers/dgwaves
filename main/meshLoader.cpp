@@ -68,6 +68,11 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
     }
     std::cout << "Done." << std::endl;
 
+    /* for(i = 0; i < mainElements.massMatrix.size(); ++i)
+    {
+        std::cout<< mainElements.massMatrix[i] << " " << mainElements.massMatrixInverse[i] << std::endl;
+    }
+ */
     // Matrix S of the elements loading.
     gmsh::logger::write("Computation of the stiffness matrix of each element...");
     matrixMaker(mainElements, "SX");

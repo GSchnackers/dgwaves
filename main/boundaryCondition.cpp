@@ -39,13 +39,12 @@ void setBoundaryConditions(Element & mainElement, Quantity & u){
                 if(mainElement.nodeTags[k] == physicalNodeTags[j])
                 {
                     if(physicalName.find("Sinusoidal") != std::string::npos)
-                    {
                         u.boundSign[k] = -2;
-                        std::cout<< k << std::endl;
-                    }
 
                     else if(physicalName.find("Constant") != std::string::npos)
                         u.boundSign[k] = -3;
+
+                    //std::cout << mainElement.nodeTags[k] << std::endl;
 
                 }
 
@@ -63,6 +62,7 @@ void computeBoundaryCondition(const Element & mainElement, Quantity & u, const d
 
         if(u.boundSign[i] == -2)
              u.bound[i] = sin(2 * M_PI * t/0.5);
+        
     
         else if(u.boundSign[i] == -3)
              u.bound[i] = 1;
