@@ -37,7 +37,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size(), 0);
     fluxVector.resize(mainElement.nodeTags.size(), 0);
 
-    for(t = 0; t < 0.007; t += step)
+    for(t = 0; t < 0.005; t += step)
     {    
         computeBoundaryCondition(mainElement, u, t);
 
@@ -61,9 +61,28 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
             std::cout << std::endl;
         }
         std::cout << std::endl;
-        /*physFluxCu(u, mainElement, frontierElement, flux);
+
+        physFluxCu(u, mainElement, frontierElement, flux);
+
+        std::cout << "Physical nodal flux verifier at t = " << t << std::endl;
+        for(i = 0; i < flux.node.size(); ++i)
+            std::cout << "Element: " << mainElement.elementTag[i/(3 * mainElement.numNodes)] << " Node: " << mainElement.nodeTags[i/3] << " Value: " << flux.node[i] << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Physical flux at the Gauss points verifier at t = " << t << std::endl;
         
-        numFluxUpwind(frontierElement, flux);
+        for(i = 0; i < flux.gp.size(); ++i)
+        {
+            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].first] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.gp[i].first;
+            if(frontierElement.neighbours[i/(3*frontierElement.numGp)].second >= 0)
+                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].second] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.gp[i].second << " ";
+            else
+                std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.gp[i].second << " ";    
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+        
+        /*numFluxUpwind(frontierElement, flux);
         stiffnessFluxProd(mainElement, flux, SFProd);
         numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
 
