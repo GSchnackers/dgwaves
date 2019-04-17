@@ -10,30 +10,93 @@
 void matrixMaker(Element & element, std::string matrixType)
 {
 
-    std::size_t i, j = 0, k, l; // Index variable.
+    std::size_t i, j, k, l; // Index variable.
 
-    // Matrix containing all values for all elements and all gauss points.
-    std::vector<double> tmp1, tmp2 = element.shapeFunctionsParam;
-    std::vector<double> matrixTmp(element.numNodes * element.numNodes * element.elementTag.size(), 0);
-
-    int compo = -1; // Keeps in memory the component of the gradient to use in the building of x. It is -1 for M, 0, 1 and 2 for SX SY and SZ respectively.
+    element.massMatrix.resize(element.elementTag.size() * element.numNodes * element.numNodes);
 
     if(!matrixType.compare("M"))
-        tmp1 = tmp2; 
+    {
+        // Computes the resulting matrix.
+        for(i = 0; i < element.elementTag.size(); ++i)
+            for(j = 0; j < element.numNodes; ++j)
+                for(k = 0; k < element.numNodes; ++k)
+                {
+                    int indexMatrix = i * element.numNodes * element.numNodes + j * element.numNodes + k;
+
+                    for(l = 0; l < element.numGp; ++l)
+                        element.massMatrix[indexMatrix] += \
+                                            element.shapeFunctionsParam[l * element.numNodes + j] * \
+                                            element.shapeFunctionsParam[l * element.numNodes + k] * \
+                                            element.jacobiansDet[i * element.numGp + l] * \
+                                            element.gaussPointsParam[4 * l + 3];
+                    
+                }
+    } 
 
     else if(!matrixType.compare("SX") || !matrixType.compare("SY") || !matrixType.compare("SZ"))
     {
+        int compo; // Keeps in memory the component of the gradient to use in the building of x. It is 0, 1 and 2 for SX SY and SZ respectively.
 
+        std::vector<double> stiffTmp(element.elementTag.size() * element.numNodes * element.numNodes, 0);
         if(matrixType.find("X") != std::string::npos) compo = 0;
         else if(matrixType.find("Y") != std::string::npos) compo = 1;
         else compo = 2;
 
-        tmp1.resize(tmp2.size());
+        std::vector<double> realGrad(element.elementTag.size() * element.numGp * element.numNodes, 0);
 
-        for(i = compo; i < element.shapeFunctionsGradParam.size(); i += 3)
+        // Computation of the real gradient.
+        for(i = 0; i < element.elementTag.size(); ++i) // loop over the element tags.
+            for(j = 0; j < element.numGp; ++j) // loop over the gauss points.
+                for(k = 0; k < element.numNodes; ++k) // loop over the nodes.
+                {
+                    int realIndex = i * element.numGp * element.numNodes + j * element.numNodes + k;
+
+                    for(l = 0; l < 3; ++l) // loop over the lines of the jacobian.
+                    {   
+                        int jacobIndex = i * element.numGp * 9 + j * 9 + compo * 3 + l;
+                        int paramIndex = j * element.numNodes * 3 + k * 3 + l;
+
+                        // Multiplies the corresponding row of the jacobian with the isoparam gradient to obtain the real gradient.
+                        realGrad[realIndex] += element.jacobiansInverse[jacobIndex] * \
+                                               element.shapeFunctionsGradParam[paramIndex];
+                    }
+                }
+
+        // Computation of the Stiffness matrix.
+        for(i = 0; i < element.elementTag.size(); ++i)
+            for(j = 0; j < element.numNodes; ++j)
+                for(k = 0; k < element.numNodes; ++k)
+                {
+                    int stiffIndex =  i * element.numNodes * element.numNodes + j * element.numNodes + k; 
+
+                    for(l = 0; l < element.numGp; ++l)
+                    {
+                        int realIndex = i * element.numGp * element.numNodes + l * element.numNodes + j;
+                        int shapeIndex = l * element.numNodes + k;
+                        int detIndex = i * element.numGp + l;
+
+                        stiffTmp[stiffIndex] += realGrad[realIndex] * \
+                                                element.shapeFunctionsParam[shapeIndex] * \
+                                                element.gaussPointsParam[4 * l + 3] *
+                                                element.jacobiansDet[detIndex];
+                        
+                    }
+                }
+
+        switch(compo)
         {
-            tmp1[i/3] = element.shapeFunctionsGradParam[i];
-            std::cout <<  tmp1[i/3] << std::endl;
+            case 0:
+                element.stiffnessMatrixX = stiffTmp;
+            break;
+
+            case 1:
+                element.stiffnessMatrixY = stiffTmp;
+            break;
+
+            case 2:
+                element.stiffnessMatrixZ = stiffTmp;
+            break;
+
         }
             
     }
@@ -42,45 +105,6 @@ void matrixMaker(Element & element, std::string matrixType)
     {
         gmsh::logger::write("The matrix type is not recognized.", "error");
         exit(-1);
-    }
-
-    // Computes the resulting matrix.
-    for(i = 0; i < element.elementTag.size(); ++i)
-        for(j = 0; j < element.numNodes; ++j)
-            for(k = 0; k < element.numNodes; ++k)
-                for(l = 0; l < element.numGp; ++l)
-                {
-                    int indexMatrix = i * element.numNodes * element.numNodes + j * element.numNodes + k;
-                    
-                    int index1 = l * element.numNodes + j;
-                    int index2 = l * element.numNodes + k;
-                    int indexJacob = i * element.numGp + l;
-                    int indexGPoint = 4 * l + 3;
-
-                    matrixTmp[indexMatrix] += tmp1[index1] * tmp2[index2] * \
-                                              element.jacobiansDet[indexJacob] * \
-                                              element.gaussPointsParam[indexGPoint];
-
-                }
-
-    switch (compo)
-    {
-        case -1:
-            element.massMatrix = matrixTmp;
-            break;
-
-        case 0:
-            element.stiffnessMatrixX = matrixTmp;
-            break;
-        
-        case 1:
-            element.stiffnessMatrixY = matrixTmp;
-            break;
-
-        case 2:
-            element.stiffnessMatrixZ = matrixTmp;
-            break;
-    
     }
     
 }

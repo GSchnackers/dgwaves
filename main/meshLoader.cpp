@@ -80,6 +80,39 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
     else mainElements.stiffnessMatrixY.resize(mainElements.stiffnessMatrixX.size(), 0);
     if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
     else mainElements.stiffnessMatrixZ.resize(mainElements.stiffnessMatrixX.size(), 0);
-    std::cout << "Done." << std::endl;
+    std::cout << "Done." << std::endl << std::endl;
+
+    std::cout << "Stiffness matrix X verifier" << std::endl;
+    for(i = 0; i < mainElements.stiffnessMatrixX.size(); ++i)
+    {
+        if(!(i % 3)) std::cout << std::endl;
+        if(!(i % (mainElements.numNodes * mainElements.numNodes))) std::cout << "Element " << i /(mainElements.numNodes * mainElements.numNodes) << std::endl;
+        std::cout << mainElements.stiffnessMatrixX[i] << " ";
+        
+    }
+
+    std::cout << std::endl << std::endl;
+
+    std::cout << "Stiffness matrix Y verifier" << std::endl;
+    for(i = 0; i < mainElements.stiffnessMatrixY.size(); ++i)
+    {
+        if(!(i % 3)) std::cout << std::endl;
+        if(!(i % (mainElements.numNodes * mainElements.numNodes))) std::cout << "Element " << i /(mainElements.numNodes * mainElements.numNodes) << std::endl;
+        std::cout << mainElements.stiffnessMatrixY[i] << " ";
+        
+    }
+
+    std::cout << std::endl << std::endl;
+
+    std::cout << "Stiffness matrix Z verifier" << std::endl;
+    for(i = 0; i < mainElements.stiffnessMatrixZ.size(); ++i)
+    {
+        if(!(i % 3)) std::cout << std::endl;
+        if(!(i % (mainElements.numNodes * mainElements.numNodes))) std::cout << "Element " << i /(mainElements.numNodes * mainElements.numNodes) << std::endl;
+        std::cout << mainElements.stiffnessMatrixZ[i] << " ";
+        
+    }
+
+    std::cout << std::endl << std::endl;
 
 }
