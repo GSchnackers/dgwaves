@@ -19,27 +19,44 @@ void normals(Element & frontierElement, Element & mainElement){
     // of the 2D mesh (that is a normal vector along z). We take here the first shape function, as it
     // decays in such a way that the vectorial product between the gradient and the z axis is outward pointing.
 
-    if(frontierElement.dim == 1)
-        for(i = 0; i < frontierElement.elementTag.size(); ++i) // Run through the elements
-            for(j = 0; j < frontierElement.numGp; ++j) // run through the gauss points of a given element.
+    for(i = 0; i < frontierElement.elementTag.size(); ++i) // Run through the elements
+        for(j = 0; j < frontierElement.numGp; ++j) // run through the gauss points of a given element.
+        {
+            
+            int jacobianIndex = i *  frontierElement.numGp * 9 + j * 9;
+
+            int frontierIndex = i * frontierElement.numGp * 3 + j * 3;
+
+            int mainJacobIndex = frontierElement.neighbours[i].first * mainElement.numGp * 9; 
+
+            double compoX = 0, compoY = 0, compoZ = 0;
+
+            double sign = 1;
+
+            double norm;
+
+            if(frontierElement.dim == 1)
             {
-                
-                int jacobianIndex = i *  frontierElement.numGp * 9 + j * 9;
+                compoX = frontierElement.jacobiansInverse[jacobianIndex + 1];
+                compoY = frontierElement.jacobiansInverse[jacobianIndex + 4];
 
-                int frontierIndex = i * frontierElement.numGp * 3 + j * 3;
-                
-                int scalarProd = 0;
-
-                double compoX = frontierElement.jacobiansInverse[jacobianIndex + 1];
-                double compoY = frontierElement.jacobiansInverse[jacobianIndex + 4];
-
-                double norm = sqrt(compoX * compoX + compoY * compoY); // Normalization.
-                
-                tmpNorm[frontierIndex] = frontierElement.jacobiansInverse[jacobianIndex + 8] * compoX/norm;
-                tmpNorm[frontierIndex + 1] = frontierElement.jacobiansInverse[jacobianIndex + 8] * compoY/norm;
-                tmpNorm[frontierIndex + 2] = 0.;
-
+                sign = mainElement.jacobiansInverse[mainJacobIndex + 8];
             }
+
+            else if(frontierElement.dim == 2)
+            {
+                compoX = frontierElement.jacobiansInverse[jacobianIndex + 2];
+                compoY = frontierElement.jacobiansInverse[jacobianIndex + 5];
+                compoZ = frontierElement.jacobiansInverse[jacobianIndex + 8];
+            }
+
+            norm = sqrt(compoX * compoX + compoY * compoY + compoZ * compoZ);
+            
+            tmpNorm[frontierIndex] = sign * compoX/norm;
+            tmpNorm[frontierIndex + 1] = sign * compoY/norm;
+            tmpNorm[frontierIndex + 2] = sign * compoZ/norm;
+
+        }
 
 
     frontierElement.normals = tmpNorm; 

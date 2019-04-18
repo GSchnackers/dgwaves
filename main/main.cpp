@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     }
 
     std::vector<std::string> modelNames; // string that contains the name of the models.
-    std::string gaussType = "Gauss4";
+    std::string gaussType = "Gauss10";
     
     Element mainElement; // The main elements of the mesh.
     Element frontierElement; // The frontier elements of the mesh.

@@ -37,7 +37,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size(), 0);
     fluxVector.resize(mainElement.nodeTags.size(), 0);
 
-    for(t = 0; t < 1; t += step)
+    for(t = 0; t < -1; t += step)
     {    
         computeBoundaryCondition(mainElement, u, t);
 
