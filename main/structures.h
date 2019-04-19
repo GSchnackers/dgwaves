@@ -19,7 +19,7 @@ struct Element{
     std::string name; // Name of the element.
     int dim; // dimension of the element.
     int order; // Order of the element.
-    int numSide; // Number of sides of the element.
+    int numSide; // Number of sides frontier elements on one element.
 
     // Useful properties common to all elements of the element.
 

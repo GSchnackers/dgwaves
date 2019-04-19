@@ -3,7 +3,8 @@
 #include "structures.h"
 
 // Function that loads the mesh (main and frontier elements).
-void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType);
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim, \
+                int frontierDim);
 
 // Initialization of the properties of the element of a certain dim and a certain type with a number of Gauss points given by GaussType.
 void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier = false);

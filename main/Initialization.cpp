@@ -22,11 +22,11 @@ void Initialization(Element & element, const int meshDim, std::string integratio
     gmsh::model::mesh::getElementTypes(element.elementType, meshDim);
     if(element.elementType.size() > 1){
 
-        gmsh::logger::write("No hybrid implementation is authorized.\
-                                The program will now exit.", "error");
+        gmsh::logger::write("No hybrid implementation is authorized. The program will now exit.", "error");
         exit(-1);
 
     }
+    
 
     // Gets the properties of the element.
     gmsh::model::mesh::getElementProperties(element.elementType[0], element.name, element.dim,\
@@ -37,8 +37,8 @@ void Initialization(Element & element, const int meshDim, std::string integratio
     if(element.name.find("Triangle") != std::string::npos) element.numSide = 3;
     else if(element.name.find("Line") != std::string::npos) element.numSide = 1;
     else if(element.name.find("Quadrangle") != std::string::npos) element.numSide = 4;
-    else if(element.name.find("Tetrahedron") != std::string::npos) element.numSide = 6;
-    else if(element.name.find("Pyramid") != std::string::npos) element.numSide = 8;
+    else if(element.name.find("Tetrahedron") != std::string::npos) element.numSide = 4;
+    else if(element.name.find("Pyramid") != std::string::npos) element.numSide = 5;
     else{
         gmsh::logger::write("The element name is not supported by the program.", "error");
         exit(-1);
@@ -48,7 +48,8 @@ void Initialization(Element & element, const int meshDim, std::string integratio
     if(!frontier)
         gmsh::model::mesh::getElementsByType(element.elementType[0], element.elementTag, element.nodeTags);
     else
-        gmsh::model::mesh::getElementsByType(element.elementType[0], element.elementTag, element.nodeTags, element.entityTag);
+        gmsh::model::mesh::getElementsByType(element.elementType[0], element.elementTag, element.nodeTags,\
+                                             element.entityTag);
 
     // Gets the frontier nodes of the main elements. Depends on the mesh dimension. 
     if(meshDim == 3)    
@@ -58,15 +59,15 @@ void Initialization(Element & element, const int meshDim, std::string integratio
     else if(meshDim == 1)
         gmsh::model::mesh::getElementEdgeNodes(element.elementType[0], element.frontierNode, -1, true);
 
-    // Gets the number of nodes per edge of an elements.
-    // It is the number of edge nodes divided by the number of elements.
+    // Gets the number of nodes per frontier of an elements.
+    // It is the number of frontier nodes divided by the number of elements.
     element.numberFrontierNode = element.frontierNode.size()/(element.numSide*element.elementTag.size());
 
-    // Gets the shape functions of the elements at the Gauss points;
+    // Gets the shape functions of the elements at the Gauss points in parametric coordinates.
     gmsh::model::mesh::getBasisFunctions(element.elementType[0], integrationType, "IsoParametric",\
                                 element.gaussPointsParam, element.numCompoShape, element.shapeFunctionsParam);
 
-    // Gets the gradient of the shape functions of the elements at the Gauss points;
+    // Gets the gradient of the shape functions of the elements at the Gauss points in parametric coordinates.
     gmsh::model::mesh::getBasisFunctions(element.elementType[0], integrationType, "GradLagrange",\
                                          element.gaussPointsParamGrad, element.numCompoShapeGrad,\
                                          element.shapeFunctionsGradParam);

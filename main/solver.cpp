@@ -37,11 +37,11 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     SFProd.resize(mainElement.nodeTags.size(), 0);
     fluxVector.resize(mainElement.nodeTags.size(), 0);
 
-    for(t = 0; t < -1; t += step)
+    for(t = 0; t < .5; t += step)
     {    
         computeBoundaryCondition(mainElement, u, t);
 
-        // Boundary Conditions verification.
+        /* // Boundary Conditions verification.
         std::cout << " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
         std::cout << " %%%%%%%%%%%%%%%%%%%%% TIME STEP t = " << t << " %%%%%%%%%%%%%%%%%%%%%" << std::endl;
         std::cout << " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
@@ -49,12 +49,12 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
         std::cout << "BC's verifier at t = " << t << std::endl;
         for(i = 0; i < u.bound.size(); ++i)
             std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << u.bound[i] << " " << std::endl;
-        std::cout << std::endl;
+        std::cout << std::endl; */
         
         valGp(u, mainElement, frontierElement, 1);
-        std::cout << "Gauss points verifier at t = " << t << std::endl;
+        /*std::cout << "Gauss points verifier at t = " << t << std::endl;
         
-        for(i = 0; i < u.gp.size(); ++i)
+         for(i = 0; i < u.gp.size(); ++i)
         {
             std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/frontierElement.numGp].first] << " Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].first;
             if(frontierElement.neighbours[i/frontierElement.numGp].second >= 0)
@@ -63,11 +63,11 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
                 std::cout << " / Element: NONE Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].second << " ";    
             std::cout << std::endl;
         }
-        std::cout << std::endl;
+        std::cout << std::endl; */
 
         physFluxCu(u, mainElement, frontierElement, flux);
 
-        std::cout << "Physical nodal flux verifier at t = " << t << std::endl;
+        /* std::cout << "Physical nodal flux verifier at t = " << t << std::endl;
         for(i = 0; i < flux.node.size(); ++i)
             std::cout << "Element: " << mainElement.elementTag[i/(3 * mainElement.numNodes)] << " Node: " << mainElement.nodeTags[i/3] << " Value: " << flux.node[i] << std::endl;
         std::cout << std::endl;
@@ -95,10 +95,10 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
                 std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.direction[i] << " ";    
             std::cout << std::endl;
         }
-        std::cout << std::endl;
+        std::cout << std::endl; */
         
         numFluxUpwind(frontierElement, flux);
-        std::cout << "Numerical flux at the Gauss points verifier at t = " << t << std::endl;
+        /* std::cout << "Numerical flux at the Gauss points verifier at t = " << t << std::endl;
         for(i = 0; i < flux.num.size(); ++i)
         {
             std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].first];
@@ -108,18 +108,18 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
                 std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.num[i] << " ";    
             std::cout << std::endl;
         }
-        std::cout << std::endl;        
+        std::cout << std::endl;    */     
 
         stiffnessFluxProd(mainElement, flux, SFProd);
-        std::cout << "Stiffness/Flux product verifier at t = " << t << std::endl;
+        /* std::cout << "Stiffness/Flux product verifier at t = " << t << std::endl;
         for(i = 0; i < SFProd.size(); ++i)
             std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << SFProd[i] << std::endl;
-        std::cout << std::endl;
+        std::cout << std::endl; */
         numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
-        std::cout << "Flux integration verifier at t = " << t << std::endl;
-        for(i = 0; i < SFProd.size(); ++i)
+        /*std::cout << "Flux integration verifier at t = " << t << std::endl;
+         for(i = 0; i < SFProd.size(); ++i)
             std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << fluxVector[i] << std::endl;
-        std::cout << std::endl;
+        std::cout << std::endl; */
         
         for(i = 0; i < mainElement.elementTag.size(); ++i)
             for(j = 0; j < mainElement.numNodes; ++j)
@@ -145,10 +145,10 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
             } 
 
-        std::cout << "Nodal value verifier at t = " << t << std::endl;
+        /* std::cout << "Nodal value verifier at t = " << t << std::endl;
         for(i = 0; i < u.node.size(); ++i)
             std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << u.node[i] << std::endl;
-        std::cout << std::endl; 
+        std::cout << std::endl;  */
             
         gmsh::view::addModelData(mainView.tag, int(t/step), mainView.modelName, mainView.dataType, \
                                  mainElement.elementTag, mainView.data, t, 1);

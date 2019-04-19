@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     }
 
     std::vector<std::string> modelNames; // string that contains the name of the models.
-    std::string gaussType = "Gauss10";
+    std::string gaussType = "Gauss3";
     
     Element mainElement; // The main elements of the mesh.
     Element frontierElement; // The frontier elements of the mesh.
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     gmsh::open(argv[1]);                          // reads the msh file
 
 
-    meshLoader(mainElement, frontierElement, gaussType); // Initialization of all quantities required.
+    meshLoader(mainElement, frontierElement, gaussType, 3, 2); // Initialization of all quantities required.
 
     gmsh::model::list(modelNames);
 

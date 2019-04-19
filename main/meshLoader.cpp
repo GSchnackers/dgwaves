@@ -4,14 +4,15 @@
 #include "functions.h"
 #include "structures.h"
 
-void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType){
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim, \
+                int frontierDim){
 
     std::size_t i, j;
     std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
 
     // Initialization of the elements of the mesh.
     gmsh::logger::write("Initializing the main elements of the mesh...");
-    Initialization(mainElements, 2, gaussType);
+    Initialization(mainElements, mainDim, gaussType);
     std::cout << "Done." << std::endl;
 
     // Sorting of the nodes at the frontier of each element.
@@ -21,12 +22,12 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
 
     // Creation of the frontier elements on the basis of the vector of sorted nodes.
     gmsh::logger::write("Creation of the frontier elements...");
-    frontierCreation(mainElements, frontierElement, 2, sortedNodes);
+    frontierCreation(mainElements, frontierElement, mainDim, sortedNodes);
     std::cout << "Done." << std::endl;
 
     // Initialization of the element representing the frontiers.
     gmsh::logger::write("Initialization of the frontier elements...");
-    Initialization(frontierElement, 1, gaussType, true);
+    Initialization(frontierElement, frontierDim, gaussType, true);
     std::cout << "Done." << std::endl;
 
     // getting the normals of the edges.

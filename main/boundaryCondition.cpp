@@ -44,8 +44,6 @@ void setBoundaryConditions(Element & mainElement, Quantity & u){
                     else if(physicalName.find("Constant") != std::string::npos)
                         u.boundSign[k] = -3;
 
-                    //std::cout << mainElement.nodeTags[k] << std::endl;
-
                 }
 
     }
