@@ -5,8 +5,8 @@
 #include "functions.h"
 #include "structures.h"
 
-void readParam(std::string fileName, double & simTime, double & incrementation, int & registration,
-               int & solvType, std::string & gaussType, int & meshDim, int & debug){
+void readParam(std::string fileName, double & simTime, double & simStep, int & registration,
+               int & solvType, std::string & gaussType, int & debug){
 
     std::ifstream file;
     std::string command;
@@ -35,7 +35,7 @@ void readParam(std::string fileName, double & simTime, double & incrementation, 
         
         else if(!(command.compare("SIMSTEP")))
         {
-            file >> incrementation;
+            file >> simStep;
             file.get();
         }
 
@@ -52,12 +52,6 @@ void readParam(std::string fileName, double & simTime, double & incrementation, 
         }
 
         else if(!(command.compare("GAUSS"))) std::getline(file, gaussType);
-
-        else if(!(command.compare("MESHDIM")))
-        { 
-            file >> meshDim;
-            file.get();
-        }
 
         else if(!(command.compare("DEBUG")))
         { 

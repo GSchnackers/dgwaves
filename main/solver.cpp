@@ -7,13 +7,13 @@
 #include "structures.h"
 
 void solver(Element & mainElement, Element & frontierElement, View & mainView, const double simTime, \
-            const double incrementation, const int solvType, const int registration, const int debug){
+            const double simStep, const int solvType, const int registration, const int debug){
 
     std::size_t i, j, k; // loop variables.
 
-    double t, increment = 0.001; // t is the time, increment is the time increment of the simulation.
-    double halfInc = increment/2;
-    double sixthInc = increment/6;
+    double t = 0; // t is the time of the simulation.
+    double halfInc = simStep/2;
+    double sixthInc = simStep/6;
 
     Quantity u; // unknowns of the problem.
     Quantity flux; // fluxs of the problem.
@@ -48,47 +48,47 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView, c
     for (i = 0; i < mainElement.nodeTags.size(); ++i)
             mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = u.node[i];
 
-    gmsh::view::addModelData(mainView.tag, int(t/increment), mainView.modelName, mainView.dataType, \
+    gmsh::view::addModelData(mainView.tag, int(t/simStep), mainView.modelName, mainView.dataType, \
                                 mainElement.elementTag, mainView.data, t, 1);
 
     gmsh::logger::write("Simulation...");
 
     // Euler method.
-    for(t = 0; t < simTime && !solvType; t += increment)
+    for(t = 0; t < simTime && !solvType; t += simStep)
     {
-        computeCoeff(mainElement, frontierElement, increment, t, u, flux, k1, debug);
+        computeCoeff(mainElement, frontierElement, simStep, t, u, flux, k1, debug);
 
         for (i = 0; i < mainElement.nodeTags.size(); ++i)
             mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = \
-            u.node[i] += increment * k1[i];
+            u.node[i] += simStep * k1[i];
 
-        if(!((int(t/increment) + 1) % registration))
-            gmsh::view::addModelData(mainView.tag, int(t/increment) + 1, mainView.modelName, mainView.dataType, \
+        if(!((int(t/simStep) + 1) % registration))
+            gmsh::view::addModelData(mainView.tag, int(t/simStep) + 1, mainView.modelName, mainView.dataType, \
                                     mainElement.elementTag, mainView.data, t, 1);
 
     }
 
     // Runge-Kutta 4 method.
-    for(t = 0; t < simTime && solvType; t += increment)
+    for(t = 0; t < simTime && solvType; t += simStep)
     {    
         Quantity uTmp = u;
-        computeCoeff(mainElement, frontierElement, increment, t, uTmp, flux, k1, debug);
+        computeCoeff(mainElement, frontierElement, simStep, t, uTmp, flux, k1, debug);
 
         for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
-        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k2, debug);
+        computeCoeff(mainElement, frontierElement, simStep, t + halfInc, uTmp, flux, k2, debug);
 
         for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
-        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k3, debug);
+        computeCoeff(mainElement, frontierElement, simStep, t + halfInc, uTmp, flux, k3, debug);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + increment * k3[i]);
-        computeCoeff(mainElement, frontierElement, increment, t + increment, uTmp, flux, k4, debug);
+        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + simStep * k3[i]);
+        computeCoeff(mainElement, frontierElement, simStep, t + simStep, uTmp, flux, k4, debug);
 
         for (i = 0; i < mainElement.nodeTags.size(); ++i)
             mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = \
             u.node[i] += sixthInc * (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]);
 
-        if(!((int(t/increment) + 1) % registration))
-            gmsh::view::addModelData(mainView.tag, int(t/increment) + 1, mainView.modelName, mainView.dataType, \
+        if(!((int(t/simStep) + 1) % registration))
+            gmsh::view::addModelData(mainView.tag, int(t/simStep) + 1, mainView.modelName, mainView.dataType, \
                                     mainElement.elementTag, mainView.data, t, 1);
 
         

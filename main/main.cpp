@@ -20,9 +20,9 @@ int main(int argc, char **argv)
 
     View mainView; // View of the results.
 
-    double simTime, timeInc; // Duration of the simulation and time incrementation.
-    int registration, meshDim, solvType, debug; // Type of the solver (0 for euler, 1 for runge-kutta) and registration appear 1/registration steps.
-    std::string gaussType; // Guets the integration time.
+    double simTime = 0.1, simStep = 0.001; // Duration of the simulation and time incrementation.
+    int registration = 2, meshDim, solvType = 0, debug = 0; // Type of the solver (0 for euler, 1 for runge-kutta) and registration appear 1/registration steps.
+    std::string gaussType = "Gauss4"; // Guets the integration time.
 
     gmsh::initialize(argc, argv); // Initialization of gmsh library.
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
@@ -30,12 +30,13 @@ int main(int argc, char **argv)
     gmsh::open(argv[1]); // reads the msh file
 
     gmsh::logger::write("Simulation parameter loading...");
-    readParam(argv[2], simTime, timeInc, registration, solvType, gaussType, meshDim, debug);
+    readParam(argv[2], simTime, simStep, registration, solvType, gaussType, debug);
+    meshDim = gmsh::model::getDimension();
     gmsh::logger::write("Done.");
 
-    std::cout << simTime << " " << timeInc << " " << registration << " " << solvType << " " << gaussType << " " << meshDim;
+    std::cout << simTime << " " << simStep << " " << registration << " " << solvType << " " << gaussType << " " << meshDim << std::endl;
 
-    //meshLoader(mainElement, frontierElement, gaussType, meshDim); // Initialization of all quantities required.
+    meshLoader(mainElement, frontierElement, gaussType, meshDim); // Initialization of all quantities required.
 
     gmsh::model::list(modelNames);
 
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
     mainView.modelName = modelNames[0];
     mainView.data.resize(mainElement.elementTag.size(), std::vector<double>(mainElement.numNodes));
 
-    solver(mainElement, frontierElement, mainView, simTime, timeInc, solvType, registration, debug); // Solving of the PDE with DG-FEM.
+    solver(mainElement, frontierElement, mainView, simTime, simStep, solvType, registration, debug); // Solving of the PDE with DG-FEM.
 
     gmsh::finalize(); // Closes gmsh
     return 0;

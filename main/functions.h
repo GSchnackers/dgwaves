@@ -33,7 +33,7 @@ void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
 void solver(Element & mainElement, Element & frontierElement, View & mainView, const double simTime, \
-            const double incrementation, const int solvType, const int registration, const int debug);
+            const double simStep, const int solvType, const int registration, const int debug);
 
 // Computes the values of any quantity at the gauss points from its value at the nodes.
 void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
@@ -63,16 +63,15 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
 
 // On the basis of all computed quantities, computes a coefficient of Runge-Kutta.
 void timeMarching(const Element & mainElement, const std::vector<double> & SFProd, \
-                  const std::vector<double> & fluxVector, const double step, const double t,
-                  std::vector<double> & kVector);
+                  const std::vector<double> & fluxVector, std::vector<double> & kVector);
 
 // Compute the coefficients of runge kutta.
-void computeCoeff(const Element & mainElement, const Element & frontierElement, const double step, \
+void computeCoeff(const Element & mainElement, const Element & frontierElement, const double simStep, \
                   const double t, Quantity & u, Quantity & flux, std::vector<double> & k, int debug);
 
 // Function that reads the parameters.
-void readParam(std::string fileName, double & simTime, double & incrementation, int & registration,
-               int & solvType, std::string & gaussType, int & meshDim, int & debug);
+void readParam(std::string fileName, double & simTime, double & simStep, int & registration,
+               int & solvType, std::string & gaussType, int & debug);
 
 // Function that checks the values at each Gauss points, points of all quantities of the simulation.
 void timeChecker(const Element & mainElement, const Element & frontierElement,\
