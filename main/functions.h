@@ -36,7 +36,7 @@ void matrixMaker(Element & element, std::string matrixType);
 void solver(Element & mainElement, Element & frontierElement, View & mainView);
 
 // Computes the values of any quantity at the gauss points from its value at the nodes.
-void valGp(Quantity & q, const Element & mainElement, const Element & frontierElement, int compo);
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
 
 // Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
@@ -60,5 +60,14 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
 // Integration of the numerical flux on the frontier of each element for all shape functions.
 void numFluxIntegration(const Quantity & flux, const Element & mainElement, const Element & frontierElement,\
                         std::vector<double> & fluxVector);
+
+// On the basis of all computed quantities, computes a coefficient of Runge-Kutta.
+void timeMarching(const Element & mainElement, const std::vector<double> & SFProd, \
+                  const std::vector<double> & fluxVector, const double step, const double t,
+                  std::vector<double> & kVector);
+
+// Compute the coefficients of runge kutta.
+void computeCoeff(const Element & mainElement, const Element & frontierElement, const double step, \
+                  const double t, Quantity & u, Quantity & flux, std::vector<double> & k);
 
 #endif

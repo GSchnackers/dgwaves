@@ -8,11 +8,11 @@
 #include "functions.h"
 #include "structures.h"
 
-void valGp(Quantity & q, const Element & mainElement, const Element & frontierElement, int compo){
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement){
 
     std::size_t i, j, k, l;
 
-    std::fill(q.gp.begin(), q.gp.end(), std::make_pair(0,0));
+    std::fill(u.gp.begin(), u.gp.end(), std::make_pair(0,0));
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i) // Loop over the elements
         for(j = 0; j < frontierElement.numGp; ++j) // Loop over the Gauss Points
@@ -32,25 +32,20 @@ void valGp(Quantity & q, const Element & mainElement, const Element & frontierEl
                                     frontierElement.nodeCorrespondance[frontNodeIndex].second;
                 
 
-                q.gp[gpIndex].first += q.node[mainNodeIndex1] * \
+                u.gp[gpIndex].first += u.node[mainNodeIndex1] * \
                                         frontierElement.shapeFunctionsParam[shapeIndex];
                 
 
                 if(frontierElement.neighbours[i].second >= 0)
-                    q.gp[gpIndex].second += q.node[mainNodeIndex2] * \
+                    u.gp[gpIndex].second += u.node[mainNodeIndex2] * \
                                         frontierElement.shapeFunctionsParam[shapeIndex];
                 
                 else
-                {
-                    q.gp[gpIndex].second += q.bound[mainNodeIndex1] * \
+                    u.gp[gpIndex].second += u.bound[mainNodeIndex1] * \
                                             frontierElement.shapeFunctionsParam[shapeIndex];
-                    //std::cout << q.gp[gpIndex].second << std::endl;
-                }
                 
 
             }
-
-            //std::cout << q.gp[gpIndex].first << " " << q.gp[gpIndex].second << std::endl;
 
         }
 

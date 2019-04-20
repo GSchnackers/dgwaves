@@ -8,154 +8,73 @@
 
 void solver(Element & mainElement, Element & frontierElement, View & mainView){
 
-    double t, step = 0.001; // t is the time.
     std::size_t i, j, k; // loop variables.
 
+    double t, increment = 0.001; // t is the time, increment is the time increment of the simulation.
+    double halfInc = increment/2;
+    double sixthInc = increment/6;
+
     Quantity u; // unknowns of the problem.
+    Quantity uTmp;
     Quantity flux; // fluxs of the problem.
     
-    std::vector<double> SFProd;
-    std::vector<double> fluxVector;
+    std::vector<double> k1(mainElement.nodeTags.size(), 0);
+    std::vector<double> k2(mainElement.nodeTags.size(), 0);
+    std::vector<double> k3(mainElement.nodeTags.size(), 0);
+    std::vector<double> k4(mainElement.nodeTags.size(), 0);
 
     // Initialization of the nodal values.
+    gmsh::logger::write("Initializing the quantity u...");
     u.node.resize(mainElement.nodeTags.size(), 0);
     u.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
     u.bound.resize(mainElement.nodeTags.size(), 0);
     u.boundSign.resize(mainElement.nodeTags.size(), 0);
+    gmsh::logger::write("Done.");
 
+    gmsh::logger::write("Initializing the quantity flux...");
     flux.node.resize(mainElement.nodeTags.size() * 3, 0);
     flux.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp * 3, std::make_pair(0,0));
     flux.direction.resize(flux.gp.size(), 0);
     flux.num.resize(flux.gp.size(), 0);
     flux.bound.resize(mainElement.nodeTags.size() * 3, 0);
+    gmsh::logger::write("Done.");
 
     // Setting of the boundary types.
     gmsh::logger::write("Setting the boundary condition type...");
     setBoundaryConditions(mainElement, u);
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
-    SFProd.resize(mainElement.nodeTags.size(), 0);
-    fluxVector.resize(mainElement.nodeTags.size(), 0);
+    for (i = 0; i < mainElement.nodeTags.size(); ++i)
+            mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = u.node[i];
 
-    for(t = 0; t < .5; t += step)
+    gmsh::view::addModelData(mainView.tag, int(t/increment), mainView.modelName, mainView.dataType, \
+                                mainElement.elementTag, mainView.data, t, 1);
+
+    gmsh::logger::write("Simulation...");
+    for(t = 0; t < .5; t += increment)
     {    
-        computeBoundaryCondition(mainElement, u, t);
+        uTmp = u;
+        computeCoeff(mainElement, frontierElement, increment, t, uTmp, flux, k1);
 
-        /* // Boundary Conditions verification.
-        std::cout << " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
-        std::cout << " %%%%%%%%%%%%%%%%%%%%% TIME STEP t = " << t << " %%%%%%%%%%%%%%%%%%%%%" << std::endl;
-        std::cout << " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] *(1 + halfInc * k1[i]);
+        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k2);
 
-        std::cout << "BC's verifier at t = " << t << std::endl;
-        for(i = 0; i < u.bound.size(); ++i)
-            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << u.bound[i] << " " << std::endl;
-        std::cout << std::endl; */
+        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] *(1 + halfInc * k2[i]);
+        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k3);
+
+        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] *(1 + increment * k3[i]);
+        computeCoeff(mainElement, frontierElement, increment, t + increment, uTmp, flux, k4);
+
+        for (i = 0; i < mainElement.nodeTags.size(); ++i)
+            mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = \
+            u.node[i] += sixthInc * (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]);
+
+        gmsh::view::addModelData(mainView.tag, int(t/increment) + 1, mainView.modelName, mainView.dataType, \
+                                mainElement.elementTag, mainView.data, t, 1);
         
-        valGp(u, mainElement, frontierElement, 1);
-        /*std::cout << "Gauss points verifier at t = " << t << std::endl;
-        
-         for(i = 0; i < u.gp.size(); ++i)
-        {
-            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/frontierElement.numGp].first] << " Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].first;
-            if(frontierElement.neighbours[i/frontierElement.numGp].second >= 0)
-                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/frontierElement.numGp].second] << " Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].second << " ";
-            else
-                std::cout << " / Element: NONE Gauss Point: " << i % frontierElement.numGp << " Value: " << u.gp[i].second << " ";    
-            std::cout << std::endl;
-        }
-        std::cout << std::endl; */
-
-        physFluxCu(u, mainElement, frontierElement, flux);
-
-        /* std::cout << "Physical nodal flux verifier at t = " << t << std::endl;
-        for(i = 0; i < flux.node.size(); ++i)
-            std::cout << "Element: " << mainElement.elementTag[i/(3 * mainElement.numNodes)] << " Node: " << mainElement.nodeTags[i/3] << " Value: " << flux.node[i] << std::endl;
-        std::cout << std::endl;
-
-        std::cout << "Physical flux at the Gauss points verifier at t = " << t << std::endl;
-        
-        for(i = 0; i < flux.gp.size(); ++i)
-        {
-            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].first] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.gp[i].first;
-            if(frontierElement.neighbours[i/(3*frontierElement.numGp)].second >= 0)
-                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].second] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.gp[i].second << " ";
-            else
-                std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.gp[i].second << " ";    
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-
-        std::cout << "Physical flux direction at the Gauss points at t = " << t << std::endl;
-        for(i = 0; i < flux.direction.size(); ++i)
-        {
-            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].first];
-            if(frontierElement.neighbours[i/(3*frontierElement.numGp)].second >= 0)
-                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].second] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.direction[i] << " ";
-            else
-                std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.direction[i] << " ";    
-            std::cout << std::endl;
-        }
-        std::cout << std::endl; */
-        
-        numFluxUpwind(frontierElement, flux);
-        /* std::cout << "Numerical flux at the Gauss points verifier at t = " << t << std::endl;
-        for(i = 0; i < flux.num.size(); ++i)
-        {
-            std::cout << "Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].first];
-            if(frontierElement.neighbours[i/(3*frontierElement.numGp)].second >= 0)
-                std::cout << " / Element: " << mainElement.elementTag[frontierElement.neighbours[i/(frontierElement.numGp * 3)].second] << " Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.num[i] << " ";
-            else
-                std::cout << " / Element: NONE Gauss Point: " << (i / 3) % frontierElement.numGp << " Value: " << flux.num[i] << " ";    
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;    */     
-
-        stiffnessFluxProd(mainElement, flux, SFProd);
-        /* std::cout << "Stiffness/Flux product verifier at t = " << t << std::endl;
-        for(i = 0; i < SFProd.size(); ++i)
-            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << SFProd[i] << std::endl;
-        std::cout << std::endl; */
-        numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
-        /*std::cout << "Flux integration verifier at t = " << t << std::endl;
-         for(i = 0; i < SFProd.size(); ++i)
-            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << fluxVector[i] << std::endl;
-        std::cout << std::endl; */
-        
-        for(i = 0; i < mainElement.elementTag.size(); ++i)
-            for(j = 0; j < mainElement.numNodes; ++j)
-            {
-                int uIndex = i * mainElement.numNodes + j;
-                double tmpProd = 0;
-
-                for(k = 0; k < mainElement.numNodes; ++k)
-                {
-            
-                    int matrixIndex = i * mainElement.numNodes * mainElement.numNodes + \
-                                      j * mainElement.numNodes + k;
-
-                    int vecIndex = i * mainElement.numNodes + k;
-
-                    tmpProd += mainElement.massMatrixInverse[matrixIndex] * \
-                                       (SFProd[vecIndex] - fluxVector[vecIndex]);
-                    
-                }
-
-
-                mainView.data[i][j] = u.node[uIndex] += step * tmpProd;
-
-            } 
-
-        /* std::cout << "Nodal value verifier at t = " << t << std::endl;
-        for(i = 0; i < u.node.size(); ++i)
-            std::cout << "Element: " << mainElement.elementTag[i/mainElement.numNodes] << " Node: " << mainElement.nodeTags[i] << " Value: " << u.node[i] << std::endl;
-        std::cout << std::endl;  */
-            
-        gmsh::view::addModelData(mainView.tag, int(t/step), mainView.modelName, mainView.dataType, \
-                                 mainElement.elementTag, mainView.data, t, 1);
-        
-
     }
-
+    
+    gmsh::logger::write("Done.");
     
     gmsh::view::write(mainView.tag, "results.msh");
 
