@@ -1,3 +1,36 @@
+/*
+
+This cpp file holds the functions that deals with the boundary conditions imposed on the domain.
+
+-setBoundaryConditions:
+
+    Input: mainElement, a pointer towards the structures of the elements constituying the mesh.
+           u, a pointer towards the quantity on which the BC's are applied
+
+    Output: none.
+
+    Working principle: Each point of each element in the domain is associated to a scalar quantity 'u' stored in
+                       'u.node'. We associate to each of these scalar quantities a boundary type stored in
+                       'u.boundSign'. u.boundSign[i] corresponds to u.node[i] which correspond to 
+                       mainElement.nodeTag[i]. 
+                       First, the nodes and the name of each physical group are collected. Then, a comparison
+                       between the node tag corresponding to u.boundSign[i] and the node tags of the physical 
+                       group is performed. If the node tags correspond, then a negative value associated to the 
+                       type of the boundary condition applied on the boundary is given to u.boundSign.
+
+- computeBoundaryCondition:
+
+    Input: mainElement and u (same signification as in the function decribed above).
+           t, the time of the simulation.
+
+    Output: none
+
+    Working principle: Associates to each node of the boundary its imposed value. The vector containing
+                       all information is 'u.bound'.
+
+
+*/
+
 #define _USE_MATH_DEFINES
 
 #include <cstdio>
@@ -7,7 +40,6 @@
 #include "functions.h"
 #include "structures.h"
 
-// This function set the specific type of boundary condition applied to the specific place of the frontier.
 void setBoundaryConditions(Element & mainElement, Quantity & u){
 
     std::size_t i, j, k;
@@ -51,11 +83,11 @@ void setBoundaryConditions(Element & mainElement, Quantity & u){
 }
 
 
-void computeBoundaryCondition(const Element & mainElement, Quantity & u, const double t){
+void computeBoundaryCondition(Quantity & u, const double t){
 
     std::size_t i;
 
-    for(i = 0; i < mainElement.nodeTags.size(); ++i)
+    for(i = 0; i < u.bound.size(); ++i)
     {
 
         if(u.boundSign[i] == -2)

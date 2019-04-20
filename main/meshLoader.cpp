@@ -4,11 +4,12 @@
 #include "functions.h"
 #include "structures.h"
 
-void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim, \
-                int frontierDim){
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim){
 
     std::size_t i, j;
     std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
+
+    int frontierDim = mainDim - 1;
 
     // Initialization of the elements of the mesh.
     gmsh::logger::write("Initializing the main elements of the mesh...");

@@ -1,3 +1,10 @@
+/*
+
+This file contains the fuction that stores the indices corresponding to two neighbour nodes of the frontier 
+elements.
+
+*/
+
 #include <cstdio>
 #include <iostream>
 #include <vector>

@@ -6,7 +6,8 @@
 #include "functions.h"
 #include "structures.h"
 
-void solver(Element & mainElement, Element & frontierElement, View & mainView){
+void solver(Element & mainElement, Element & frontierElement, View & mainView, const double simTime, \
+            const double incrementation, const int solvType, const int registration, const int debug){
 
     std::size_t i, j, k; // loop variables.
 
@@ -15,8 +16,8 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
     double sixthInc = increment/6;
 
     Quantity u; // unknowns of the problem.
-    Quantity uTmp;
     Quantity flux; // fluxs of the problem.
+
     
     std::vector<double> k1(mainElement.nodeTags.size(), 0);
     std::vector<double> k2(mainElement.nodeTags.size(), 0);
@@ -51,29 +52,48 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView){
                                 mainElement.elementTag, mainView.data, t, 1);
 
     gmsh::logger::write("Simulation...");
-    for(t = 0; t < .5; t += increment)
+
+    // Euler method.
+    for(t = 0; t < simTime && !solvType; t += increment)
+    {
+        computeCoeff(mainElement, frontierElement, increment, t, u, flux, k1, debug);
+
+        for (i = 0; i < mainElement.nodeTags.size(); ++i)
+            mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = \
+            u.node[i] += increment * k1[i];
+
+        if(!((int(t/increment) + 1) % registration))
+            gmsh::view::addModelData(mainView.tag, int(t/increment) + 1, mainView.modelName, mainView.dataType, \
+                                    mainElement.elementTag, mainView.data, t, 1);
+
+    }
+
+    // Runge-Kutta 4 method.
+    for(t = 0; t < simTime && solvType; t += increment)
     {    
-        uTmp = u;
-        computeCoeff(mainElement, frontierElement, increment, t, uTmp, flux, k1);
+        Quantity uTmp = u;
+        computeCoeff(mainElement, frontierElement, increment, t, uTmp, flux, k1, debug);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] *(1 + halfInc * k1[i]);
-        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k2);
+        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
+        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k2, debug);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] *(1 + halfInc * k2[i]);
-        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k3);
+        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
+        computeCoeff(mainElement, frontierElement, increment, t + halfInc, uTmp, flux, k3, debug);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] *(1 + increment * k3[i]);
-        computeCoeff(mainElement, frontierElement, increment, t + increment, uTmp, flux, k4);
+        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + increment * k3[i]);
+        computeCoeff(mainElement, frontierElement, increment, t + increment, uTmp, flux, k4, debug);
 
         for (i = 0; i < mainElement.nodeTags.size(); ++i)
             mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = \
             u.node[i] += sixthInc * (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]);
 
-        gmsh::view::addModelData(mainView.tag, int(t/increment) + 1, mainView.modelName, mainView.dataType, \
-                                mainElement.elementTag, mainView.data, t, 1);
+        if(!((int(t/increment) + 1) % registration))
+            gmsh::view::addModelData(mainView.tag, int(t/increment) + 1, mainView.modelName, mainView.dataType, \
+                                    mainElement.elementTag, mainView.data, t, 1);
+
         
     }
-    
+
     gmsh::logger::write("Done.");
     
     gmsh::view::write(mainView.tag, "results.msh");

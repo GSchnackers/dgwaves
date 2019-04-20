@@ -3,8 +3,7 @@
 #include "structures.h"
 
 // Function that loads the mesh (main and frontier elements).
-void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim, \
-                int frontierDim);
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim);
 
 // Initialization of the properties of the element of a certain dim and a certain type with a number of Gauss points given by GaussType.
 void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier = false);
@@ -33,7 +32,8 @@ void normals(Element & frontierElement, Element & mainElement);
 void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
-void solver(Element & mainElement, Element & frontierElement, View & mainView);
+void solver(Element & mainElement, Element & frontierElement, View & mainView, const double simTime, \
+            const double incrementation, const int solvType, const int registration, const int debug);
 
 // Computes the values of any quantity at the gauss points from its value at the nodes.
 void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
@@ -49,7 +49,7 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 void setBoundaryConditions(Element & mainElement, Quantity & u);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
-void computeBoundaryCondition(const Element & mainElement, Quantity & u, const double t);
+void computeBoundaryCondition(Quantity & u, const double t);
 
 // Computes the numerical fluxes at the interface of elements.
 void numFluxUpwind(const Element & frontierElement, Quantity & flux);
@@ -68,6 +68,14 @@ void timeMarching(const Element & mainElement, const std::vector<double> & SFPro
 
 // Compute the coefficients of runge kutta.
 void computeCoeff(const Element & mainElement, const Element & frontierElement, const double step, \
-                  const double t, Quantity & u, Quantity & flux, std::vector<double> & k);
+                  const double t, Quantity & u, Quantity & flux, std::vector<double> & k, int debug);
 
+// Function that reads the parameters.
+void readParam(std::string fileName, double & simTime, double & incrementation, int & registration,
+               int & solvType, std::string & gaussType, int & meshDim, int & debug);
+
+// Function that checks the values at each Gauss points, points of all quantities of the simulation.
+void timeChecker(const Element & mainElement, const Element & frontierElement,\
+                 const Quantity & flux, const Quantity & u, const std::vector<double> & SFProd, \
+                 const std::vector<double> & fluxVector, const double t);
 #endif

@@ -1,3 +1,3 @@
-SET(SRCS main.cpp Initialization.cpp frontierCreation.cpp sortingNeighbouring.cpp invert.cpp getJacobianInverse.cpp normals.cpp matrixMaker.cpp meshLoader.cpp boundaryCondition.cpp correspondance.cpp fluxes.cpp numFluxIntegration.cpp solver.cpp stiffnessFluxProd.cpp valGp.cpp timeMarching.cpp computeCoeff.cpp)
+SET(SRCS main.cpp Initialization.cpp frontierCreation.cpp sortingNeighbouring.cpp invert.cpp getJacobianInverse.cpp normals.cpp matrixMaker.cpp meshLoader.cpp boundaryCondition.cpp correspondance.cpp fluxes.cpp numFluxIntegration.cpp solver.cpp stiffnessFluxProd.cpp valGp.cpp timeMarching.cpp computeCoeff.cpp readParam.cpp timeChecker.cpp)
 ADD_EXECUTABLE(main ${SRCS})
 TARGET_LINK_LIBRARIES(main ${GMSH_LIBRARIES})
