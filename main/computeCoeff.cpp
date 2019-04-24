@@ -11,7 +11,7 @@
 #include "functions.h"
 #include "structures.h"
 
-void computeCoeff(const Element & mainElement, const Element & frontierElement, const double step, \
+void computeCoeff(const Element & mainElement, const Element & frontierElement, const double simStep, \
                   const double t, Quantity & u, Quantity & flux, std::vector<double> & k, int debug){
 
     std::vector<double> SFProd(mainElement.nodeTags.size(), 0);
@@ -23,7 +23,7 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement, 
     numFluxUpwind(frontierElement, flux); 
     stiffnessFluxProd(mainElement, flux, SFProd);
     numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
-    timeMarching(mainElement, SFProd, fluxVector, step, t, k);
+    timeMarching(mainElement, SFProd, fluxVector, k);
 
     if(debug) timeChecker(mainElement, frontierElement, flux, u, SFProd, fluxVector, t);
         

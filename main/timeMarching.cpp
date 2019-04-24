@@ -5,8 +5,7 @@
 #include "structures.h"
 
 void timeMarching(const Element & mainElement, const std::vector<double> & SFProd, \
-                  const std::vector<double> & fluxVector, const double step, const double t,
-                  std::vector<double> & kVector){
+                  const std::vector<double> & fluxVector, std::vector<double> & kVector){
 
     std::size_t i, j, k;
     std::fill(kVector.begin(), kVector.end(), 0);
