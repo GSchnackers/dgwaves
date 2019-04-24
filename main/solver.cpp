@@ -19,25 +19,24 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView, c
     Quantity flux; // fluxs of the problem.
 
     
-    std::vector<double> k1(mainElement.nodeTags.size(), 0);
-    std::vector<double> k2(mainElement.nodeTags.size(), 0);
-    std::vector<double> k3(mainElement.nodeTags.size(), 0);
-    std::vector<double> k4(mainElement.nodeTags.size(), 0);
+    std::vector<double> k1(6 * mainElement.nodeTags.size(), 0);
+    std::vector<double> k2(6 * mainElement.nodeTags.size(), 0);
+    std::vector<double> k3(6 * mainElement.nodeTags.size(), 0);
+    std::vector<double> k4(6 * mainElement.nodeTags.size(), 0);
 
     // Initialization of the nodal values.
     gmsh::logger::write("Initializing the quantity u...");
-    u.node.resize(mainElement.nodeTags.size(), 0);
-    u.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
-    u.bound.resize(mainElement.nodeTags.size(), 0);
-    u.boundSign.resize(mainElement.nodeTags.size(), 0);
+    u.node.resize(6 * mainElement.nodeTags.size(), 0);
+    u.gp.resize(6 * frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
+    u.bound.resize(6 * mainElement.nodeTags.size(), 0);
+    u.boundSign.resize(6 * mainElement.nodeTags.size(), 0);
     gmsh::logger::write("Done.");
 
     gmsh::logger::write("Initializing the quantity flux...");
-    flux.node.resize(mainElement.nodeTags.size() * 3, 0);
-    flux.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp * 3, std::make_pair(0,0));
+    flux.node.resize(mainElement.nodeTags.size() * 18, 0);
+    flux.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp * 18, std::make_pair(0,0));
     flux.direction.resize(flux.gp.size(), 0);
     flux.num.resize(flux.gp.size(), 0);
-    flux.bound.resize(mainElement.nodeTags.size() * 3, 0);
     gmsh::logger::write("Done.");
 
     // Setting of the boundary types.
@@ -87,7 +86,7 @@ void solver(Element & mainElement, Element & frontierElement, View & mainView, c
             mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = \
             u.node[i] += sixthInc * (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]);
 
-        if(!((int(t/increment) + 1) % registration))
+        if(!((int(t/increment) + 1) % registration) || t == simTime - 1)
             gmsh::view::addModelData(mainView.tag, int(t/increment) + 1, mainView.modelName, mainView.dataType, \
                                     mainElement.elementTag, mainView.data, t, 1);
 

@@ -6,7 +6,7 @@
 #include "structures.h"
 
 void readParam(std::string fileName, double & simTime, double & incrementation, int & registration,
-               int & solvType, std::string & gaussType, int & meshDim, int & debug){
+               int & solvType, std::string & gaussType, int & meshDim, int & debug, double & alpha){
 
     std::ifstream file;
     std::string command;
@@ -62,6 +62,12 @@ void readParam(std::string fileName, double & simTime, double & incrementation, 
         else if(!(command.compare("DEBUG")))
         { 
             file >> debug;
+            file.get();
+        }
+
+        else if(!(command.compare("ALPHA")))
+        { 
+            file >> alpha;
             file.get();
         }
 
