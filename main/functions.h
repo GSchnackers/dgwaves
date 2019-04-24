@@ -42,17 +42,21 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
                 Quantity & flux);
 
+// Physical flux for electromagnetism.
+void physFluxELM(const Quantity & u, const Element & frontierElement, const Element & mainElement,\
+                 Quantity & flux);
+
 // Allow to compute the simple numerical upwind flux.
 void numFluxUpwind(const Element & frontierElement, Quantity & flux);
+
+// Numerical flux for electromagnetism.
+void numFluxELM(const Element & frontierElement, const Quantity & impedance, const double alpha, Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
 void setBoundaryConditions(Element & mainElement, Quantity & u);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
 void computeBoundaryCondition(Quantity & u, const double t);
-
-// Computes the numerical fluxes at the interface of elements.
-void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 
 // This function compute the product of the stiffness matrix and the physical flux vector at nodal values.
 void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod);
@@ -70,8 +74,8 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement, 
                   const double t, Quantity & u, Quantity & flux, std::vector<double> & k, int debug);
 
 // Function that reads the parameters.
-void readParam(std::string fileName, double & simTime, double & simStep, int & registration,
-               int & solvType, std::string & gaussType, int & debug);
+void readParam(std::string fileName, double & simTime, double & incrementation, int & registration,
+               int & solvType, std::string & gaussType, int & meshDim, int & debug, double & alpha);
 
 // Function that checks the values at each Gauss points, points of all quantities of the simulation.
 void timeChecker(const Element & mainElement, const Element & frontierElement,\

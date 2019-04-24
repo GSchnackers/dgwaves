@@ -20,9 +20,9 @@ int main(int argc, char **argv)
 
     View mainView; // View of the results.
 
-    double simTime = 0.1, simStep = 0.001; // Duration of the simulation and time incrementation.
-    int registration = 2, meshDim, solvType = 0, debug = 0; // Type of the solver (0 for euler, 1 for runge-kutta) and registration appear 1/registration steps.
-    std::string gaussType = "Gauss4"; // Guets the integration time.
+    double simTime, simStep, alpha; // Duration of the simulation and time incrementation.
+    int registration, meshDim, solvType, debug; // Type of the solver (0 for euler, 1 for runge-kutta) and registration appear 1/registration steps.
+    std::string gaussType; // Guets the integration time.
 
     gmsh::initialize(argc, argv); // Initialization of gmsh library.
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
@@ -30,8 +30,7 @@ int main(int argc, char **argv)
     gmsh::open(argv[1]); // reads the msh file
 
     gmsh::logger::write("Simulation parameter loading...");
-    readParam(argv[2], simTime, simStep, registration, solvType, gaussType, debug);
-    meshDim = gmsh::model::getDimension();
+    readParam(argv[2], simTime, simStep, registration, solvType, gaussType, meshDim, debug, alpha);
     gmsh::logger::write("Done.");
 
     std::cout << simTime << " " << simStep << " " << registration << " " << solvType << " " << gaussType << " " << meshDim << std::endl;
