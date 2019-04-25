@@ -27,14 +27,15 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
 }
 
 void physFluxELM(const Quantity & u, const Element & frontierElement, const Element & mainElement,\
-                 Quantity & flux){
+                 const Quantity & relPermittivity, const Quantity & relPermeability, Quantity & flux){
 
-    std::size_t i, j, k;
+    std::size_t i, j;
 
     // At the nodes.
     for(i = 0; i < u.node.size(); ++i)
     {
         int fluxIndex = 3 * i;
+        int propIndex = i/18;
 
         switch (i % 6)
         {
@@ -76,6 +77,13 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
         
         }
 
+        if (!(i % 6) || i % 6 == 1 || i % 6 == 2)
+            for(j = 0; j < 3; ++j)
+                flux.node[fluxIndex + j] *= 1/relPermittivity.node[propIndex];
+        else
+            for(j = 0; j < 3; ++j)
+                flux.node[fluxIndex + j] *= 1/relPermeability.node[propIndex];
+
     }
 
 
@@ -87,6 +95,9 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
                           frontierElement.nodeCorrespondance[i].first);
         int neighIndex2 = 6 * (frontierElement.neighbours[i].second * mainElement.numNodes + \
                           frontierElement.nodeCorrespondance[i].second);
+
+        int neighPropIndex1 = neighIndex1/6;
+        int neighPropIndex2 = neighIndex2/6;
 
         switch (i % 6)
         {
@@ -163,6 +174,19 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
                 break;
         
         }
+
+        if (!(i % 6) || i % 6 == 1 || i % 6 == 2)
+            for(j = 0; j < 3; ++j)
+            {
+                flux.gp[fluxIndex + j].first *= 1/relPermittivity.node[neighPropIndex1];
+                flux.gp[fluxIndex + j].second *= 1/relPermittivity.node[neighPropIndex2];
+            }
+        else
+            for(j = 0; j < 3; ++j)
+            {
+                flux.gp[fluxIndex + j].first *= 1/relPermeability.node[neighPropIndex1];
+                flux.gp[fluxIndex + j].second *= 1/relPermeability.node[neighPropIndex2];
+            }
 
     }
 

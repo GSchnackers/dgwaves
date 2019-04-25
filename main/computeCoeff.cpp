@@ -11,16 +11,18 @@
 #include "functions.h"
 #include "structures.h"
 
-void computeCoeff(const Element & mainElement, const Element & frontierElement, const double simStep, \
-                  const double t, Quantity & u, Quantity & flux, std::vector<double> & k, int debug){
+void computeCoeff(const Element & mainElement, const Element & frontierElement,\
+                  const std::vector<Parameter> & bcParam, const double simStep, const double t, \
+                  const Quantity & impedance, Quantity & u, Quantity & flux, std::vector<double> & k, \
+                  const int debug, const double alpha){
 
     std::vector<double> SFProd(mainElement.nodeTags.size(), 0);
     std::vector<double> fluxVector(mainElement.nodeTags.size(), 0);
 
-    computeBoundaryCondition(u, t);
+    computeBoundaryCondition(u, t, bcParam);
     valGp(u, mainElement, frontierElement);
-    physFluxCu(u, mainElement, frontierElement, flux);
-    numFluxUpwind(frontierElement, flux); 
+    physFluxELM(u, frontierElement, mainElement, flux);
+    numFluxELM(frontierElement, impedance, alpha, flux); 
     stiffnessFluxProd(mainElement, flux, SFProd);
     numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
     timeMarching(mainElement, SFProd, fluxVector, k);

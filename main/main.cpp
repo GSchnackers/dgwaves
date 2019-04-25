@@ -33,8 +33,6 @@ int main(int argc, char **argv)
     readParam(argv[2], simTime, simStep, registration, solvType, gaussType, meshDim, debug, alpha);
     gmsh::logger::write("Done.");
 
-    std::cout << simTime << " " << simStep << " " << registration << " " << solvType << " " << gaussType << " " << meshDim << std::endl;
-
     meshLoader(mainElement, frontierElement, gaussType, meshDim); // Initialization of all quantities required.
 
     gmsh::model::list(modelNames);
@@ -46,7 +44,7 @@ int main(int argc, char **argv)
     mainView.modelName = modelNames[0];
     mainView.data.resize(mainElement.elementTag.size(), std::vector<double>(mainElement.numNodes));
 
-    solver(mainElement, frontierElement, mainView, simTime, simStep, solvType, registration, debug); // Solving of the PDE with DG-FEM.
+    solver(mainElement, frontierElement, mainView, simTime, simStep, solvType, registration, debug, alpha); // Solving of the PDE with DG-FEM.
 
     gmsh::finalize(); // Closes gmsh
     return 0;

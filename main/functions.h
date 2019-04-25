@@ -33,7 +33,8 @@ void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
 void solver(Element & mainElement, Element & frontierElement, View & mainView, const double simTime, \
-            const double simStep, const int solvType, const int registration, const int debug);
+            const double simStep, const int solvType, const int registration, const int debug, \
+            const double alpha);
 
 // Computes the values of any quantity at the gauss points from its value at the nodes.
 void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
@@ -53,10 +54,13 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 void numFluxELM(const Element & frontierElement, const Quantity & impedance, const double alpha, Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
-void setBoundaryConditions(Element & mainElement, Quantity & u);
+void setBoundaryConditions(const Element & mainElement, const std::string & boundaryFileName,\
+                           const std::string & propFileName, Quantity & relPermittivity,\
+                           Quantity & relPermeability, Quantity & conductivity, Quantity & u,\
+                           std::vector<Parameter> & bcParam);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
-void computeBoundaryCondition(Quantity & u, const double t);
+void computeBoundaryCondition(Quantity & u, const double t, const std::vector<Parameter> & bcParam);
 
 // This function compute the product of the stiffness matrix and the physical flux vector at nodal values.
 void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod);
@@ -70,8 +74,10 @@ void timeMarching(const Element & mainElement, const std::vector<double> & SFPro
                   const std::vector<double> & fluxVector, std::vector<double> & kVector);
 
 // Compute the coefficients of runge kutta.
-void computeCoeff(const Element & mainElement, const Element & frontierElement, const double simStep, \
-                  const double t, Quantity & u, Quantity & flux, std::vector<double> & k, int debug);
+void computeCoeff(const Element & mainElement, const Element & frontierElement,\
+                  const std::vector<Parameter> & bcParam, const double simStep, const double t, \
+                  const Quantity & impedance, Quantity & u, Quantity & flux, std::vector<double> & k, \
+                  const int debug, const double alpha);
 
 // Function that reads the parameters.
 void readParam(std::string fileName, double & simTime, double & incrementation, int & registration,

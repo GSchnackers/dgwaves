@@ -94,4 +94,14 @@ struct Quantity{
 
 typedef struct Quantity Quantity;
 
+struct Parameter{
+
+    double param1;
+    double param2;
+    double param3;
+
+};
+
+typedef struct Parameter Parameter;
+
 #endif

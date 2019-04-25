@@ -37,53 +37,122 @@ This cpp file holds the functions that deals with the boundary conditions impose
 #include <iostream>
 #include <gmsh.h>
 #include <cmath>
+#include <fstream>
 #include "functions.h"
 #include "structures.h"
 
-void setBoundaryConditions(Element & mainElement, Quantity & u){
+void setBoundaryConditions(const Element & mainElement, const std::string & boundaryFileName,\
+                           const std::string & propFileName, Quantity & relPermittivity,\
+                           Quantity & relPermeability, Quantity & conductivity, Quantity & u,\
+                           std::vector<Parameter> & bcParam){
 
     std::size_t i, j, k;
     gmsh::vectorpair physicalGroupsTags;
 
-    // Allow to obtain the dimensions and the tags of the physical groups.
-    // It is assumed here that all physical groups have the same dimension (1 or 2), representing
-    // where the BC's have to be applied.
+    std::fstream boundaryFile;
+    std::fstream propFile;
 
-    gmsh::model::getPhysicalGroups(physicalGroupsTags, mainElement.dim - 1);
+    std::string boundCommand;
+    std::string propCommand;
 
-    // Run through all physical groups of dimension 1 in 2D and 2 in 3D.
-    for(i = 0; i < physicalGroupsTags.size(); ++i)
+    if(boundaryFileName.find(".bc") == std::string::npos || propFileName.find(".prop") == std::string::npos)
     {
-
-        std::vector<int> physicalNodeTags;
-        std::vector<double> coords;
-
-        std::string physicalName;
-
-        gmsh::model::mesh::getNodesForPhysicalGroup(physicalGroupsTags[i].first, physicalGroupsTags[i].second,\
-                                                    physicalNodeTags, coords);
-
-        gmsh::model::getPhysicalName(physicalGroupsTags[i].first, physicalGroupsTags[i].second, physicalName);
-
-        // Run through each edge.
-        for(j = 0; j < physicalNodeTags.size(); ++j)
-            for(k = 0; k < mainElement.nodeTags.size(); ++k)
-                if(mainElement.nodeTags[k] == physicalNodeTags[j])
-                {
-                    if(physicalName.find("Sinusoidal") != std::string::npos)
-                        u.boundSign[k] = -2;
-
-                    else if(physicalName.find("Constant") != std::string::npos)
-                        u.boundSign[k] = -3;
-
-                }
-
+        gmsh::logger::write("Unsupported file extension.", "error");
+        exit(-1);
     }
+
+    boundaryFile.open(boundaryFileName);
+
+    if(!boundaryFile.is_open())
+    {
+        gmsh::logger::write("Could not open the boundary condition file.", "error");
+        exit(-1);
+    }
+
+    propFile.open(propFileName);
+    if(!propFile.is_open())
+    {
+        gmsh::logger::write("Could not open the property file.", "error");
+        boundaryFile.close();
+        exit(-1);
+    }
+
+    gmsh::model::getPhysicalGroups(physicalGroupsTags);
+
+    while(std::getline(boundaryFile, boundCommand, ' '))
+        while(std::getline(propFile, propCommand, ' ')) // Run through all physical groups of dimension 1 in 2D and 2 in 3D.
+            for(i = 0; i < physicalGroupsTags.size(); ++i)
+            {
+
+                std::vector<int> physicalNodeTags;
+                std::vector<double> coords;
+
+                std::string physicalName;
+
+                gmsh::model::mesh::getNodesForPhysicalGroup(physicalGroupsTags[i].first,\
+                                                            physicalGroupsTags[i].second,\
+                                                            physicalNodeTags, coords);
+
+                gmsh::model::getPhysicalName(physicalGroupsTags[i].first, physicalGroupsTags[i].second,\
+                                             physicalName);
+
+                // Run through each edge.
+                for(j = 0; j < physicalNodeTags.size(); ++j)
+                    for(k = 0; k < mainElement.nodeTags.size(); ++k)
+                        if(mainElement.nodeTags[k] == physicalNodeTags[j])
+                        {
+                            if(!physicalName.compare(boundCommand))
+                            {
+                                std::string boundName;
+
+                                std::getline(boundaryFile, boundName, ' ');
+
+                                if(!boundName.compare("Sinusoidal"))
+                                {
+                                    u.boundSign[k] = -2;
+                                    boundaryFile >> bcParam[k].param1;
+                                    boundaryFile.get();
+                                    boundaryFile >> bcParam[k].param2;
+                                    boundaryFile.get();
+                                    boundaryFile >> bcParam[k].param3;
+                                    
+                                }
+
+                                else if(!boundName.find("Constant"))
+                                {
+                                    u.boundSign[k] = -3;
+                                    boundaryFile >> bcParam[k].param1;
+                                }
+
+                                else
+                                    gmsh::logger::write("Unknown BC type. Ignored.", "warning");
+                                
+                                
+                            }
+
+                            else if(!physicalName.compare(propCommand))
+                            {
+                                propFile >> relPermittivity.node[k];
+                                propFile.get();
+                                propFile >> relPermeability.node[k];
+                                propFile.get();
+                                propFile >> conductivity.node[k];
+                            }
+
+                            boundaryFile.get();
+
+                        }
+
+            }
+        
+    
+    boundaryFile.close();
+    propFile.close();
 
 }
 
 
-void computeBoundaryCondition(Quantity & u, const double t){
+void computeBoundaryCondition(Quantity & u, const double t, const std::vector<Parameter> & bcParam){
 
     std::size_t i;
 
@@ -91,11 +160,11 @@ void computeBoundaryCondition(Quantity & u, const double t){
     {
 
         if(u.boundSign[i] == -2)
-             u.bound[i] = sin(2 * M_PI * t/0.5);
+             u.bound[i] = bcParam[i].param1 * sin(bcParam[i].param2 * M_PI * t + bcParam[i].param3);
         
     
         else if(u.boundSign[i] == -3)
-             u.bound[i] = 1;
+             u.bound[i] = bcParam[i].param1;
 
     }
 
