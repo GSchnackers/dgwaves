@@ -87,4 +87,7 @@ void readParam(std::string fileName, double & simTime, double & incrementation, 
 void timeChecker(const Element & mainElement, const Element & frontierElement,\
                  const Quantity & flux, const Quantity & u, const std::vector<double> & SFProd, \
                  const std::vector<double> & fluxVector, const double t);
+
+// Compare numeric solution with analytic solution
+void compare(Element & mainElement);
 #endif
