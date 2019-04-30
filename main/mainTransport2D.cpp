@@ -133,7 +133,7 @@ int main(int argc, char **argv)
         
         }
         // TEST M and M inverted
-        
+        /*
         for(std::size_t e = 0; e < numElements2D; e++){
             std::cout << "e " << std::to_string(e) << std::endl;
             for(std::size_t i = 0; i < numNodes2D; i++){
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
             }
             std::cout << "\n";
         }
-        
+        */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -564,7 +564,7 @@ int main(int argc, char **argv)
     }//fin de boucle sur i
 
     // TEST
-    
+    /*
     for(size_t i = 0; i < neighbours1D.size(); i++){
         std::cout << "neighbours1D[" << std::to_string(i) << "]  : " << std::to_string(neighbours1D[i]) << "\n";
     }
@@ -577,6 +577,7 @@ int main(int argc, char **argv)
     for(size_t i = 0; i < nodeTags2DPlusBC.size(); i++){
         std::cout << "nodeTags2DPlusBC[" << std::to_string(i) << "]  : " << std::to_string(nodeTags2DPlusBC[i]) << "\n";
     }
+    */
     
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -729,23 +730,39 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     double mytime = 0;
-    double timeStep = 0.0001;
+    double timeStep = 0.001;
     double endTime = 0.2;
     int numStep = endTime/timeStep;
+    int percent = 0;
 
     std::vector<double> VectorSu(elementTags2D.size()*numNodes2D);
+    std::vector<double> error(numStep, 0);
+    std::vector<double> errorNodes(u.size());
+    std::vector<double> coordinates(3*u.size());
+    std::vector<double> coordNodes(3*numNodes2D);
+    std::vector<int> binTags(numNodes2D);
+    std::vector<double> binParam(3*numNodes2D);
 
     std::string modelName = names[0];
     std::string dataType = "ElementNodeData";
 
     //fill data with u
     for(std::size_t e=0; e<elementTags2D.size(); e++){
+
         for(std::size_t i=0; i<numNodes2D; i++){
             tmp[i] = u[e*numNodes2D + i];
         }
         data.push_back(tmp);
     }
 
+    for(std::size_t n=0; n<nodeTags2D.size(); n++){
+        gmsh::model::mesh::getNode(nodeTags2D[n], coordNodes, binParam);
+        
+        for(std::size_t i=0; i<numNodes2D; i++){
+            coordinates[n*numNodes2D + i] = coordNodes[i];
+        }
+    }
+    
     gmsh::view::addModelData(viewtag, 0, modelName, dataType, elementTags2D, data, mytime, 1);
 
     // declaration vector F (time dependent)
@@ -758,8 +775,9 @@ int main(int argc, char **argv)
     }
     */
 
+   std::cout << "Loading: [0%]";
+   
     for(std::size_t step = 1; mytime < endTime; step++){
-
 
         // BC
         for(std::size_t i=nodeTags2D.size(); i<nodeTags2DPlusBC.size(); i++){
@@ -934,14 +952,24 @@ int main(int argc, char **argv)
                 data[e][i] = u[e*numNodes2D + i];
             }
         }
-        
+
+        compare(error[step], errorNodes, coefF, coordinates, u, mytime);
 
         // Backup of u(t+dt)
         gmsh::view::addModelData(viewtag, step, modelName, dataType, elementTags2D, data, mytime, 1);
 
         mytime += timeStep;
-        
+
+        if (100*mytime/endTime - percent > 1) {
+            percent = 100*mytime/endTime;
+            std::cout << "\rLoading: [" << std::to_string(percent) << "%]";
+        }
     }
+    
+    writeError(error, timeStep);
+    
+    std::cout << "\rLoading: [100%]\n";
+    std::cout << std::endl;
 
     gmsh::view::write(viewtag, std::string("results.msh"));
 

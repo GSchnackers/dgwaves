@@ -52,4 +52,11 @@ void RungeKutta4(std::vector<int> & nodeTags2D, std::vector<int> & nodeTags2DPlu
             std::vector<int> & indicesNei1, std::vector<int> & indicesNei2, std::vector<double> & matrixM_Inverted,\
             std::vector<double> & dudt, std::vector<int> & elementTags2D, int numNodes2D, int NumNodesSide);
 
+// Compare the analytical solution with the numerical solution
+void compare(double & error, std::vector<double> & errorNodes, const std::vector<double> coefF,\
+            const std::vector<double> & coordinates, std::vector<double> & u, const double mytime);
+
+// Write vector error in a file
+void writeError(std::vector<double> & error, const double timeStep);
+
 #endif
