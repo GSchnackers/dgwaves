@@ -67,8 +67,9 @@ void numFluxELM(const Element & frontierElement, const Properties & matProp, con
                 Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
-void setBoundaryCondition(const Element & frontierElement, const Simulation & simulation,\
-                          const PhysicalGroups & physicalGroups, Quantity & u, std::vector<Parameter> & bcParam);
+void setBoundaryCondition(const Element & frontierElement, const Element & mainElement,\
+                          const Simulation & simulation, const PhysicalGroups & physicalGroups, \
+                          Quantity & u, std::vector<Parameter> & bcParam);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
 void computeBoundaryCondition(Quantity & u, const double t, const std::vector<Parameter> & bcParam);

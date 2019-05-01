@@ -80,7 +80,7 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
 
     // Setting of the boundary types.
     gmsh::logger::write("Setting the boundary condition type and the material properties...");
-    setBoundaryCondition(frontierElement, simulation, physicalGroups, u, bcParam);
+    setBoundaryCondition(frontierElement, mainElement, simulation, physicalGroups, u, bcParam);
     gmsh::logger::write("Done.");
 
     for(i = 0; i < bcParam.size(); ++i)

@@ -41,7 +41,7 @@ This cpp file holds the functions that deals with the boundary conditions impose
 #include "functions.h"
 #include "structures.h"
 
-void boundAssign(const Element & frontierElement, const std::vector<int> & physicalEntityTags, \
+void boundAssign(const Element & frontierElement, const Element & mainElement, const std::vector<int> & physicalEntityTags, \
                 std::fstream & boundFile, const std::string & physicalName,\
                 int elemType, int elemDim, std::vector<Parameter> & bcParam, Quantity & u){
 
@@ -78,8 +78,6 @@ void boundAssign(const Element & frontierElement, const std::vector<int> & physi
                     //std::cout << "Hello" << std::endl;
                     while(!std::getline(boundFile, boundCommand, ' ').eof())
                     {
-                        std::cout << boundCommand << std::endl;
-                        std::cout << physicalName << std::endl;
                         if(physicalName.find(boundCommand) != std::string::npos)
                         {
                             int mbeg = 0, type = -1;
@@ -87,6 +85,8 @@ void boundAssign(const Element & frontierElement, const std::vector<int> & physi
                             std::string boundName;
 
                             std::getline(boundFile, boundName, ' ');
+
+                            std::cout << boundName << std::endl;
 
                             if(boundName.find("Sinusoidal") != std::string::npos)
                             {
@@ -105,7 +105,11 @@ void boundAssign(const Element & frontierElement, const std::vector<int> & physi
                                 for(l = 0; l < frontierElement.numNodes; ++l)
                                     for(m = mbeg; m < mbeg + 3; ++m)
                                     {
-                                        int uIndex = k * frontierElement.numNodes * 6 + l * 6 + m;
+                                        int uIndex = frontierElement.neighbours[k].first * mainElement.numNodes * 6 +\
+                                                     frontierElement.nodeCorrespondance[k * \
+                                                                 frontierElement.numNodes + l].first * 6 +\
+                                                     m;
+
                                         bcParam[uIndex].param1 = par[3 * (m % 3)];
                                         bcParam[uIndex].param2 = par[3 * (m % 3) + 1];
                                         bcParam[uIndex].param3 = par[3 * (m % 3) + 2];
@@ -130,8 +134,9 @@ void boundAssign(const Element & frontierElement, const std::vector<int> & physi
 
 }
 
-void setBoundaryCondition(const Element & frontierElement, const Simulation & simulation,\
-                          const PhysicalGroups & physicalGroups, Quantity & u, std::vector<Parameter> & bcParam){
+void setBoundaryCondition(const Element & frontierElement, const Element & mainElement,\
+                          const Simulation & simulation, const PhysicalGroups & physicalGroups, \
+                          Quantity & u, std::vector<Parameter> & bcParam){
 
     std::size_t i, j;
 
@@ -156,8 +161,9 @@ void setBoundaryCondition(const Element & frontierElement, const Simulation & si
         if(physicalGroups.dimTags[i].second == frontierElement.dim)
             for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j)
             {  
-                boundAssign(frontierElement, physicalGroups.entityTags[i], boundaryFile, physicalGroups.name[i],\
-                            physicalGroups.elemType[i][0][j], frontierElement.dim, bcParam, u);
+                boundAssign(frontierElement, mainElement, physicalGroups.entityTags[i], boundaryFile, \
+                            physicalGroups.name[i], physicalGroups.elemType[i][0][j], frontierElement.dim, \
+                            bcParam, u);
                 //std::cout << physicalGroups.elemType[i][0][j] << std::endl;
             }
 
