@@ -27,7 +27,7 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
 }
 
 void physFluxELM(const Quantity & u, const Element & frontierElement, const Element & mainElement,\
-                 const Quantity & relPermittivity, const Quantity & relPermeability, Quantity & flux){
+                 const Properties & matProp, Quantity & flux){
 
     std::size_t i, j;
 
@@ -35,41 +35,41 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
     for(i = 0; i < u.node.size(); ++i)
     {
         int fluxIndex = 3 * i;
-        int propIndex = i/18;
+        int propIndex = i/6;
 
         switch (i % 6)
         {
-            case 0: // Ex flux
+            case 0: // Dx flux
                 flux.node[fluxIndex] = 0;
                 flux.node[fluxIndex + 1] = u.node[i + 5];
                 flux.node[fluxIndex + 2] = -u.node[i + 4];
                 break;
 
-            case 1: // Ey flux
+            case 1: // Dy flux
                 flux.node[fluxIndex] = -u.node[i + 4];
                 flux.node[fluxIndex + 1] = 0;
                 flux.node[fluxIndex + 2] = u.node[i + 2];
                 break;
 
-            case 2: // Ez flux
+            case 2: // Dz flux
                 flux.node[fluxIndex] = u.node[i + 2];
                 flux.node[fluxIndex + 1] = -u.node[i + 1];
                 flux.node[fluxIndex + 2] = 0;
                 break;
 
-            case 3: // Hx flux
+            case 3: // Bx flux
                 flux.node[fluxIndex] = 0;
                 flux.node[fluxIndex + 1] = u.node[i - 1];
                 flux.node[fluxIndex + 2] = -u.node[i - 2];
                 break;
 
-            case 4: // Hy flux
+            case 4: // By flux
                 flux.node[fluxIndex] = -u.node[i - 2];
                 flux.node[fluxIndex + 1] = 0;
                 flux.node[fluxIndex + 2] = u.node[i - 4];
                 break;
 
-            case 5: // Hz flux
+            case 5: // Bz flux
                 flux.node[fluxIndex] = u.node[i - 4];
                 flux.node[fluxIndex + 1] = -u.node[i - 5];
                 flux.node[fluxIndex + 2] = 0;
@@ -79,97 +79,91 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
         if (!(i % 6) || i % 6 == 1 || i % 6 == 2)
             for(j = 0; j < 3; ++j)
-                flux.node[fluxIndex + j] *= 1/relPermittivity.node[propIndex];
+                flux.node[fluxIndex + j] *= 1/matProp.relPermeability.node[propIndex];
         else
             for(j = 0; j < 3; ++j)
-                flux.node[fluxIndex + j] *= 1/relPermeability.node[propIndex];
+                flux.node[fluxIndex + j] *= 1/matProp.relPermittivity.node[propIndex];
 
     }
-
 
     // At the gauss points.
     for(i = 0; i < u.gp.size(); ++i)
     {
         int fluxIndex = 3 * i;
-        int neighIndex1 = 6 * (frontierElement.neighbours[i].first * mainElement.numNodes + \
-                          frontierElement.nodeCorrespondance[i].first);
-        int neighIndex2 = 6 * (frontierElement.neighbours[i].second * mainElement.numNodes + \
-                          frontierElement.nodeCorrespondance[i].second);
-
-        int neighPropIndex1 = neighIndex1/6;
-        int neighPropIndex2 = neighIndex2/6;
+        int propIndex = i/6;
 
         switch (i % 6)
         {
-            case 0: // Ex flux
+            case 0: // Dx flux
 
-                flux.gp[fluxIndex].first = 0;
-                flux.gp[fluxIndex + 1].first = u.node[neighIndex1 + 5];
-                flux.gp[fluxIndex + 2].first = -u.node[neighIndex1 + 4];
+                flux.gp[fluxIndex].first = flux.gp[fluxIndex].second = 0;
 
-                flux.gp[fluxIndex].second = 0;
-                flux.gp[fluxIndex + 1].second = u.node[neighIndex2 + 5];
-                flux.gp[fluxIndex + 2].second = -u.node[neighIndex2 + 4];
-
-                break;
-
-            case 1: // Ey flux
-
-                flux.gp[fluxIndex].first = -u.node[neighIndex1 + 4];
-                flux.gp[fluxIndex + 1].first = 0;
-                flux.gp[fluxIndex + 2].first = u.node[neighIndex1 + 2];
-
-                flux.gp[fluxIndex].first = -u.node[neighIndex2 + 4];
-                flux.gp[fluxIndex + 1].first = 0;
-                flux.gp[fluxIndex + 2].first = u.node[neighIndex2 + 2];
+                flux.gp[fluxIndex + 1].first = u.gp[i + 5].first;
+                flux.gp[fluxIndex + 2].first = -u.gp[i + 4].first;
+                
+                flux.gp[fluxIndex + 1].second = u.gp[i + 5].second;
+                flux.gp[fluxIndex + 2].second = -u.gp[i + 4].second;
 
                 break;
 
-            case 2: // Ez flux
+            case 1: // Dy flux
 
-                flux.gp[fluxIndex].first = u.node[neighIndex1 + 2];
-                flux.gp[fluxIndex + 1].first = -u.node[neighIndex1 + 1];
-                flux.gp[fluxIndex + 2].first = 0;
+                flux.gp[fluxIndex + 1].first = flux.gp[fluxIndex + 1].second = 0;;
 
-                flux.gp[fluxIndex].second = u.node[neighIndex2 + 2];
-                flux.gp[fluxIndex + 1].second = -u.node[neighIndex2 + 1];
-                flux.gp[fluxIndex + 2].second = 0;
+                flux.gp[fluxIndex].first = -u.gp[i + 4].first;
+                flux.gp[fluxIndex + 2].first = u.gp[i + 2].first;
 
-                break;
-
-            case 3: // Hx flux
-
-                flux.gp[fluxIndex].first = 0;
-                flux.gp[fluxIndex + 1].first = u.node[neighIndex1 - 1];
-                flux.gp[fluxIndex + 2].first = -u.node[neighIndex1 - 2];
-
-                flux.gp[fluxIndex].second = 0;
-                flux.gp[fluxIndex + 1].second = u.node[neighIndex2 - 1];
-                flux.gp[fluxIndex + 2].second = -u.node[neighIndex2 - 2];
+                flux.gp[fluxIndex].second = -u.gp[i + 4].second;
+                flux.gp[fluxIndex + 2].second = u.gp[i + 2].second;
 
                 break;
 
-            case 4: // Hy flux
+            case 2: // Dz flux
 
-                flux.gp[fluxIndex].first = -u.node[neighIndex1 - 2];
-                flux.gp[fluxIndex + 1].first = 0;
-                flux.gp[fluxIndex + 2].first = u.node[neighIndex1 - 4];
+                flux.gp[fluxIndex + 2].first = flux.gp[fluxIndex + 2].second = 0;
 
-                flux.gp[fluxIndex].second = -u.node[neighIndex2 - 2];
-                flux.gp[fluxIndex + 1].second = 0;
-                flux.gp[fluxIndex + 2].second = u.node[neighIndex2 - 4];
+                flux.gp[fluxIndex].first = u.gp[i + 2].first;
+                flux.gp[fluxIndex + 1].first = -u.gp[i + 1].first;
+
+                flux.gp[fluxIndex].second = u.gp[i + 2].second;
+                flux.gp[fluxIndex + 1].second = -u.gp[i + 1].second;
+                
 
                 break;
 
-            case 5: // Hz flux
+            case 3: // Bx flux
 
-                flux.gp[fluxIndex].first = u.node[neighIndex1 - 4];
-                flux.gp[fluxIndex + 1].first = -u.node[neighIndex1 - 5];
-                flux.gp[fluxIndex + 2].first = 0;
+                flux.gp[fluxIndex].first = flux.gp[fluxIndex].second = 0;
 
-                flux.gp[fluxIndex].second = u.node[neighIndex2 - 4];
-                flux.gp[fluxIndex + 1].second = -u.node[neighIndex2 - 5];
-                flux.gp[fluxIndex + 2].second = 0;
+                flux.gp[fluxIndex + 1].first = u.gp[i - 1].first;
+                flux.gp[fluxIndex + 2].first = -u.gp[i - 2].first;
+
+                flux.gp[fluxIndex + 1].second = u.gp[i - 1].second;
+                flux.gp[fluxIndex + 2].second = -u.gp[i - 2].second;
+
+                break;
+
+            case 4: // By flux
+
+                flux.gp[fluxIndex + 1].first = flux.gp[fluxIndex + 1].second = 0;
+
+                flux.gp[fluxIndex].first = -u.gp[i - 2].first;
+                flux.gp[fluxIndex + 2].first = u.gp[i - 4].first;
+
+                flux.gp[fluxIndex].second = -u.gp[i - 2].second;
+                flux.gp[fluxIndex + 2].second = u.gp[i - 4].second;
+
+                break;
+
+            case 5: // Bz flux
+
+                flux.gp[fluxIndex + 2].first = flux.gp[fluxIndex + 2].second = 0;
+
+                flux.gp[fluxIndex].first = u.gp[i - 4].first;
+                flux.gp[fluxIndex + 1].first = -u.gp[i - 5].first;
+
+                flux.gp[fluxIndex].second = u.gp[i - 4].second;
+                flux.gp[fluxIndex + 1].second = -u.gp[i - 5].second;
 
                 break;
         
@@ -178,14 +172,14 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
         if (!(i % 6) || i % 6 == 1 || i % 6 == 2)
             for(j = 0; j < 3; ++j)
             {
-                flux.gp[fluxIndex + j].first *= 1/relPermittivity.node[neighPropIndex1];
-                flux.gp[fluxIndex + j].second *= 1/relPermittivity.node[neighPropIndex2];
+                flux.gp[fluxIndex + j].first *= 1/matProp.relPermeability.gp[propIndex].first;
+                flux.gp[fluxIndex + j].second *= 1/matProp.relPermeability.gp[propIndex].second;
             }
         else
             for(j = 0; j < 3; ++j)
             {
-                flux.gp[fluxIndex + j].first *= 1/relPermeability.node[neighPropIndex1];
-                flux.gp[fluxIndex + j].second *= 1/relPermeability.node[neighPropIndex2];
+                flux.gp[fluxIndex + j].first *= 1/matProp.relPermittivity.gp[propIndex].first;
+                flux.gp[fluxIndex + j].second *= 1/matProp.relPermittivity.gp[propIndex].second;
             }
 
     }
@@ -233,9 +227,13 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
 
 }
 
-void numFluxELM(const Element & frontierElement, const Quantity & impedance, const double alpha, Quantity & flux){
+void numFluxELM(const Element & frontierElement, const Properties & matProp, const double alpha, \
+                Quantity & flux){
 
-    std::size_t i, j, k;
+    std::size_t i, j = 0;
+
+    double factor1 = alpha * VACUUM_IMPEDANCE;
+    double factor2 = alpha * VACUUM_CONDUCTANCE;
 
     if(alpha > 1 || alpha < 0)
     {
@@ -246,19 +244,24 @@ void numFluxELM(const Element & frontierElement, const Quantity & impedance, con
     for(i = 0; i < flux.num.size(); ++i)
     {
 
-        int impIndex = i/18;
+        int propIndex = i/18;
+        int bIndex = i + 3;
+
+        if(!(i % 18) && i) j += 3;
 
         // Numerical flux associated to the electric fields.
-        flux.num[i] = (impedance.gp[impIndex].first + impedance.gp[impIndex].second)/2 * \
-                      (1/impedance.gp[impIndex].first * flux.gp[i].first + \
-                       1/impedance.gp[impIndex].second * flux.gp[i].second)\
-                      + alpha/2 * (flux.gp[i + 3].first - flux.gp[i + 3].second);
+        flux.num[i] = 1/(matProp.conductance.gp[propIndex].first + matProp.conductance.gp[propIndex].second) * \
+                      (matProp.conductance.gp[propIndex].first * flux.gp[i].first + \
+                      matProp.conductance.gp[propIndex].second * flux.gp[i].second \
+                      + factor2 * (flux.gp[bIndex].first - flux.gp[bIndex].second)\
+                      * frontierElement.normals[j + (bIndex % 3)]);
 
         // Numerical fluxes associated to magnetic fields.
-        flux.num[i + 3] = 2/(impedance.gp[impIndex + 3].first + impedance.gp[impIndex + 3].second) * \
-                      (impedance.gp[impIndex + 3].first * flux.gp[i + 3].first + \
-                       impedance.gp[impIndex + 3].second * flux.gp[i + 3].second)\
-                      + alpha/2 * (flux.gp[i].first - flux.gp[i].second) * frontierElement.normals[i];
+        flux.num[bIndex] = 1/(matProp.impedance.gp[propIndex].first + matProp.impedance.gp[propIndex].second) * \
+                           (matProp.impedance.gp[propIndex].first * flux.gp[bIndex].first + \
+                           matProp.impedance.gp[propIndex].second * flux.gp[bIndex].second \
+                           + factor1 * (flux.gp[i].first - flux.gp[i].second) \
+                           * frontierElement.normals[j + (i % 3)]);
 
         if(i % 3 == 2) i += 3;
 

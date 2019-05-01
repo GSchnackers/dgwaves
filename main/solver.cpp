@@ -6,107 +6,91 @@
 #include "functions.h"
 #include "structures.h"
 
-void solver(Element & mainElement, Element & frontierElement, View & mainView, const double simTime, \
-            const double simStep, const int solvType, const int registration, const int debug, \
-            const double alpha, const std::string & boundFileName, const std::string & propFileName){
+void solver(const Element & mainElement, const Element & frontierElement, const PhysicalGroups & physicalGroups,\
+            View & mainView, Simulation & simulation){
 
     std::size_t i, j, k; // loop variables.
 
     double t = 0; // t is the time of the simulation.
-    double halfInc = simStep/2;
-    double sixthInc = simStep/6;
+    double halfInc = simulation.simStep/2;
+    double sixthInc = simulation.simStep/6;
 
     Quantity u; // unknowns of the problem.
     Quantity flux; // fluxs of the problem.
-    Quantity impedance; // impedances of the middle in which each node is.
-    Quantity relPermittivity; // Relative permittivities.
-    Quantity relPermeability; // Relative permeabilities.
-    Quantity conductivity; // Conductivity of the material.
+    Simulation simParam; // Parameters of the simulation.
+    Properties matProp; // Properties of the material all over the domain.
+    std::vector<Parameter> bcParam; // Parameters associated to the boundary conditions.
 
-    std::vector<Parameter> bcParam;
-
-    
     std::vector<double> k1(6 * mainElement.nodeTags.size(), 0);
     std::vector<double> k2(6 * mainElement.nodeTags.size(), 0);
     std::vector<double> k3(6 * mainElement.nodeTags.size(), 0);
     std::vector<double> k4(6 * mainElement.nodeTags.size(), 0);
 
-    // Initialization of the nodal values.
-    gmsh::logger::write("Initializing the quantity u...");
-    u.node.resize(6 * mainElement.nodeTags.size(), 0);
-    u.gp.resize(6 * frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
-    u.bound.resize(6 * mainElement.nodeTags.size(), 0);
-    u.boundSign.resize(6 * mainElement.nodeTags.size(), 0);
-    gmsh::logger::write("Done.");
+    // Initializes the size of the useful quantities.
+    numericalInitializer(mainElement, frontierElement, simulation, physicalGroups, u, flux, matProp, bcParam);
+    
+    for (i = 0; i < u.node.size(); ++i)
+        mainView.data[i/(6 * mainElement.numNodes)][i % (6 * mainElement.numNodes)] = u.node[i];
 
-    gmsh::logger::write("Initializing the quantity flux...");
-    flux.node.resize(u.node.size() * 3, 0);
-    flux.gp.resize(u.gp.size() * 3, std::make_pair(0,0));
-    flux.direction.resize(flux.gp.size(), 0);
-    flux.num.resize(flux.gp.size(), 0);
-    gmsh::logger::write("Done.");
+    std::cout << "Hello" << std::endl;
 
-    gmsh::logger::write("Initializing the quantity flux...");
-    impedance.gp.resize(mainElement.nodeTags.size());
-    gmsh::logger::write("Done.");
+    gmsh::view::addModelData(mainView.tag, int(t/simulation.simStep), mainView.modelName, mainView.dataType, \
+                                mainElement.elementTag, mainView.data, t, 6);
 
-    // Setting of the boundary types.
-    gmsh::logger::write("Setting the boundary condition type...");
-    setBoundaryConditions(mainElement, boundFileName, propFileName, relPermittivity, relPermeability, \
-                          conductivity, u, bcParam);
-    gmsh::logger::write("Done.");
-
-    for (i = 0; i < mainElement.nodeTags.size(); ++i)
-            mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = u.node[i];
-
-    gmsh::view::addModelData(mainView.tag, int(t/simStep), mainView.modelName, mainView.dataType, \
-                                mainElement.elementTag, mainView.data, t, 1);
 
     gmsh::logger::write("Simulation...");
 
     // Euler method.
-    for(t = 0; t < simTime && !solvType; t += simStep)
+    for(t = 0; t < simulation.simTime && !simulation.solver; t += simulation.simStep)
     {
-        computeCoeff(mainElement, frontierElement, bcParam, simStep, t, impedance, u, flux, k1, debug, alpha);
+        
+        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t, u, flux, k1);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i)
-            mainView.data[i/mainElement.numNodes][i % mainElement.numNodes] = \
-            u.node[i] += simStep * k1[i];
+        for (i = 0; i < u.node.size(); ++i)
+            mainView.data[i/(mainElement.numNodes * 6)][i % (mainElement.numNodes * 6)] = \
+                                                  u.node[i] += simulation.simStep * k1[i];
 
-        if(!((int(t/simStep) + 1) % registration))
-            gmsh::view::addModelData(mainView.tag, int(t/simStep) + 1, mainView.modelName, mainView.dataType, \
-                                    mainElement.elementTag, mainView.data, t, 1);
+        if(!((int(t/simulation.simStep) + 1) % simulation.registration))
+            gmsh::view::addModelData(mainView.tag, int(t/simulation.simStep) + 1, mainView.modelName, \
+                                    mainView.dataType, mainElement.elementTag, mainView.data, t, 6);
+
+        if(!(int(t/simulation.simTime) % 20))
+            std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
 
     }
 
     // Runge-Kutta 4 method.
-    for(t = 0; t < simTime && solvType; t += simStep)
+    for(t = 0; t < simulation.simTime && simulation.solver; t += simulation.simStep)
     {    
+
+        int stepNum = int(t/simulation.simTime);
         Quantity uTmp = u;
-        computeCoeff(mainElement, frontierElement, bcParam, simStep, t, impedance, uTmp, flux, k1, debug, alpha);
+        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t, uTmp, flux, k1);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
-        computeCoeff(mainElement, frontierElement, bcParam, simStep, t + halfInc, impedance, uTmp, flux, k2,\
-                     debug, alpha);
+        for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
+        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + halfInc, uTmp, flux, k2);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
-        computeCoeff(mainElement, frontierElement, bcParam, simStep, t + halfInc, impedance, uTmp, flux, k3, \
-                     debug, alpha);
+        for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
+        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + halfInc, uTmp, flux, k3);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i) uTmp.node[i] = u.node[i] * (1 + simStep * k3[i]);
-        computeCoeff(mainElement, frontierElement, bcParam, simStep, t + simStep, impedance, uTmp, flux, k4, \
-                     debug, alpha);
+        for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + simulation.simStep * k3[i]);
+        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + simulation.simStep, uTmp,\
+                     flux, k4);
 
-        for (i = 0; i < mainElement.nodeTags.size(); ++i)
+        for (i = 0; i < u.node.size(); ++i)
             mainView.data[i/(mainElement.numNodes * 6)][i % (mainElement.numNodes * 6)] = \
             u.node[i] += sixthInc * (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]);
 
-        if(!((int(t/simStep) + 1) % registration) || t == simTime - simStep)
-            gmsh::view::addModelData(mainView.tag, int(t/simStep) + 1, mainView.modelName, mainView.dataType, \
-                                    mainElement.elementTag, mainView.data, t, 6);
+        if(!((stepNum + 1) % simulation.registration) || t == simulation.simTime - simulation.simStep)
+            gmsh::view::addModelData(mainView.tag, int(t/simulation.simStep) + 1, mainView.modelName,\
+                                    mainView.dataType, mainElement.elementTag, mainView.data, t, 6);
 
+        if(!(stepNum % 20))
+            std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
         
     }
+
+    std::cout << std::endl;
 
     gmsh::logger::write("Done.");
     

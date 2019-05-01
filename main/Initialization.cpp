@@ -38,6 +38,8 @@ void Initialization(Element & element, const int meshDim, std::string integratio
     else if(element.name.find("Line") != std::string::npos) element.numSide = 1;
     else if(element.name.find("Quadrangle") != std::string::npos) element.numSide = 4;
     else if(element.name.find("Tetrahedron") != std::string::npos) element.numSide = 4;
+    else if(element.name.find("Prism") != std::string::npos) element.numSide = 4;
+    else if(element.name.find("Hexahedron") != std::string::npos) element.numSide = 6;
     else if(element.name.find("Pyramid") != std::string::npos) element.numSide = 5;
     else{
         gmsh::logger::write("The element name is not supported by the program.", "error");

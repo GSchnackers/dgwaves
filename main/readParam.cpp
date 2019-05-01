@@ -5,8 +5,7 @@
 #include "functions.h"
 #include "structures.h"
 
-void readParam(std::string fileName, double & simTime, double & simStep, int & registration,
-               int & solvType, std::string & gaussType, int & meshDim, int & debug, double & alpha){
+void readParam(std::string fileName, Simulation & simulation){
 
     std::ifstream file;
     std::string command;
@@ -29,41 +28,57 @@ void readParam(std::string fileName, double & simTime, double & simStep, int & r
 
         if(!(command.compare("SIMTIME")))
         {
-             file >> simTime;
+             file >> simulation.simTime;
              file.get();
         }
         
         else if(!(command.compare("SIMSTEP")))
         {
-            file >> simStep;
+            file >> simulation.simStep;
             file.get();
         }
 
         else if(!(command.compare("REGISTRATION")))
         {
-            file >> registration;
+            file >> simulation.registration;
             file.get();
         }
 
         else if(!(command.compare("SOLVER")))
         {
-            file >> solvType;
+            file >> simulation.solver;
             file.get();
         }
 
-        else if(!(command.compare("GAUSS"))) std::getline(file, gaussType);
+        else if(!(command.compare("GAUSS"))) std::getline(file, simulation.gaussType);
 
         else if(!(command.compare("DEBUG")))
         { 
-            file >> debug;
+            file >> simulation.debug;
             file.get();
         }
 
         else if(!(command.compare("ALPHA")))
         { 
-            file >> alpha;
+            file >> simulation.alpha;
             file.get();
         }
+
+        else if(!(command.compare("E0")))
+        { 
+            file >> simulation.E0;
+            file.get();
+        }
+
+        else if(!(command.compare("L")))
+        { 
+            file >> simulation.L;
+            file.get();
+        }
+
+        else if(!(command.compare("BC"))) std::getline(file, simulation.boundFileName);
+
+        else if(!(command.compare("PROP"))) std::getline(file, simulation.propFileName);
 
         else
             gmsh::logger::write("Unrecognized parameter. Ignored.", "warning");

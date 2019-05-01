@@ -7,7 +7,7 @@
 // This function computes the product of the stiffness matrices and the physical flux vector at nodal values.
 void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod){
 
-    std::size_t i, j, k;
+    std::size_t i, j, k, l;
 
     // Components along x, y and z of the gradient.
     std::vector<double> fx(flux.node.size()/3, 0), fy(flux.node.size()/3, 0), fz(flux.node.size()/3, 0);
@@ -22,22 +22,22 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
     
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
-        {
-            int prodIndex = i * mainElement.numNodes + j;
-
-            for(k = 0; k < mainElement.numNodes; ++k)
+            for(k = 0; k < 6; ++k)
             {
-                int stiffIndex = i * mainElement.numNodes * mainElement.numNodes + j * mainElement.numNodes \
-                                 + k;
+                int prodIndex = i * mainElement.numNodes * 6 + k + j * 6;
 
-                int vecIndex = i * mainElement.numNodes + k;
+                for(l = 0; l < mainElement.numNodes; ++l)
+                {
+                    int stiffIndex = i * mainElement.numNodes * mainElement.numNodes + j * mainElement.numNodes \
+                                    + l;
 
-                prod[prodIndex] += (mainElement.stiffnessMatrixX[stiffIndex] * fx[vecIndex] + \
-                                   mainElement.stiffnessMatrixY[stiffIndex] * fy[vecIndex] + \
-                                   mainElement.stiffnessMatrixZ[stiffIndex] * fz[vecIndex]);
+                    int vecIndex = i * mainElement.numNodes * 6 + k + l * 6;
 
+                    prod[prodIndex] += (mainElement.stiffnessMatrixX[stiffIndex] * fx[vecIndex] + \
+                                    mainElement.stiffnessMatrixY[stiffIndex] * fy[vecIndex] + \
+                                    mainElement.stiffnessMatrixZ[stiffIndex] * fz[vecIndex]);
+
+                }
             }
-
-        }
 
 }

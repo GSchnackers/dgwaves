@@ -32,6 +32,7 @@ struct Element{
     int numCompoShapeGrad; // number of components of the gradient of shape functions.
 
     std::vector<double> shapeFunctionsGradParam; // Shape functions gradient at the Gauss points in parametric coordinates.
+    std::vector<double> shapeFunctionGrad; // Shape function gradient at the real coordinates of each element at each gauss point.
     
     std::vector<double> gaussPointsParam; // Gauss points in parametric coordinates for shape functions.
     std::vector<double> gaussPointsParamGrad; // Gauss points param for gradient of shape functions.
@@ -103,5 +104,46 @@ struct Parameter{
 };
 
 typedef struct Parameter Parameter;
+
+struct Simulation{
+
+    double simTime; // Duration of the simulation
+    double simStep; // Time step of the simulation
+    double startTime; // starting time of the simulation
+    int registration; // frequency of registration of the results.
+    int solver; // solver type
+    std::string gaussType; // Gauss integration type.
+    int debug; // triggers the debug mode.
+    double alpha; // Coefficient of lax friedrichs numerical flux.
+    double E0; // Reference electric field.
+    double L; // Reference length.
+    std::string boundFileName; // name of the bc file.
+    std::string propFileName; // name of the property file.
+
+};
+
+typedef struct Simulation Simulation;
+
+// Contains the properties of the material.
+struct Properties{
+
+    Quantity relPermittivity; // Contains the relative permittivity
+    Quantity relPermeability; // Contains the relative permeability.
+    Quantity conductivity; // Contains the conductivity.
+    Quantity impedance; // Contains the impedance of the material.
+    Quantity conductance; // Contains the conductance of the material.
+    Quantity eta; // Adimensionnal number related to the conductivity of the material.
+
+};
+
+typedef struct Properties Properties;
+
+struct PhysicalGroups{
+
+    std::vector<std::pair<int,int>> dimTags;
+    std::vector<std::string> name;
+    std::vector<std::vector<int>> entityTags;
+    std::vector<std::vector<std::vector<int>>> elemType;
+};
 
 #endif

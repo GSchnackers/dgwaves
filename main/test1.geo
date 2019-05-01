@@ -32,9 +32,9 @@ Transfinite Surface {61};
 Transfinite Surface {62};
 
 // Physical curves taking into account the boundaries.
-Physical Curve("Sinusoidal1", 1) = {44};
+Physical Curve("WALL1", 1) = {44};
 //Physical Curve("Constant1", 1) = {44};
-Physical Surface("Domain1") = {61};
-Physical Surface("Domain2") = {62};
+Physical Surface("MATERIAL1") = {61};
+Physical Surface("MATERIAL2") = {62};
 
 Mesh.SaveAll = 1;

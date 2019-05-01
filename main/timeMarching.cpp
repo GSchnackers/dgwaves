@@ -7,27 +7,25 @@
 void timeMarching(const Element & mainElement, const std::vector<double> & SFProd, \
                   const std::vector<double> & fluxVector, std::vector<double> & kVector){
 
-    std::size_t i, j, k;
+    std::size_t i, j, k, l;
     std::fill(kVector.begin(), kVector.end(), 0);
 
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
-        {
-            int uIndex = i * mainElement.numNodes + j;
-            double tmpProd = 0;
+            for(k = 0; k < 6; ++k)
+                for(l = 0; l < mainElement.numNodes; ++l)
+                {
+                    int uIndex = i * mainElement.numNodes * 6 + k + j * 6;
+                    int matrixIndex = i * mainElement.numNodes * mainElement.numNodes + \
+                                    j * mainElement.numNodes + l;
 
-            for(k = 0; k < mainElement.numNodes; ++k)
-            {
-        
-                int matrixIndex = i * mainElement.numNodes * mainElement.numNodes + \
-                                  j * mainElement.numNodes + k;
+                    int vecIndex = i * mainElement.numNodes * 6 + k + l * 6;
 
-                int vecIndex = i * mainElement.numNodes + k;
+                    kVector[uIndex] += mainElement.massMatrixInverse[matrixIndex] * \
+                                       (SFProd[vecIndex] - fluxVector[vecIndex]);
+                    
+                }
+            
 
-                kVector[uIndex] += mainElement.massMatrixInverse[matrixIndex] * (SFProd[vecIndex] - fluxVector[vecIndex]);
-                
-            }
-
-        } 
 
 }

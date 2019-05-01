@@ -41,27 +41,109 @@ This cpp file holds the functions that deals with the boundary conditions impose
 #include "functions.h"
 #include "structures.h"
 
-void setBoundaryConditions(const Element & mainElement, const std::string & boundaryFileName,\
-                           const std::string & propFileName, Quantity & relPermittivity,\
-                           Quantity & relPermeability, Quantity & conductivity, Quantity & u,\
-                           std::vector<Parameter> & bcParam){
+void boundAssign(const Element & frontierElement, const std::vector<int> & physicalEntityTags, \
+                std::fstream & boundFile, const std::string & physicalName,\
+                int elemType, int elemDim, std::vector<Parameter> & bcParam, Quantity & u){
 
-    std::size_t i, j, k;
-    gmsh::vectorpair physicalGroupsTags;
+    std::size_t i, j, k, l, m;
+
+    std::vector<int> binInt;
+    std::string bin;
+    std::string boundCommand;
+
+    // For each physical entity tags, 
+    for(i = 0; i < physicalEntityTags.size(); ++i)
+    {
+        std::vector<int> physicalElementTag;
+        std::vector<int> physicalNodeTags;
+        std::vector<double> bin1, bin2;
+
+        gmsh::model::mesh::getElementsByType(elemType, physicalElementTag, physicalNodeTags, \
+                                             physicalEntityTags[i]);
+        
+        for(j = 0; j < physicalElementTag.size(); ++j)
+            for(k = 0; k < frontierElement.elementTag.size(); ++k)
+            {
+                int count = 0;
+                for(l = 0; l < frontierElement.numNodes; ++l)
+                    for(m = 0; m < frontierElement.numNodes; ++m)
+                        if(physicalNodeTags[j * frontierElement.numNodes + m] == \
+                           frontierElement.nodeTags[k * frontierElement.numNodes + l]) 
+                            ++count;
+
+                std::cout << count << std::endl;
+                
+                if(count == frontierElement.numNodes)
+                {
+                    //std::cout << "Hello" << std::endl;
+                    while(!std::getline(boundFile, boundCommand, ' ').eof())
+                    {
+                        std::cout << boundCommand << std::endl;
+                        std::cout << physicalName << std::endl;
+                        if(physicalName.find(boundCommand) != std::string::npos)
+                        {
+                            int mbeg = 0, type = -1;
+
+                            std::string boundName;
+
+                            std::getline(boundFile, boundName, ' ');
+
+                            if(boundName.find("Sinusoidal") != std::string::npos)
+                            {
+                                std::vector<double> par(9);
+
+                                for(l = 0; l < par.size(); ++l)
+                                {
+                                    boundFile >> par[l];
+                                    boundFile.get();
+                                }
+
+                                if(boundName.find("SinusoidalE") != std::string::npos) mbeg = 0;
+
+                                else if(boundName.find("SinusoidalH") != std::string::npos) mbeg = 3;
+
+                                for(l = 0; l < frontierElement.numNodes; ++l)
+                                    for(m = mbeg; m < mbeg + 3; ++m)
+                                    {
+                                        int uIndex = k * frontierElement.numNodes * 6 + l * 6 + m;
+                                        bcParam[uIndex].param1 = par[3 * (m % 3)];
+                                        bcParam[uIndex].param2 = par[3 * (m % 3) + 1];
+                                        bcParam[uIndex].param3 = par[3 * (m % 3) + 2];
+                                        u.boundSign[uIndex] = -2;
+                                    }
+                                
+                            }
+
+                        }
+
+                        else
+                            std::getline(boundFile, bin);
+                    }
+
+                    boundFile.clear();
+                    boundFile.seekg(0, std::ios::beg);
+
+                }
+            }                
+        
+    }
+
+}
+
+void setBoundaryCondition(const Element & frontierElement, const Simulation & simulation,\
+                          const PhysicalGroups & physicalGroups, Quantity & u, std::vector<Parameter> & bcParam){
+
+    std::size_t i, j;
 
     std::fstream boundaryFile;
-    std::fstream propFile;
 
-    std::string boundCommand;
-    std::string propCommand;
-
-    if(boundaryFileName.find(".bc") == std::string::npos || propFileName.find(".prop") == std::string::npos)
+    if(simulation.boundFileName.find(".bc") == std::string::npos)
     {
-        gmsh::logger::write("Unsupported file extension.", "error");
+        gmsh::logger::write("Unsupported boundary condition file extension.", "error");
         exit(-1);
     }
 
-    boundaryFile.open(boundaryFileName);
+    boundaryFile.open(simulation.boundFileName);
 
     if(!boundaryFile.is_open())
     {
@@ -69,85 +151,17 @@ void setBoundaryConditions(const Element & mainElement, const std::string & boun
         exit(-1);
     }
 
-    propFile.open(propFileName);
-    if(!propFile.is_open())
-    {
-        gmsh::logger::write("Could not open the property file.", "error");
-        boundaryFile.close();
-        exit(-1);
-    }
-
-    gmsh::model::getPhysicalGroups(physicalGroupsTags);
-
-    while(std::getline(boundaryFile, boundCommand, ' '))
-        while(std::getline(propFile, propCommand, ' ')) // Run through all physical groups of dimension 1 in 2D and 2 in 3D.
-            for(i = 0; i < physicalGroupsTags.size(); ++i)
-            {
-
-                std::vector<int> physicalNodeTags;
-                std::vector<double> coords;
-
-                std::string physicalName;
-
-                gmsh::model::mesh::getNodesForPhysicalGroup(physicalGroupsTags[i].first,\
-                                                            physicalGroupsTags[i].second,\
-                                                            physicalNodeTags, coords);
-
-                gmsh::model::getPhysicalName(physicalGroupsTags[i].first, physicalGroupsTags[i].second,\
-                                             physicalName);
-
-                // Run through each edge.
-                for(j = 0; j < physicalNodeTags.size(); ++j)
-                    for(k = 0; k < mainElement.nodeTags.size(); ++k)
-                        if(mainElement.nodeTags[k] == physicalNodeTags[j])
-                        {
-                            if(!physicalName.compare(boundCommand))
-                            {
-                                std::string boundName;
-
-                                std::getline(boundaryFile, boundName, ' ');
-
-                                if(!boundName.compare("Sinusoidal"))
-                                {
-                                    u.boundSign[k] = -2;
-                                    boundaryFile >> bcParam[k].param1;
-                                    boundaryFile.get();
-                                    boundaryFile >> bcParam[k].param2;
-                                    boundaryFile.get();
-                                    boundaryFile >> bcParam[k].param3;
-                                    
-                                }
-
-                                else if(!boundName.find("Constant"))
-                                {
-                                    u.boundSign[k] = -3;
-                                    boundaryFile >> bcParam[k].param1;
-                                }
-
-                                else
-                                    gmsh::logger::write("Unknown BC type. Ignored.", "warning");
-                                
-                                
-                            }
-
-                            else if(!physicalName.compare(propCommand))
-                            {
-                                propFile >> relPermittivity.node[k];
-                                propFile.get();
-                                propFile >> relPermeability.node[k];
-                                propFile.get();
-                                propFile >> conductivity.node[k];
-                            }
-
-                            boundaryFile.get();
-
-                        }
-
-            }
-        
     
+    for(i = 0; i < physicalGroups.dimTags.size(); ++i)
+        if(physicalGroups.dimTags[i].second == frontierElement.dim)
+            for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j)
+            {  
+                boundAssign(frontierElement, physicalGroups.entityTags[i], boundaryFile, physicalGroups.name[i],\
+                            physicalGroups.elemType[i][0][j], frontierElement.dim, bcParam, u);
+                //std::cout << physicalGroups.elemType[i][0][j] << std::endl;
+            }
+
     boundaryFile.close();
-    propFile.close();
 
 }
 
@@ -158,7 +172,7 @@ void computeBoundaryCondition(Quantity & u, const double t, const std::vector<Pa
 
     for(i = 0; i < u.bound.size(); ++i)
     {
-
+        
         if(u.boundSign[i] == -2)
              u.bound[i] = bcParam[i].param1 * sin(bcParam[i].param2 * M_PI * t + bcParam[i].param3);
         

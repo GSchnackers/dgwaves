@@ -1,9 +1,16 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
+
+#define VACUUM_PERMIT 8.54e-12
+#define VACUUM_PERMEA 1.257e-6
+#define VACUUM_IMPEDANCE 377
+#define VACUUM_CONDUCTANCE 2.652e-3
+
 #include "structures.h"
 
 // Function that loads the mesh (main and frontier elements).
-void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim);
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, \
+                PhysicalGroups & physicalGroups, int mainDim);
 
 // Initialization of the properties of the element of a certain dim and a certain type with a number of Gauss points given by GaussType.
 void Initialization(Element & element, const int meshDim, std::string integrationType, bool frontier = false);
@@ -32,12 +39,17 @@ void normals(Element & frontierElement, Element & mainElement);
 void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
-void solver(Element & mainElement, Element & frontierElement, View & mainView, const double simTime, \
-            const double simStep, const int solvType, const int registration, const int debug, \
-            const double alpha);
+void solver(const Element & mainElement, const Element & frontierElement, const PhysicalGroups & PhysicalGroups,\
+            View & mainView, Simulation & simulation);
+
+// Defines the size of the vectors of the different quantities in the program.
+void numericalInitializer(const Element & mainElement, const Element & frontierElement, \
+                          const Simulation & simulation, const PhysicalGroups & PhysicalGroups,\
+                          Quantity & u, Quantity & flux, Properties & matProp, \
+                          std::vector<Parameter> & bcParam);
 
 // Computes the values of any quantity at the gauss points from its value at the nodes.
-void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement);
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU);
 
 // Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
@@ -45,22 +57,25 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
 
 // Physical flux for electromagnetism.
 void physFluxELM(const Quantity & u, const Element & frontierElement, const Element & mainElement,\
-                 Quantity & flux);
+                 const Properties & matProp, Quantity & flux);
 
 // Allow to compute the simple numerical upwind flux.
 void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 
 // Numerical flux for electromagnetism.
-void numFluxELM(const Element & frontierElement, const Quantity & impedance, const double alpha, Quantity & flux);
+void numFluxELM(const Element & frontierElement, const Properties & matProp, const double alpha, \
+                Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
-void setBoundaryConditions(const Element & mainElement, const std::string & boundaryFileName,\
-                           const std::string & propFileName, Quantity & relPermittivity,\
-                           Quantity & relPermeability, Quantity & conductivity, Quantity & u,\
-                           std::vector<Parameter> & bcParam);
+void setBoundaryCondition(const Element & frontierElement, const Simulation & simulation,\
+                          const PhysicalGroups & physicalGroups, Quantity & u, std::vector<Parameter> & bcParam);
 
 // Computes the values of u on the basis of the boundary conditions that were set.
 void computeBoundaryCondition(Quantity & u, const double t, const std::vector<Parameter> & bcParam);
+
+// Set the properties of the elements.
+void setProperties(const Element & mainElement, const Element & frontierElement, const Simulation & simulation, \
+                   const PhysicalGroups & physicalGroups, Properties & matProp);
 
 // This function compute the product of the stiffness matrix and the physical flux vector at nodal values.
 void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod);
@@ -75,13 +90,12 @@ void timeMarching(const Element & mainElement, const std::vector<double> & SFPro
 
 // Compute the coefficients of runge kutta.
 void computeCoeff(const Element & mainElement, const Element & frontierElement,\
-                  const std::vector<Parameter> & bcParam, const double simStep, const double t, \
-                  const Quantity & impedance, Quantity & u, Quantity & flux, std::vector<double> & k, \
-                  const int debug, const double alpha);
+                  const std::vector<Parameter> & bcParam, const Simulation & simulation,\
+                  const Properties & matProp, const double t, Quantity & u, Quantity & flux, \
+                  std::vector<double> & k);
 
 // Function that reads the parameters.
-void readParam(std::string fileName, double & simTime, double & incrementation, int & registration,
-               int & solvType, std::string & gaussType, int & meshDim, int & debug, double & alpha);
+void readParam(std::string fileName, Simulation & simulation);
 
 // Function that checks the values at each Gauss points, points of all quantities of the simulation.
 void timeChecker(const Element & mainElement, const Element & frontierElement,\

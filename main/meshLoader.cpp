@@ -4,7 +4,8 @@
 #include "functions.h"
 #include "structures.h"
 
-void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, int mainDim){
+void meshLoader(Element & mainElements, Element & frontierElement, std::string & gaussType, \
+                PhysicalGroups & physicalGroups, int mainDim){
 
     std::size_t i, j;
     std::vector<int> sortedNodes; // Vector of nodes that serves as a basis for the creation of all 1D elements.
@@ -14,27 +15,27 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
     // Initialization of the elements of the mesh.
     gmsh::logger::write("Initializing the main elements of the mesh...");
     Initialization(mainElements, mainDim, gaussType);
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     // Sorting of the nodes at the frontier of each element.
     gmsh::logger::write("Collection of the information for creating the frontier elements...");
     sortingNeighbouring(mainElements, frontierElement, sortedNodes);
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     // Creation of the frontier elements on the basis of the vector of sorted nodes.
     gmsh::logger::write("Creation of the frontier elements...");
     frontierCreation(mainElements, frontierElement, mainDim, sortedNodes);
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     // Initialization of the element representing the frontiers.
     gmsh::logger::write("Initialization of the frontier elements...");
     Initialization(frontierElement, frontierDim, gaussType, true);
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     // getting the normals of the edges.
     gmsh::logger::write("Computation of the normals at the frontier elements...");
     normals(frontierElement, mainElements);
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     /*
     for(i = 0; i < frontierElement.normals.size(); ++i)
@@ -45,12 +46,12 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
     // This function links the nodes of the frontier elements with their indices in the global numerotation.
     gmsh::logger::write("Correspondace computation...");
     correspondance(mainElements, frontierElement);
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     // Matrix M of the elements loading.
     gmsh::logger::write("Computation of the mass matrix of each element...");
     matrixMaker(mainElements, "M");
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     // Mass matrix inversion.
     gmsh::logger::write("Computation of the inverse of the mass matrix of each element...");
@@ -70,7 +71,7 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
             mainElements.massMatrixInverse[i + j] = inverseTmp[j];
 
     }
-    std::cout << "Done." << std::endl;
+    gmsh::logger::write("Done.");
 
     /* for(i = 0; i < mainElements.massMatrix.size(); ++i)
     {
@@ -84,7 +85,35 @@ void meshLoader(Element & mainElements, Element & frontierElement, std::string &
     else mainElements.stiffnessMatrixY.resize(mainElements.stiffnessMatrixX.size(), 0);
     if(mainElements.dim == 3) matrixMaker(mainElements, "SZ");
     else mainElements.stiffnessMatrixZ.resize(mainElements.stiffnessMatrixX.size(), 0);
-    std::cout << "Done." << std::endl << std::endl;
+    gmsh::logger::write("Done.");
+
+    // Loading of all physical Groups.
+    gmsh::logger::write("Computation of the physical groups...");
+
+    gmsh::model::getPhysicalGroups(physicalGroups.dimTags);
+    physicalGroups.entityTags.resize(physicalGroups.dimTags.size());
+    physicalGroups.name.resize(physicalGroups.dimTags.size());
+    physicalGroups.elemType.resize(physicalGroups.dimTags.size());
+    for(i = 0; i < physicalGroups.dimTags.size(); ++i)
+    {
+        std::vector<std::vector<int>> bin1, bin2;
+        gmsh::model::getPhysicalName(physicalGroups.dimTags[i].first, \
+                                     physicalGroups.dimTags[i].second,\
+                                     physicalGroups.name[i]);
+
+        gmsh::model::getEntitiesForPhysicalGroup(physicalGroups.dimTags[i].first, \
+                                                 physicalGroups.dimTags[i].second, \
+                                                 physicalGroups.entityTags[i]);
+
+        physicalGroups.elemType[i].resize(physicalGroups.entityTags[i].size());
+
+        for(j = 0; j < physicalGroups.entityTags[i].size(); ++j)
+            gmsh::model::mesh::getElements(physicalGroups.elemType[i][j], bin1 , bin2, \
+                                           physicalGroups.dimTags[i].first, physicalGroups.entityTags[i][j]);
+    }
+    
+    gmsh::logger::write("Done.");
+
     /*
     std::cout << "Stiffness matrix X verifier" << std::endl;
     for(i = 0; i < mainElements.stiffnessMatrixX.size(); ++i)
