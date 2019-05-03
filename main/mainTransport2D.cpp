@@ -730,15 +730,15 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     double mytime = 0;
-    double timeStep = 0.001;
-    double endTime = 0.2;
+    double timeStep = 0.0001;
+    double endTime = 0.01;
     int numStep = endTime/timeStep;
     int percent = 0;
 
     std::vector<double> VectorSu(elementTags2D.size()*numNodes2D);
     std::vector<double> error(numStep, 0);
     std::vector<double> errorNodes(u.size());
-    std::vector<double> coordinates(3*u.size());
+    std::vector<double> coordinates(3*elementTags2D.size()*numNodes2D);
     std::vector<double> coordNodes(3*numNodes2D);
     std::vector<int> binTags(numNodes2D);
     std::vector<double> binParam(3*numNodes2D);
@@ -758,8 +758,8 @@ int main(int argc, char **argv)
     for(std::size_t n=0; n<nodeTags2D.size(); n++){
         gmsh::model::mesh::getNode(nodeTags2D[n], coordNodes, binParam);
         
-        for(std::size_t i=0; i<numNodes2D; i++){
-            coordinates[n*numNodes2D + i] = coordNodes[i];
+        for(std::size_t i=0; i<3; i++){
+            coordinates[3*n + i] = coordNodes[i];
         }
     }
     
