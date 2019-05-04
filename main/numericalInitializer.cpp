@@ -83,9 +83,9 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
     setBoundaryCondition(frontierElement, mainElement, simulation, physicalGroups, u, bcParam);
     gmsh::logger::write("Done.");
 
-    for(i = 0; i < bcParam.size(); ++i)
+    /* for(i = 0; i < bcParam.size(); ++i)
         std::cout << bcParam[i].param1 << " " << bcParam[i].param2 << " " << bcParam[i].param3 << " " << std::endl;
-
+ */
     // Compute the value of the material properties at the Gauss points.
     gmsh::logger::write("Computing the relative permeability at the Gauss points.");
     valGp(matProp.relPermeability, mainElement, frontierElement, 1);
@@ -94,15 +94,15 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
     valGp(matProp.relPermittivity, mainElement, frontierElement, 1);
     gmsh::logger::write("Done.");
 
-    for(i = 0; i < frontierElement.elementTag.size() * frontierElement.numGp; ++i)
+    /* for(i = 0; i < frontierElement.elementTag.size() * frontierElement.numGp; ++i)
     {
         std::cout << matProp.relPermeability.gp[i].first << " " << matProp.relPermeability.gp[i].second << std::endl;
         std::cout << matProp.relPermittivity.gp[i].first << " " << matProp.relPermittivity.gp[i].second << std::endl;
         std::cout << std::endl;
-    }
+    } */
 
     // Computes the adimensionnal coefficients.
-    gmsh::logger::write("Setting the adimensionnal numbers, the imedance and conductances at the Gauss points\
+    gmsh::logger::write("Setting the adimensionnal numbers, the impedance and conductances at the Gauss points\
                          and at the nodes...");
     for(i = 0; i < mainElement.nodeTags.size(); ++i)
     {

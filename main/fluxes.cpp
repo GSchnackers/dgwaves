@@ -94,7 +94,7 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
         switch (i % 6)
         {
-            case 0: // Dx flux
+            case 0: // Ex flux
 
                 flux.gp[fluxIndex].first = flux.gp[fluxIndex].second = 0;
 
@@ -106,7 +106,7 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
                 break;
 
-            case 1: // Dy flux
+            case 1: // Ey flux
 
                 flux.gp[fluxIndex + 1].first = flux.gp[fluxIndex + 1].second = 0;;
 
@@ -118,7 +118,7 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
                 break;
 
-            case 2: // Dz flux
+            case 2: // Ez flux
 
                 flux.gp[fluxIndex + 2].first = flux.gp[fluxIndex + 2].second = 0;
 
@@ -131,7 +131,7 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
                 break;
 
-            case 3: // Bx flux
+            case 3: // Hx flux
 
                 flux.gp[fluxIndex].first = flux.gp[fluxIndex].second = 0;
 
@@ -143,7 +143,7 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
                 break;
 
-            case 4: // By flux
+            case 4: // Hy flux
 
                 flux.gp[fluxIndex + 1].first = flux.gp[fluxIndex + 1].second = 0;
 
@@ -155,7 +155,7 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
                 break;
 
-            case 5: // Bz flux
+            case 5: // Hz flux
 
                 flux.gp[fluxIndex + 2].first = flux.gp[fluxIndex + 2].second = 0;
 

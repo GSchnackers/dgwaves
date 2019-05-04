@@ -59,6 +59,11 @@ EndFor
 Transfinite Volume{1} = {3, 4, 8, 7, 1, 2, 6, 5};
 
 // Physical groups definitions.
-Physical Surface("Sinusoidal1") = {1};
-Physical Volume("Domain") = {1};
-Physical Volume("Domain") += {1};
+Physical Surface("WALL1") = {1};
+Physical Surface("WALL2") = {2};
+Physical Surface("WALL3") = {3};
+Physical Surface("WALL4") = {4};
+Physical Surface("WALL5") = {5};
+Physical Surface("WALL6") = {6};
+
+Physical Volume("MATERIAL1") = {1};
