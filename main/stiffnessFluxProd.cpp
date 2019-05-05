@@ -22,20 +22,19 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
     
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
-            for(k = 0; k < 6; ++k)
+            for(k = 0; k < mainElement.numNodes; ++k)
             {
-                int prodIndex = i * mainElement.numNodes * 6 + k + j * 6;
+                int stiffIndex = i * mainElement.numNodes * mainElement.numNodes + j * mainElement.numNodes + k;
 
-                for(l = 0; l < mainElement.numNodes; ++l)
+                for(l = 0; l < 6; ++l)
                 {
-                    int stiffIndex = i * mainElement.numNodes * mainElement.numNodes + j * mainElement.numNodes \
-                                    + l;
+                    int prodIndex = i * mainElement.numNodes * 6 + j * 6 + l;
 
-                    int vecIndex = i * mainElement.numNodes * 6 + k + l * 6;
+                    int vecIndex = i * mainElement.numNodes * 6 + k * 6 + l;
 
-                    prod[prodIndex] += (mainElement.stiffnessMatrixX[stiffIndex] * fx[vecIndex] + \
-                                    mainElement.stiffnessMatrixY[stiffIndex] * fy[vecIndex] + \
-                                    mainElement.stiffnessMatrixZ[stiffIndex] * fz[vecIndex]);
+                    prod[prodIndex] += mainElement.stiffnessMatrixX[stiffIndex] * fx[vecIndex] + \
+                                       mainElement.stiffnessMatrixY[stiffIndex] * fy[vecIndex] + \
+                                       mainElement.stiffnessMatrixZ[stiffIndex] * fz[vecIndex];
 
                 }
             }

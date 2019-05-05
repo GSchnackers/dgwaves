@@ -15,22 +15,20 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
     std::fill(u.gp.begin(), u.gp.end(), std::make_pair(0,0));
 
     for(i = 0; i < frontierElement.elementTag.size(); ++i) // Loop over the elements
-        for(j = 0; j < numU; ++j)
-            for(k = 0; k < frontierElement.numGp; ++k) // Loop over the Gauss Points
-            { 
-                int gpIndex = i * frontierElement.numGp * numU + j + k * numU;
-                for(l = 0; l < frontierElement.numNodes; ++l) // loop over the nodes
+        for(j = 0; j < frontierElement.numGp; ++j) // Loop over the Gauss Points
+            for(k = 0; k < frontierElement.numNodes; ++k) // loop over the nodes
+                for(l = 0; l < numU; ++l)
                 {
-                    
-                    int shapeIndex = k * frontierElement.numNodes + l;
+                    int gpIndex = i * frontierElement.numGp * numU + j * numU + l;
+                    int shapeIndex = j * frontierElement.numNodes + k;
     
-                    int frontNodeIndex = i * frontierElement.numNodes + l;
+                    int frontNodeIndex = i * frontierElement.numNodes + k;
 
-                    int mainNodeIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes * numU + j + \
-                                        frontierElement.nodeCorrespondance[frontNodeIndex].first * numU;
+                    int mainNodeIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes * numU + \
+                                        frontierElement.nodeCorrespondance[frontNodeIndex].first * numU + l;
 
-                    int mainNodeIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes * numU + j + \
-                                        frontierElement.nodeCorrespondance[frontNodeIndex].second * numU;
+                    int mainNodeIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes * numU + \
+                                        frontierElement.nodeCorrespondance[frontNodeIndex].second * numU + l;
                     
 
                     u.gp[gpIndex].first += u.node[mainNodeIndex1] * \
@@ -48,6 +46,6 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
 
                 }
 
-            }
+            
 
 }

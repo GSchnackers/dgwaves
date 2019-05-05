@@ -22,7 +22,7 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement,\
     computeBoundaryCondition(u, t, bcParam);
     valGp(u, mainElement, frontierElement, 6);
     physFluxELM(u, frontierElement, mainElement, matProp, flux);
-    numFluxELM(frontierElement, matProp, simulation.alpha, flux);
+    numFluxELM(frontierElement, simulation.alpha, u, flux);
     stiffnessFluxProd(mainElement, flux, SFProd);
     numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
     timeMarching(mainElement, SFProd, fluxVector, k);

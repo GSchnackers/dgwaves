@@ -39,37 +39,37 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
         switch (i % 6)
         {
-            case 0: // Dx flux
+            case 0: // Ex flux
                 flux.node[fluxIndex] = 0;
                 flux.node[fluxIndex + 1] = u.node[i + 5];
                 flux.node[fluxIndex + 2] = -u.node[i + 4];
                 break;
 
-            case 1: // Dy flux
+            case 1: // Ey flux
                 flux.node[fluxIndex] = -u.node[i + 4];
                 flux.node[fluxIndex + 1] = 0;
                 flux.node[fluxIndex + 2] = u.node[i + 2];
                 break;
 
-            case 2: // Dz flux
+            case 2: // Ez flux
                 flux.node[fluxIndex] = u.node[i + 2];
                 flux.node[fluxIndex + 1] = -u.node[i + 1];
                 flux.node[fluxIndex + 2] = 0;
                 break;
 
-            case 3: // Bx flux
+            case 3: // Hx flux
                 flux.node[fluxIndex] = 0;
                 flux.node[fluxIndex + 1] = u.node[i - 1];
                 flux.node[fluxIndex + 2] = -u.node[i - 2];
                 break;
 
-            case 4: // By flux
+            case 4: // Hy flux
                 flux.node[fluxIndex] = -u.node[i - 2];
                 flux.node[fluxIndex + 1] = 0;
                 flux.node[fluxIndex + 2] = u.node[i - 4];
                 break;
 
-            case 5: // Bz flux
+            case 5: // Hz flux
                 flux.node[fluxIndex] = u.node[i - 4];
                 flux.node[fluxIndex + 1] = -u.node[i - 5];
                 flux.node[fluxIndex + 2] = 0;
@@ -79,10 +79,10 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 
         if (!(i % 6) || i % 6 == 1 || i % 6 == 2)
             for(j = 0; j < 3; ++j)
-                flux.node[fluxIndex + j] *= 1/matProp.relPermeability.node[propIndex];
+                flux.node[fluxIndex + j] *= -1/matProp.relPermittivity.node[propIndex];
         else
             for(j = 0; j < 3; ++j)
-                flux.node[fluxIndex + j] *= 1/matProp.relPermittivity.node[propIndex];
+                flux.node[fluxIndex + j] *= 1/matProp.relPermeability.node[propIndex];
 
     }
 
@@ -172,14 +172,14 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
         if (!(i % 6) || i % 6 == 1 || i % 6 == 2)
             for(j = 0; j < 3; ++j)
             {
-                flux.gp[fluxIndex + j].first *= 1/matProp.relPermeability.gp[propIndex].first;
-                flux.gp[fluxIndex + j].second *= 1/matProp.relPermeability.gp[propIndex].second;
+                flux.gp[fluxIndex + j].first *= -1/matProp.relPermittivity.gp[propIndex].first;
+                flux.gp[fluxIndex + j].second *= -1/matProp.relPermittivity.gp[propIndex].second;
             }
         else
             for(j = 0; j < 3; ++j)
             {
-                flux.gp[fluxIndex + j].first *= 1/matProp.relPermittivity.gp[propIndex].first;
-                flux.gp[fluxIndex + j].second *= 1/matProp.relPermittivity.gp[propIndex].second;
+                flux.gp[fluxIndex + j].first *= 1/matProp.relPermeability.gp[propIndex].first;
+                flux.gp[fluxIndex + j].second *= 1/matProp.relPermeability.gp[propIndex].second;
             }
 
     }
@@ -227,13 +227,10 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
 
 }
 
-void numFluxELM(const Element & frontierElement, const Properties & matProp, const double alpha, \
-                Quantity & flux){
+// This function implements the lax-friedrichs flux for electromagnetic equations.
+void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux){
 
-    std::size_t i, j = 0;
-
-    double factor1 = alpha * VACUUM_IMPEDANCE;
-    double factor2 = alpha * VACUUM_CONDUCTANCE;
+    std::size_t i, j, k, l;
 
     if(alpha > 1 || alpha < 0)
     {
@@ -242,30 +239,9 @@ void numFluxELM(const Element & frontierElement, const Properties & matProp, con
     }
 
     for(i = 0; i < flux.num.size(); ++i)
-    {
+        flux.num[i] = 0.5 * (flux.gp[i].first + flux.gp[i].second + \
+                      alpha * (u.gp[i/3].first - u.gp[i/3].second) * frontierElement.normals[i/18 + (i % 3)]);
 
-        int propIndex = i/18;
-        int bIndex = i + 3;
-
-        if(!(i % 18) && i) j += 3;
-
-        // Numerical flux associated to the electric fields.
-        flux.num[i] = 1/(matProp.conductance.gp[propIndex].first + matProp.conductance.gp[propIndex].second) * \
-                      (matProp.conductance.gp[propIndex].first * flux.gp[i].first + \
-                      matProp.conductance.gp[propIndex].second * flux.gp[i].second \
-                      + factor2 * (flux.gp[bIndex].first - flux.gp[bIndex].second)\
-                      * frontierElement.normals[j + (bIndex % 3)]);
-
-        // Numerical fluxes associated to magnetic fields.
-        flux.num[bIndex] = 1/(matProp.impedance.gp[propIndex].first + matProp.impedance.gp[propIndex].second) * \
-                           (matProp.impedance.gp[propIndex].first * flux.gp[bIndex].first + \
-                           matProp.impedance.gp[propIndex].second * flux.gp[bIndex].second \
-                           + factor1 * (flux.gp[i].first - flux.gp[i].second) \
-                           * frontierElement.normals[j + (i % 3)]);
-
-        if(i % 3 == 2) i += 3;
-
-    }
 
 }
 

@@ -39,8 +39,8 @@ void normals(Element & frontierElement, Element & mainElement);
 void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
-void solver(const Element & mainElement, const Element & frontierElement, const PhysicalGroups & PhysicalGroups,\
-            View & mainView, Simulation & simulation);
+void solver(const Element & mainElement, const Element & frontierElement, const PhysicalGroups & physicalGroups,\
+            View & EView, View & HView, Simulation & simulation);
 
 // Defines the size of the vectors of the different quantities in the program.
 void numericalInitializer(const Element & mainElement, const Element & frontierElement, \
@@ -63,8 +63,7 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 
 // Numerical flux for electromagnetism.
-void numFluxELM(const Element & frontierElement, const Properties & matProp, const double alpha, \
-                Quantity & flux);
+void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
 void setBoundaryCondition(const Element & frontierElement, const Element & mainElement,\

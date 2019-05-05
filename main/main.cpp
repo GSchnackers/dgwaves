@@ -20,7 +20,9 @@ int main(int argc, char **argv)
 
     PhysicalGroups physicalGroups;
 
-    View mainView; // View of the results.
+    View EView; // View of the results.
+    View HView; // View of the results.
+
 
     Simulation simulation; // parameters of the simulation.
 
@@ -41,14 +43,20 @@ int main(int argc, char **argv)
 
     gmsh::model::list(modelNames);
 
-    mainView.name = "MainView";
-    mainView.tag = gmsh::view::add(mainView.name);
-    mainView.dataType = "ElementNodeData";
-    
-    mainView.modelName = modelNames[0];
-    mainView.data.resize(mainElement.elementTag.size(), std::vector<double>(6 * mainElement.numNodes));
+    EView.name = "EView";
+    EView.tag = gmsh::view::add(EView.name);
+    EView.dataType = "ElementNodeData";
 
-    solver(mainElement, frontierElement, physicalGroups, mainView, simulation); // Solving of the PDE with DG-FEM.
+    HView.name = "HView";
+    HView.tag = gmsh::view::add(HView.name);
+    HView.dataType = "ElementNodeData";
+    
+    EView.modelName = HView.modelName = modelNames[0];
+
+    EView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
+    HView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
+
+    solver(mainElement, frontierElement, physicalGroups, EView, HView, simulation); // Solving of the PDE with DG-FEM.
 
     gmsh::finalize(); // Closes gmsh
     return 0;

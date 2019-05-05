@@ -6,8 +6,32 @@
 #include "functions.h"
 #include "structures.h"
 
+// Functions that allows to display the results.
+void resultsDisp(const Element & mainElement, const Quantity & u, const Simulation & simulation, double t, \
+                 View & EView, View & HView){
+
+    std::size_t i, j, k;
+
+    for (i = 0; i < mainElement.elementTag.size(); ++i)
+        for(j = 0; j < mainElement.numNodes; ++j)
+            for(k = 0; k < 3; ++k)
+            {
+                int uEIndex = i * mainElement.numNodes * 6  + j * 6 + k;
+                int uHINdex = uEIndex + 3;
+
+                EView.data[i][j * 3 + k] = u.node[uEIndex];
+                HView.data[i][j * 3 + k] = u.node[uHINdex];
+            }
+        
+    gmsh::view::addModelData(EView.tag, int(t/simulation.simStep), EView.modelName, EView.dataType, \
+                        mainElement.elementTag, EView.data, t, 3);
+    gmsh::view::addModelData(HView.tag, int(t/simulation.simStep), HView.modelName, HView.dataType, \
+                        mainElement.elementTag, HView.data, t, 3);
+
+}
+
 void solver(const Element & mainElement, const Element & frontierElement, const PhysicalGroups & physicalGroups,\
-            View & mainView, Simulation & simulation){
+            View & EView, View & HView, Simulation & simulation){
 
     std::size_t i, j, k; // loop variables.
 
@@ -29,14 +53,7 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
     // Initializes the size of the useful quantities.
     numericalInitializer(mainElement, frontierElement, simulation, physicalGroups, u, flux, matProp, bcParam);
     
-    for (i = 0; i < u.node.size(); ++i)
-        mainView.data[i/(6 * mainElement.numNodes)][i % (6 * mainElement.numNodes)] = u.node[i];
-
-    std::cout << "Hello" << std::endl;
-
-    gmsh::view::addModelData(mainView.tag, int(t/simulation.simStep), mainView.modelName, mainView.dataType, \
-                                mainElement.elementTag, mainView.data, t, 6);
-
+    resultsDisp(mainElement, u, simulation, t, EView, HView);
 
     gmsh::logger::write("Simulation...");
 
@@ -46,15 +63,12 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
         
         computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t, u, flux, k1);
 
-        for (i = 0; i < u.node.size(); ++i)
-            mainView.data[i/(mainElement.numNodes * 6)][i % (mainElement.numNodes * 6)] = \
-                                                  u.node[i] += simulation.simStep * k1[i];
+        for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
-            gmsh::view::addModelData(mainView.tag, int(t/simulation.simStep) + 1, mainView.modelName, \
-                                    mainView.dataType, mainElement.elementTag, mainView.data, t, 6);
+            resultsDisp(mainElement, u, simulation, t, EView, HView);
 
-        if(!(int(t/simulation.simTime) % 20))
+        if(!(int(t/simulation.simTime) % 20) || t/simulation.simTime == 1)
             std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
 
     }
@@ -77,13 +91,10 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
         computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + simulation.simStep, uTmp,\
                      flux, k4);
 
-        for (i = 0; i < u.node.size(); ++i)
-            mainView.data[i/(mainElement.numNodes * 6)][i % (mainElement.numNodes * 6)] = \
-            u.node[i] += sixthInc * (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]);
+        for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 
-        if(!((stepNum + 1) % simulation.registration) || t == simulation.simTime - simulation.simStep)
-            gmsh::view::addModelData(mainView.tag, int(t/simulation.simStep) + 1, mainView.modelName,\
-                                    mainView.dataType, mainElement.elementTag, mainView.data, t, 6);
+        if(!((int(t/simulation.simStep) + 1) % simulation.registration))
+            resultsDisp(mainElement, u, simulation, t, EView, HView);
 
         if(!(stepNum % 20))
             std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
@@ -94,6 +105,7 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
 
     gmsh::logger::write("Done.");
     
-    gmsh::view::write(mainView.tag, "results.msh");
+    gmsh::view::write(EView.tag, "electricalField.msh");
+    gmsh::view::write(EView.tag, "magneticField.msh");
 
 }

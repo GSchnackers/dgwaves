@@ -15,6 +15,12 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
 
     gmsh::logger::write("Initializing the bc parameters...");
     bcParam.resize(6 * mainElement.nodeTags.size());
+    for(i = 0; i < bcParam.size(); ++i)
+    {
+        bcParam[i].param1 = 0;
+        bcParam[i].param2 = 0;
+        bcParam[i].param3 = 0;
+    }
     gmsh::logger::write("Done.");
 
     // Initialization of u, which contains the unknowns.
@@ -75,9 +81,9 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
     // Setting of the properties of the elements
     setProperties(mainElement, frontierElement, simulation, physicalGroups, matProp);
 
-    for(i = 0; i < mainElement.nodeTags.size(); ++i)
+    /* for(i = 0; i < mainElement.nodeTags.size(); ++i)
         std::cout << mainElement.nodeTags[i] << " " << matProp.relPermeability.node[i] << " " << matProp.relPermittivity.node[i] << " " << matProp.conductivity.node[i] << std::endl;
-
+ */
     // Setting of the boundary types.
     gmsh::logger::write("Setting the boundary condition type and the material properties...");
     setBoundaryCondition(frontierElement, mainElement, simulation, physicalGroups, u, bcParam);
