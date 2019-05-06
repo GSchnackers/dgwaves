@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 
     // The user has to choose the values he wants for coefF
     coefF[0] = 5; //example
-    coefF[1] = 0; //example
+    coefF[1] = 2.5; //example
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
         
         }
         // TEST M and M inverted
-        
+        /*
         for(std::size_t e = 0; e < numElements2D; e++){
             std::cout << "e " << std::to_string(e) << std::endl;
             for(std::size_t i = 0; i < numNodes2D; i++){
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
             }
             std::cout << "\n";
         }
-        
+        */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -564,7 +564,7 @@ int main(int argc, char **argv)
     }//fin de boucle sur i
 
     // TEST
-    
+    /*
     for(size_t i = 0; i < neighbours1D.size(); i++){
         std::cout << "neighbours1D[" << std::to_string(i) << "]  : " << std::to_string(neighbours1D[i]) << "\n";
     }
@@ -577,7 +577,7 @@ int main(int argc, char **argv)
     for(size_t i = 0; i < nodeTags2DPlusBC.size(); i++){
         std::cout << "nodeTags2DPlusBC[" << std::to_string(i) << "]  : " << std::to_string(nodeTags2DPlusBC[i]) << "\n";
     }
-    
+    */
 
     ////////////////////////////////////////////////////////////////////////////////////
     // association of the nodes of edgeNodes1DSorted with their indices in nodeTags2D //

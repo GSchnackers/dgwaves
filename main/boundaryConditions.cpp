@@ -10,6 +10,6 @@ void boundaryConditions(std::vector<double> & coord,double mytime, double & valu
 
     
     double T = 0.5; //période de l'onde
-    value = sin(2*M_PI*mytime/T);
+    value = 1 + sin(2*M_PI*mytime/T);
     
 }
