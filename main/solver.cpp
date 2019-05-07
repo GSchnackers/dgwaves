@@ -94,7 +94,7 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         }
 
         if(!(int(t/simulation.simTime) % 20) || t/simulation.simTime == 1)
-            std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
+            std::cout << "\33\rProgression: " << int(t/simulation.simTime * 100) << "%";
 
     }
 
@@ -128,7 +128,7 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         }
 
         if(!(stepNum % 20))
-            std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
+            std::cout << "\33\rProgression: " << int(t/simulation.simTime * 100) << "%";
         
     }
 
