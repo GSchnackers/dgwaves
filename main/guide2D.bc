@@ -1,0 +1,6 @@
+WALL1 Open
+WALL2 Open
+WALL3 PerfectCond
+WALL4 PerfectCond
+WALL5 PerfectCond
+WALL6 SinusoidalE 0 0 0 0 0 0 1 8 0
