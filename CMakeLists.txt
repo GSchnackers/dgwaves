@@ -62,12 +62,7 @@ IF(NOT GMSH_EXECUTABLE)
     MESSAGE(FATAL_ERROR "gmsh executable not found!")
 ENDIF()
 
-
-ADD_SUBDIRECTORY( srcs )
-
-ENABLE_TESTING()
-ADD_SUBDIRECTORY( tests )
-
-ADD_SUBDIRECTORY( sandbox )
-
-ADD_SUBDIRECTORY( main )
+FILE(GLOB SRCS "Meshing/*.cpp" "Parameters/*.cpp" "Solver/*.cpp" "main/*.cpp")
+SET(PROG_NAME main)
+ADD_EXECUTABLE(${PROG_NAME} ${SRCS})
+TARGET_LINK_LIBRARIES(${PROG_NAME} ${GMSH_LIBRARIES})

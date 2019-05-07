@@ -1,8 +1,10 @@
 #include <cstdio>
 #include <iostream>
 #include <gmsh.h>
-#include "functions.h"
-#include "structures.h"
+#include "meshing.hpp"
+#include "parameters.hpp"
+#include "solver.hpp"
+#include "structures.hpp"
 
 int main(int argc, char **argv)
 {
