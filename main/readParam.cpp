@@ -80,6 +80,12 @@ void readParam(std::string fileName, Simulation & simulation){
 
         else if(!(command.compare("PROP"))) std::getline(file, simulation.propFileName);
 
+        else if(!(command.compare("UNUM")))
+        { 
+            file >> simulation.uNum;
+            file.get();
+        }
+
         else
             gmsh::logger::write("Unrecognized parameter. Ignored.", "warning");
         

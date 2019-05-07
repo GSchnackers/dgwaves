@@ -3,20 +3,23 @@ d = 1; // useless if transfinite
 h = 3;
 l = 2;
 
+m1 = 0.3;
+m2 = 0.4;
+
 nx = 2;
-ny = 2;
+ny = 2*h/d;
 
 Point(301) = {0, 0, 0, d};
-Point(302) = {0.3*l, 0, 0, d};
-Point(303) = {0.4*l, 0, 0, d};
-Point(304) = {0.6*l, 0, 0, d};
-Point(305) = {0.7*l, 0, 0, d};
+Point(302) = {m1*l, 0, 0, d};
+Point(303) = {m2*l, 0, 0, d};
+Point(304) = {(1-m2)*l, 0, 0, d};
+Point(305) = {(1-m1)*l, 0, 0, d};
 Point(306) = {l, 0, 0, d};
 Point(307) = {l, h, 0, d};
-Point(308) = {0.7*l, h, 0, d};
-Point(309) = {0.6*l, h, 0, d};
-Point(310) = {0.4*l, h, 0, d};
-Point(311) = {0.3*l, h, 0, d};
+Point(308) = {(1-m1)*l, h, 0, d};
+Point(309) = {(1-m2)*l, h, 0, d};
+Point(310) = {m2*l, h, 0, d};
+Point(311) = {m1*l, h, 0, d};
 Point(312) = {0, h, 0, d};
 Line(401) = {301, 302};
 Line(402) = {302, 311};
@@ -61,10 +64,19 @@ Transfinite Surface {64};
 Transfinite Surface {65};
 
 // Physical curves taking into account the boundaries.
-Physical Curve("Sinusoidal1", 1) = {409};
-//Physical Curve("Constant1", 1) = {409};
-Physical Surface("Domain1") = {61, 65};
-Physical Surface("Domain2") = {62, 64};
-Physical Surface("Domain3") = {63};
-
-Mesh.SaveAll = 1;
+Physical Curve("WALL1") = {409};
+Physical Curve("WALL2") = {401};
+Physical Curve("WALL3") = {405};
+Physical Curve("WALL4") = {413};
+Physical Curve("WALL5") = {417};
+Physical Curve("WALL6") = {418};
+Physical Curve("WALL7") = {419};
+Physical Curve("WALL8") = {415};
+Physical Curve("WALL9") = {411};
+Physical Curve("WALL10") = {407};
+Physical Curve("WALL11") = {403};
+Physical Curve("WALL12") = {404};
+//Physical Curve("Constant1") = {409};
+Physical Surface("MATERIAL3") = {61, 65};
+Physical Surface("MATERIAL2") = {62, 64};
+Physical Surface("MATERIAL1") = {63};

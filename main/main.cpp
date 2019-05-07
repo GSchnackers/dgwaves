@@ -20,9 +20,6 @@ int main(int argc, char **argv)
 
     PhysicalGroups physicalGroups;
 
-    View EView; // View of the results.
-    View HView; // View of the results.
-
 
     Simulation simulation; // parameters of the simulation.
 
@@ -43,20 +40,41 @@ int main(int argc, char **argv)
 
     gmsh::model::list(modelNames);
 
-    EView.name = "EView";
-    EView.tag = gmsh::view::add(EView.name);
-    EView.dataType = "ElementNodeData";
+    if(simulation.uNum == 6)
+    {
+        View EView; // View of the results.
+        View HView; // View of the results.
 
-    HView.name = "HView";
-    HView.tag = gmsh::view::add(HView.name);
-    HView.dataType = "ElementNodeData";
-    
-    EView.modelName = HView.modelName = modelNames[0];
+        EView.name = "EView";
+        EView.tag = gmsh::view::add(EView.name);
+        EView.dataType = "ElementNodeData";
 
-    EView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
-    HView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
+        HView.name = "HView";
+        HView.tag = gmsh::view::add(HView.name);
+        HView.dataType = "ElementNodeData";
+        
+        EView.modelName = HView.modelName = modelNames[0];
 
-    solver(mainElement, frontierElement, physicalGroups, EView, HView, simulation); // Solving of the PDE with DG-FEM.
+        EView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
+        HView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
+
+        solver(mainElement, frontierElement, physicalGroups, EView, HView, simulation); // Solving of the PDE with DG-FEM.
+    }
+
+    else if(simulation.uNum == 1)
+    {
+        View view, bin; // View of the results.
+
+        view.name = "View";
+        view.tag = gmsh::view::add(view.name);
+        view.dataType = "ElementNodeData";
+        
+        view.modelName = modelNames[0];
+
+        view.data.resize(mainElement.elementTag.size(), std::vector<double>(mainElement.numNodes));
+
+        solver(mainElement, frontierElement, physicalGroups, view, bin, simulation); // Solving of the PDE with DG-FEM.
+    }
 
     gmsh::finalize(); // Closes gmsh
     return 0;

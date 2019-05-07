@@ -39,21 +39,21 @@ void normals(Element & frontierElement, Element & mainElement);
 void matrixMaker(Element & element, std::string matrixType);
 
 // Solver of the DG-FEM.
-void solver(const Element & mainElement, const Element & frontierElement, const PhysicalGroups & physicalGroups,\
-            View & EView, View & HView, Simulation & simulation);
+void solver(const Element & mainElement, Element & frontierElement, const PhysicalGroups & physicalGroups,\
+            View & view1, View & view2, Simulation & simulation);
 
 // Defines the size of the vectors of the different quantities in the program.
-void numericalInitializer(const Element & mainElement, const Element & frontierElement, \
-                          const Simulation & simulation, const PhysicalGroups & PhysicalGroups,\
+void numericalInitializer(const Element & mainElement, Element & frontierElement, \
+                          const Simulation & simulation, const PhysicalGroups & physicalGroups,\
                           Quantity & u, Quantity & flux, Properties & matProp, \
                           std::vector<Parameter> & bcParam);
 
 // Computes the values of any quantity at the gauss points from its value at the nodes.
-void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU);
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU, bool force = 0);
 
 // Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
-                Quantity & flux);
+                Quantity & flux, std::vector<double> c);
 
 // Physical flux for electromagnetism.
 void physFluxELM(const Quantity & u, const Element & frontierElement, const Element & mainElement,\
@@ -66,7 +66,7 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux);
 void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux);
 
 // This function set the specific type of boundary condition applied to the specific place of the frontier.
-void setBoundaryCondition(const Element & frontierElement, const Element & mainElement,\
+void setBoundaryCondition(Element & frontierElement, const Element & mainElement,\
                           const Simulation & simulation, const PhysicalGroups & physicalGroups, \
                           Quantity & u, std::vector<Parameter> & bcParam);
 
@@ -78,15 +78,15 @@ void setProperties(const Element & mainElement, const Element & frontierElement,
                    const PhysicalGroups & physicalGroups, Properties & matProp);
 
 // This function compute the product of the stiffness matrix and the physical flux vector at nodal values.
-void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod);
+void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod, int uNum);
 
 // Integration of the numerical flux on the frontier of each element for all shape functions.
 void numFluxIntegration(const Quantity & flux, const Element & mainElement, const Element & frontierElement,\
-                        std::vector<double> & fluxVector);
+                        std::vector<double> & fluxVector, int uNum);
 
 // On the basis of all computed quantities, computes a coefficient of Runge-Kutta.
 void timeMarching(const Element & mainElement, const std::vector<double> & SFProd, \
-                  const std::vector<double> & fluxVector, std::vector<double> & kVector);
+                  const std::vector<double> & fluxVector, std::vector<double> & kVector, int uNum);
 
 // Compute the coefficients of runge kutta.
 void computeCoeff(const Element & mainElement, const Element & frontierElement,\
@@ -100,7 +100,7 @@ void readParam(std::string fileName, Simulation & simulation);
 // Function that checks the values at each Gauss points, points of all quantities of the simulation.
 void timeChecker(const Element & mainElement, const Element & frontierElement,\
                  const Quantity & flux, const Quantity & u, const std::vector<double> & SFProd, \
-                 const std::vector<double> & fluxVector, const double t);
+                 const std::vector<double> & fluxVector, const double t, int numU);
 
 // Compare numeric solution with analytic solution
 void compare(Element & mainElement);

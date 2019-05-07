@@ -6,13 +6,28 @@
 #include "functions.h"
 #include "structures.h"
 
+void sinusoidalDisp(const Element & mainElement, const Quantity & u, const Simulation & simulation, double t, \
+                 View & view){
+
+    std::size_t i, j;
+
+    for(i = 0; i < mainElement.elementTag.size(); ++i)
+        for(j = 0; j < mainElement.numNodes; ++j)
+            view.data[i][j] = u.node[i * mainElement.numNodes + j];
+        
+        
+    gmsh::view::addModelData(view.tag, int(t/simulation.simStep), view.modelName, view.dataType, \
+                        mainElement.elementTag, view.data, t, 1);
+
+}
+
 // Functions that allows to display the results.
-void resultsDisp(const Element & mainElement, const Quantity & u, const Simulation & simulation, double t, \
+void ELMDisp(const Element & mainElement, const Quantity & u, const Simulation & simulation, double t, \
                  View & EView, View & HView){
 
     std::size_t i, j, k;
 
-    for (i = 0; i < mainElement.elementTag.size(); ++i)
+    for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
             for(k = 0; k < 3; ++k)
             {
@@ -30,8 +45,8 @@ void resultsDisp(const Element & mainElement, const Quantity & u, const Simulati
 
 }
 
-void solver(const Element & mainElement, const Element & frontierElement, const PhysicalGroups & physicalGroups,\
-            View & EView, View & HView, Simulation & simulation){
+void solver(const Element & mainElement, Element & frontierElement, const PhysicalGroups & physicalGroups,\
+            View & view1, View & view2, Simulation & simulation){
 
     std::size_t i, j, k; // loop variables.
 
@@ -45,15 +60,19 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
     Properties matProp; // Properties of the material all over the domain.
     std::vector<Parameter> bcParam; // Parameters associated to the boundary conditions.
 
-    std::vector<double> k1(6 * mainElement.nodeTags.size(), 0);
-    std::vector<double> k2(6 * mainElement.nodeTags.size(), 0);
-    std::vector<double> k3(6 * mainElement.nodeTags.size(), 0);
-    std::vector<double> k4(6 * mainElement.nodeTags.size(), 0);
+    std::vector<double> k1(simulation.uNum * mainElement.nodeTags.size(), 0);
+    std::vector<double> k2(simulation.uNum * mainElement.nodeTags.size(), 0);
+    std::vector<double> k3(simulation.uNum * mainElement.nodeTags.size(), 0);
+    std::vector<double> k4(simulation.uNum * mainElement.nodeTags.size(), 0);
 
     // Initializes the size of the useful quantities.
     numericalInitializer(mainElement, frontierElement, simulation, physicalGroups, u, flux, matProp, bcParam);
     
-    resultsDisp(mainElement, u, simulation, t, EView, HView);
+    if(simulation.uNum == 6)
+        ELMDisp(mainElement, u, simulation, t, view1, view2);
+
+    else if(simulation.uNum == 1)
+        sinusoidalDisp(mainElement, u, simulation, t, view1);
 
     gmsh::logger::write("Simulation...");
 
@@ -66,10 +85,16 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
         for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
-            resultsDisp(mainElement, u, simulation, t, EView, HView);
+        {
+            if(simulation.uNum == 6)
+                ELMDisp(mainElement, u, simulation, t, view1, view2);
+
+            else if(simulation.uNum == 1)
+                sinusoidalDisp(mainElement, u, simulation, t, view1);
+        }
 
         if(!(int(t/simulation.simTime) % 20) || t/simulation.simTime == 1)
-            std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
+            std::cout << "\33\rProgression: " << int(t/simulation.simTime * 100) << "%";
 
     }
 
@@ -94,10 +119,16 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
         for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
-            resultsDisp(mainElement, u, simulation, t, EView, HView);
+        {
+            if(simulation.uNum == 6)
+                ELMDisp(mainElement, u, simulation, t, view1, view2);
+
+            else if(simulation.uNum == 1)
+                sinusoidalDisp(mainElement, u, simulation, t, view1);
+        }
 
         if(!(stepNum % 20))
-            std::cout << "\33\rProgression: " << t/simulation.simTime * 100 << "%";
+            std::cout << "\33\rProgression: " << int(t/simulation.simTime * 100) << "%";
         
     }
 
@@ -105,7 +136,9 @@ void solver(const Element & mainElement, const Element & frontierElement, const 
 
     gmsh::logger::write("Done.");
     
-    gmsh::view::write(EView.tag, "electricalField.msh");
-    gmsh::view::write(EView.tag, "magneticField.msh");
+    gmsh::view::write(view1.tag, "electricalField.msh");
+
+    if(simulation.uNum == 6)
+        gmsh::view::write(view2.tag, "magneticField.msh");
 
 }

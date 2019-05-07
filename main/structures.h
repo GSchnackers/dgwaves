@@ -119,6 +119,7 @@ struct Simulation{
     double L; // Reference length.
     std::string boundFileName; // name of the bc file.
     std::string propFileName; // name of the property file.
+    int uNum;
 
 };
 

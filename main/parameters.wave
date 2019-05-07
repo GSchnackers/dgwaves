@@ -1,4 +1,4 @@
-SIMTIME 0.5
+SIMTIME 10
 SIMSTEP 0.001
 REGISTRATION 1
 SOLVER 0
@@ -9,3 +9,4 @@ E0 1
 L 1
 BC ..\main\parameters.bc
 PROP ..\main\parameters.prop
+UNUM 6
