@@ -19,27 +19,27 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
             for(k = 0; k < frontierElement.numNodes; ++k) // loop over the nodes
                 for(l = 0; l < numU; ++l)
                 {
-                    int gpIndex = i * frontierElement.numGp * numU + j * numU + l;
+                    int gpIndex    = i * frontierElement.numGp * numU + j * numU + l;
                     int shapeIndex = j * frontierElement.numNodes + k;
     
                     int frontNodeIndex = i * frontierElement.numNodes + k;
 
                     int mainNodeIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes * numU + \
-                                        frontierElement.nodeCorrespondance[frontNodeIndex].first * numU + l;
+                                         frontierElement.nodeCorrespondance[frontNodeIndex].first * numU + l;
 
                     int mainNodeIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes * numU + \
-                                        frontierElement.nodeCorrespondance[frontNodeIndex].second * numU + l;
+                                         frontierElement.nodeCorrespondance[frontNodeIndex].second * numU + l;
                     
 
                     u.gp[gpIndex].first += u.node[mainNodeIndex1] * \
-                                            frontierElement.shapeFunctionsParam[shapeIndex];
+                                           frontierElement.shapeFunctionsParam[shapeIndex];
                     
 
                     if(frontierElement.neighbours[i].second >= 0)
                         u.gp[gpIndex].second += u.node[mainNodeIndex2] * \
-                                            frontierElement.shapeFunctionsParam[shapeIndex];
+                                                frontierElement.shapeFunctionsParam[shapeIndex];
                     
-                    else
+                    else if(frontierElement.neighbours[i].second < -1)
                         u.gp[gpIndex].second += u.bound[mainNodeIndex1] * \
                                                 frontierElement.shapeFunctionsParam[shapeIndex];
                     

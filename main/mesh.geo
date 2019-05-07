@@ -23,7 +23,7 @@ Transfinite Curve {43, 41} = nx+1 Using Progression 1;
 Transfinite Surface {61};
 
 // Physical curves taking into account the boundaries.
-Physical Curve("SinusoidalELM", 1) = {44};
+Physical Curve("WALL1", 1) = {44};
 //Physical Curve("Constant1", 1) = {44};
 Physical Surface("MATERIAL1") = {61};
 

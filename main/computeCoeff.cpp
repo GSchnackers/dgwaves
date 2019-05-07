@@ -16,18 +16,32 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement,\
                   const Properties & matProp, const double t, Quantity & u, Quantity & flux, \
                   std::vector<double> & k){
 
-    std::vector<double> SFProd(6 * mainElement.nodeTags.size(), 0);
-    std::vector<double> fluxVector(6 * mainElement.nodeTags.size(), 0);
+    std::vector<double> SFProd(simulation.uNum * mainElement.nodeTags.size(), 0);
+    std::vector<double> fluxVector(simulation.uNum * mainElement.nodeTags.size(), 0);
 
     computeBoundaryCondition(u, t, bcParam);
-    valGp(u, mainElement, frontierElement, 6);
-    physFluxELM(u, frontierElement, mainElement, matProp, flux);
-    numFluxELM(frontierElement, simulation.alpha, u, flux);
-    stiffnessFluxProd(mainElement, flux, SFProd);
-    numFluxIntegration(flux, mainElement, frontierElement, fluxVector);
-    timeMarching(mainElement, SFProd, fluxVector, k);
+    valGp(u, mainElement, frontierElement, simulation.uNum);
 
-    if(simulation.debug) timeChecker(mainElement, frontierElement, flux, u, SFProd, fluxVector, t);
+    if(simulation.uNum == 6)
+    {
+        physFluxELM(u, frontierElement, mainElement, matProp, flux);
+        numFluxELM(frontierElement, simulation.alpha, u, flux);
+    }
+
+    else if(simulation.uNum == 1)
+    {
+        std::vector<double> c = {1 , 0 , 0};
+        physFluxCu(u, mainElement, frontierElement, flux, c);
+        numFluxUpwind(frontierElement, flux);
+    }
+
+    stiffnessFluxProd(mainElement, flux, SFProd, simulation.uNum);
+    std::cout << "Hello" << std::endl;
+    numFluxIntegration(flux, mainElement, frontierElement, fluxVector, simulation.uNum);
+    timeMarching(mainElement, SFProd, fluxVector, k, simulation.uNum);
+    std::cout << "hello" << std::endl;
+
+    if(simulation.debug) timeChecker(mainElement, frontierElement, flux, u, SFProd, fluxVector, t, simulation.uNum);
         
 
 }

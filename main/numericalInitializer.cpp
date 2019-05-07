@@ -4,7 +4,7 @@
 #include "functions.h"
 #include "structures.h"
 
-void numericalInitializer(const Element & mainElement, const Element & frontierElement, \
+void numericalInitializer(const Element & mainElement, Element & frontierElement, \
                           const Simulation & simulation, const PhysicalGroups & physicalGroups,\
                           Quantity & u, Quantity & flux, Properties & matProp, \
                           std::vector<Parameter> & bcParam){
@@ -14,7 +14,7 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
     double vacuumImp = std::sqrt(VACUUM_PERMEA/VACUUM_PERMIT);
 
     gmsh::logger::write("Initializing the bc parameters...");
-    bcParam.resize(6 * mainElement.nodeTags.size());
+    bcParam.resize(simulation.uNum * mainElement.nodeTags.size());
     for(i = 0; i < bcParam.size(); ++i)
     {
         bcParam[i].param1 = 0;
@@ -25,16 +25,16 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
 
     // Initialization of u, which contains the unknowns.
     gmsh::logger::write("Initializing the quantity u...");
-    u.node.resize(6 * mainElement.nodeTags.size(), 0);
-    u.gp.resize(6 * frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
-    u.bound.resize(6 * mainElement.nodeTags.size(), 0);
-    u.boundSign.resize(6 * mainElement.nodeTags.size(), 0);
+    u.node.resize(simulation.uNum * mainElement.nodeTags.size(), 0);
+    u.gp.resize(simulation.uNum * frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
+    u.bound.resize(simulation.uNum * mainElement.nodeTags.size(), 0);
+    u.boundSign.resize(simulation.uNum * mainElement.nodeTags.size(), 0);
     gmsh::logger::write("Done.");
 
 
     gmsh::logger::write("Initializing the quantity flux...");
-    flux.node.resize(18 * mainElement.nodeTags.size(), 0);
-    flux.gp.resize(18 * frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
+    flux.node.resize(3 * simulation.uNum * mainElement.nodeTags.size(), 0);
+    flux.gp.resize(3 * simulation.uNum * frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
     flux.direction.resize(flux.gp.size(), 0);
     flux.num.resize(flux.gp.size(), 0);
     gmsh::logger::write("Done.");
@@ -81,17 +81,13 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
     // Setting of the properties of the elements
     setProperties(mainElement, frontierElement, simulation, physicalGroups, matProp);
 
-    /* for(i = 0; i < mainElement.nodeTags.size(); ++i)
-        std::cout << mainElement.nodeTags[i] << " " << matProp.relPermeability.node[i] << " " << matProp.relPermittivity.node[i] << " " << matProp.conductivity.node[i] << std::endl;
- */
+    
     // Setting of the boundary types.
     gmsh::logger::write("Setting the boundary condition type and the material properties...");
     setBoundaryCondition(frontierElement, mainElement, simulation, physicalGroups, u, bcParam);
     gmsh::logger::write("Done.");
 
-    /* for(i = 0; i < bcParam.size(); ++i)
-        std::cout << bcParam[i].param1 << " " << bcParam[i].param2 << " " << bcParam[i].param3 << " " << std::endl;
- */
+    
     // Compute the value of the material properties at the Gauss points.
     gmsh::logger::write("Computing the relative permeability at the Gauss points.");
     valGp(matProp.relPermeability, mainElement, frontierElement, 1);
@@ -99,13 +95,6 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
     gmsh::logger::write("Computing the relative permittivity at the Gauss points.");
     valGp(matProp.relPermittivity, mainElement, frontierElement, 1);
     gmsh::logger::write("Done.");
-
-    /* for(i = 0; i < frontierElement.elementTag.size() * frontierElement.numGp; ++i)
-    {
-        std::cout << matProp.relPermeability.gp[i].first << " " << matProp.relPermeability.gp[i].second << std::endl;
-        std::cout << matProp.relPermittivity.gp[i].first << " " << matProp.relPermittivity.gp[i].second << std::endl;
-        std::cout << std::endl;
-    } */
 
     // Computes the adimensionnal coefficients.
     gmsh::logger::write("Setting the adimensionnal numbers, the impedance and conductances at the Gauss points\
@@ -127,14 +116,6 @@ void numericalInitializer(const Element & mainElement, const Element & frontierE
     valGp(matProp.impedance, mainElement, frontierElement, 1);
     valGp(matProp.conductance, mainElement, frontierElement, 1);
     valGp(matProp.eta, mainElement, frontierElement, 1);
-
-    /* for(i = 0; i < frontierElement.elementTag.size() * frontierElement.numGp; ++i)
-    {
-        std::cout << matProp.impedance.gp[i].first << " " << matProp.impedance.gp[i].second << std::endl;
-        std::cout << matProp.conductance.gp[i].first << " " << matProp.conductance.gp[i].second << std::endl;
-        std::cout << matProp.eta.gp[i].first << " " << matProp.eta.gp[i].second << std::endl;
-        std::cout << std::endl;
-    } */
 
     gmsh::logger::write("Done");
 

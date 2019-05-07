@@ -5,7 +5,7 @@
 #include "structures.h"
 
 // This function computes the product of the stiffness matrices and the physical flux vector at nodal values.
-void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod){
+void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::vector<double> & prod, int uNum){
 
     std::size_t i, j, k, l;
 
@@ -26,11 +26,11 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
             {
                 int stiffIndex = i * mainElement.numNodes * mainElement.numNodes + j * mainElement.numNodes + k;
 
-                for(l = 0; l < 6; ++l)
+                for(l = 0; l < uNum; ++l)
                 {
-                    int prodIndex = i * mainElement.numNodes * 6 + j * 6 + l;
+                    int prodIndex = i * mainElement.numNodes * uNum + j * uNum + l;
 
-                    int vecIndex = i * mainElement.numNodes * 6 + k * 6 + l;
+                    int vecIndex = i * mainElement.numNodes * uNum + k * uNum + l;
 
                     prod[prodIndex] += mainElement.stiffnessMatrixX[stiffIndex] * fx[vecIndex] + \
                                        mainElement.stiffnessMatrixY[stiffIndex] * fy[vecIndex] + \

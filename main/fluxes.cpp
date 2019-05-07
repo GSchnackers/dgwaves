@@ -8,10 +8,9 @@
 
 // Simple flux where vec(f) = vec(c)u, where c is a constant vector representing a velocity. 
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
-                Quantity & flux){
+                Quantity & flux, std::vector<double> c){
 
     std::size_t i;
-    std::vector<double> c = {1 , 0 , 0};
 
     for(i = 0; i < flux.node.size(); ++i) // loop over the nodes of the main elements.
         flux.node[i] = c[i % 3] * u.node[i/3];
@@ -230,7 +229,7 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
 // This function implements the lax-friedrichs flux for electromagnetic equations.
 void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux){
 
-    std::size_t i, j, k, l;
+    std::size_t i;
 
     if(alpha > 1 || alpha < 0)
     {
