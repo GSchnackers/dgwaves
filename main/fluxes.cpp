@@ -229,7 +229,7 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
 // This function implements the lax-friedrichs flux for electromagnetic equations.
 void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux){
 
-    std::size_t i;
+    std::size_t i, j, k, l;
 
     if(alpha > 1 || alpha < 0)
     {
@@ -237,9 +237,22 @@ void numFluxELM(const Element & frontierElement, const double alpha, Quantity & 
         exit(-1);
     }
 
-    for(i = 0; i < flux.num.size(); ++i)
-        flux.num[i] = 0.5 * (flux.gp[i].first + flux.gp[i].second + \
-                      alpha * (u.gp[i/3].first - u.gp[i/3].second) * frontierElement.normals[i/18 + (i % 3)]);
+    for(i = 0; i < frontierElement.elementTag.size(); ++i)
+        for(j = 0; j < frontierElement.numGp; ++j)
+            for(k = 0; k < 6; ++k)
+            {
+                int gaussIndex = i * frontierElement.numGp * 6 + j * 6 + k;
+
+                for(l = 0; l < 3; ++l)
+                {
+                    int fluxIndex = i * frontierElement.numGp * 6 * 3 + j * 6 * 3 + k * 3 + l;
+                    int normIndex = i * frontierElement.numGp * 3 + j * 3 + l;
+
+                    flux.num[fluxIndex] = 0.5 * (flux.gp[fluxIndex].first + flux.gp[fluxIndex].second + \
+                                          alpha * (u.gp[gaussIndex].first - u.gp[gaussIndex].second) * \
+                                          frontierElement.normals[normIndex]);
+                }
+            }
 
 
 }
