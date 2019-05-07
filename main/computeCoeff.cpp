@@ -36,10 +36,8 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement,\
     }
 
     stiffnessFluxProd(mainElement, flux, SFProd, simulation.uNum);
-    std::cout << "Hello" << std::endl;
     numFluxIntegration(flux, mainElement, frontierElement, fluxVector, simulation.uNum);
     timeMarching(mainElement, SFProd, fluxVector, k, simulation.uNum);
-    std::cout << "hello" << std::endl;
 
     if(simulation.debug) timeChecker(mainElement, frontierElement, flux, u, SFProd, fluxVector, t, simulation.uNum);
         

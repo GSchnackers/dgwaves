@@ -3,10 +3,10 @@ SIMSTEP 0.001
 REGISTRATION 1
 SOLVER 0
 GAUSS Gauss4
-DEBUG 1
+DEBUG 0
 ALPHA 1
 E0 1
 L 1
 BC ..\main\parameters.bc
 PROP ..\main\parameters.prop
-UNUM 1
+UNUM 6

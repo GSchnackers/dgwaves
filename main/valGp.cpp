@@ -8,7 +8,7 @@
 #include "functions.h"
 #include "structures.h"
 
-void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU){
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU, bool force){
 
     std::size_t i, j, k, l;
 
@@ -39,7 +39,7 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
                         u.gp[gpIndex].second += u.node[mainNodeIndex2] * \
                                                 frontierElement.shapeFunctionsParam[shapeIndex];
                     
-                    else if(frontierElement.neighbours[i].second < -1)
+                    else if(frontierElement.neighbours[i].second < -1 || force)
                         u.gp[gpIndex].second += u.bound[mainNodeIndex1] * \
                                                 frontierElement.shapeFunctionsParam[shapeIndex];
                     

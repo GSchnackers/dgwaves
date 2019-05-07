@@ -49,7 +49,7 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
                           std::vector<Parameter> & bcParam);
 
 // Computes the values of any quantity at the gauss points from its value at the nodes.
-void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU);
+void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU, bool force = 0);
 
 // Functions that computes the simple physical flux cu on an element at the nodes and the gauss points.
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\

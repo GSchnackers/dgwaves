@@ -90,11 +90,16 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     
     // Compute the value of the material properties at the Gauss points.
     gmsh::logger::write("Computing the relative permeability at the Gauss points.");
-    valGp(matProp.relPermeability, mainElement, frontierElement, 1);
+    valGp(matProp.relPermeability, mainElement, frontierElement, 1, true);
     gmsh::logger::write("Done.");
     gmsh::logger::write("Computing the relative permittivity at the Gauss points.");
-    valGp(matProp.relPermittivity, mainElement, frontierElement, 1);
+    valGp(matProp.relPermittivity, mainElement, frontierElement, 1, true);
     gmsh::logger::write("Done.");
+
+    for(i = 0; i < matProp.relPermeability.gp.size(); ++i)
+    {
+        std::cout << matProp.relPermeability.gp[i].first << " " << matProp.relPermeability.gp[i].second << std::endl;
+    }
 
     // Computes the adimensionnal coefficients.
     gmsh::logger::write("Setting the adimensionnal numbers, the impedance and conductances at the Gauss points\
@@ -113,9 +118,9 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     }
 
     // Value at the Gauss points of the various quantities.
-    valGp(matProp.impedance, mainElement, frontierElement, 1);
-    valGp(matProp.conductance, mainElement, frontierElement, 1);
-    valGp(matProp.eta, mainElement, frontierElement, 1);
+    valGp(matProp.impedance, mainElement, frontierElement, 1, true);
+    valGp(matProp.conductance, mainElement, frontierElement, 1, true);
+    valGp(matProp.eta, mainElement, frontierElement, 1, true);
 
     gmsh::logger::write("Done");
 

@@ -37,7 +37,7 @@ void timeChecker(const Element & mainElement, const Element & frontierElement,\
     // Value of the nodal flux verifier.
     std::cout << "Physical nodal flux verifier at t = " << t << std::endl;
     for(i = 0; i < flux.node.size(); ++i)
-        std::cout << "Element: " << mainElement.elementTag[i/(3 * numU * mainElement.numNodes)] << " Node: " << mainElement.nodeTags[(i/3 * numU)] << " Value: " << flux.node[i] << std::endl;
+        std::cout << "Element: " << mainElement.elementTag[i/(3 * numU * mainElement.numNodes)] << " Node: " << mainElement.nodeTags[i/(3 * numU)] << " Value: " << flux.node[i] << std::endl;
     std::cout << std::endl;
 
     std::cout << "Physical flux at the Gauss points verifier at t = " << t << std::endl;
