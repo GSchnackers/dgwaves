@@ -102,11 +102,6 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     valGp(matProp.relPermittivity, mainElement, frontierElement, 1, true);
     gmsh::logger::write("Done.");
 
-    for(i = 0; i < matProp.relPermeability.gp.size(); ++i)
-    {
-        std::cout << matProp.relPermeability.gp[i].first << " " << matProp.relPermeability.gp[i].second << std::endl;
-    }
-
     // Computes the adimensionnal coefficients.
     gmsh::logger::write("Setting the adimensionnal numbers, the impedance and conductances at the Gauss points\
                          and at the nodes...");
