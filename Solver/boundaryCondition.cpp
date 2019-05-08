@@ -109,11 +109,11 @@ void boundAssign(Element & frontierElement, const Element & mainElement, const s
                                                         frontierElement.nodeCorrespondance[nodeIndex].first * 6 +\
                                                         m;
 
-                                        u.boundSign[uIndex] = -4;
+                                        u.boundSign[uIndex] = -1;
                                     }
 
                                 boundFile.get();
-                                frontierElement.neighbours[k].second = -4;
+                                frontierElement.neighbours[k].second = -1;
                             }
 
                             else if(boundName.find("Sine") != std::string::npos)

@@ -88,30 +88,39 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
     {
         int fluxIndex = 3 * i;
         int propIndex = i/6;
+        bool neigh = false;
 
+        if(frontierElement.neighbours[i/(6*frontierElement.numGp)].second == -1) neigh = true;
+    
         switch (i % 6)
         {
             case 0: // Ex flux
 
-                flux.gp[fluxIndex].first = flux.gp[fluxIndex].second = 0;
-
+                flux.gp[fluxIndex].first = 0;
                 flux.gp[fluxIndex + 1].first = u.gp[i + 5].first;
                 flux.gp[fluxIndex + 2].first = -u.gp[i + 4].first;
                 
-                flux.gp[fluxIndex + 1].second = u.gp[i + 5].second;
-                flux.gp[fluxIndex + 2].second = -u.gp[i + 4].second;
+                if(!neigh)
+                {
+                    flux.gp[fluxIndex].second = 0;
+                    flux.gp[fluxIndex + 1].second = u.gp[i + 5].second;
+                    flux.gp[fluxIndex + 2].second = -u.gp[i + 4].second;
+                }
 
                 break;
 
             case 1: // Ey flux
 
-                flux.gp[fluxIndex + 1].first = flux.gp[fluxIndex + 1].second = 0;;
-
                 flux.gp[fluxIndex].first = -u.gp[i + 4].first;
+                flux.gp[fluxIndex + 1].first = 0;
                 flux.gp[fluxIndex + 2].first = u.gp[i + 2].first;
 
-                flux.gp[fluxIndex].second = -u.gp[i + 4].second;
-                flux.gp[fluxIndex + 2].second = u.gp[i + 2].second;
+                if(!neigh)
+                {
+                    flux.gp[fluxIndex].second = -u.gp[i + 4].second;
+                    flux.gp[fluxIndex + 1].second = 0;
+                    flux.gp[fluxIndex + 2].second = u.gp[i + 2].second;
+                }
 
                 break;
 
@@ -122,8 +131,11 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
                 flux.gp[fluxIndex].first = u.gp[i + 2].first;
                 flux.gp[fluxIndex + 1].first = -u.gp[i + 1].first;
 
-                flux.gp[fluxIndex].second = u.gp[i + 2].second;
-                flux.gp[fluxIndex + 1].second = -u.gp[i + 1].second;
+                if(!neigh)
+                {
+                    flux.gp[fluxIndex].second = u.gp[i + 2].second;
+                    flux.gp[fluxIndex + 1].second = -u.gp[i + 1].second;
+                }
                 
 
                 break;
@@ -135,8 +147,11 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
                 flux.gp[fluxIndex + 1].first = u.gp[i - 1].first;
                 flux.gp[fluxIndex + 2].first = -u.gp[i - 2].first;
 
-                flux.gp[fluxIndex + 1].second = u.gp[i - 1].second;
-                flux.gp[fluxIndex + 2].second = -u.gp[i - 2].second;
+                if(!neigh)
+                {
+                    flux.gp[fluxIndex + 1].second = u.gp[i - 1].second;
+                    flux.gp[fluxIndex + 2].second = -u.gp[i - 2].second;
+                }
 
                 break;
 
@@ -147,8 +162,11 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
                 flux.gp[fluxIndex].first = -u.gp[i - 2].first;
                 flux.gp[fluxIndex + 2].first = u.gp[i - 4].first;
 
-                flux.gp[fluxIndex].second = -u.gp[i - 2].second;
-                flux.gp[fluxIndex + 2].second = u.gp[i - 4].second;
+                if(!neigh)
+                {
+                    flux.gp[fluxIndex].second = -u.gp[i - 2].second;
+                    flux.gp[fluxIndex + 2].second = u.gp[i - 4].second;
+                }
 
                 break;
 
@@ -159,8 +177,11 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
                 flux.gp[fluxIndex].first = u.gp[i - 4].first;
                 flux.gp[fluxIndex + 1].first = -u.gp[i - 5].first;
 
-                flux.gp[fluxIndex].second = u.gp[i - 4].second;
-                flux.gp[fluxIndex + 1].second = -u.gp[i - 5].second;
+                if(!neigh)
+                {
+                    flux.gp[fluxIndex].second = u.gp[i - 4].second;
+                    flux.gp[fluxIndex + 1].second = -u.gp[i - 5].second;
+                }
 
                 break;
         
@@ -170,14 +191,24 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
             for(j = 0; j < 3; ++j)
             {
                 flux.gp[fluxIndex + j].first *= -1/matProp.relPermittivity.gp[propIndex].first;
-                flux.gp[fluxIndex + j].second *= -1/matProp.relPermittivity.gp[propIndex].second;
+                if(!neigh)
+                    flux.gp[fluxIndex + j].second *= -1/matProp.relPermittivity.gp[propIndex].second;
             }
         else
             for(j = 0; j < 3; ++j)
             {
                 flux.gp[fluxIndex + j].first *= 1/matProp.relPermeability.gp[propIndex].first;
-                flux.gp[fluxIndex + j].second *= 1/matProp.relPermeability.gp[propIndex].second;
+                if(!neigh)
+                    flux.gp[fluxIndex + j].second *= 1/matProp.relPermeability.gp[propIndex].second;
             }
+
+        if(neigh)
+        {
+            flux.gp[fluxIndex].second = flux.gp[fluxIndex].first;
+            flux.gp[fluxIndex + 1].second = flux.gp[fluxIndex].first;
+            flux.gp[fluxIndex + 2].second = flux.gp[fluxIndex].first;
+        }
+        
 
     }
 
