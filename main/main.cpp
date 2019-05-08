@@ -1,58 +1,38 @@
 #include <cstdio>
 #include <iostream>
 #include <gmsh.h>
-#include "functions.h"
-
-// [DOC from gmsh.h]
-// A geometrical entity in the Gmsh API is represented by two integers: its
-// dimension (dim = 0, 1, 2 or 3) and its tag (its unique, strictly positive
-// identifier). When dealing with multiple geometrical entities of possibly
-// different dimensions, the entities are packed as a vector of (dim, tag)
-// integer pairs.
-// typedef std::vector<std::pair<int, int> > vectorpair;
-
-// [RB] note that entities of different dimensions can share the same tag
-//      (although the pair (dim,tag) should be unique)
+#include "meshing.hpp"
+#include "parameters.hpp"
+#include "solver.hpp"
+#include "structures.hpp"
 
 int main(int argc, char **argv)
 {
+
     if (argc < 2)
     {
         std::cout << "Usage: " << argv[0] << " file.msh [options]" << std::endl;
-        return 0;
+        return -1;
     }
 
-    // [DOC from gmsh.h]
-    // Initialize Gmsh. This must be called before any call to the other functions in
-    // the API. If `argc' and `argv' (or just `argv' in Python or Julia) are
-    // provided, they will be handled in the same way as the command line arguments
-    // in the Gmsh app. If `readConfigFiles' is set, read system Gmsh configuration
-    // files (gmshrc and gmsh-options).
-    // GMSH_API void initialize(int argc = 0, char ** argv = 0,
-    //                          const bool readConfigFiles = true);
-    gmsh::initialize(argc, argv);
+    std::vector<std::string> modelNames; // string that contains the name of the models.
+    
+    Element mainElement; // The main elements of the mesh.
+    Element frontierElement; // The frontier elements of the mesh.
+
+    PhysicalGroups physicalGroups;
+
+
+    Simulation simulation; // parameters of the simulation.
+
+    int meshDim; // dimension of the mesh.
+
+    gmsh::initialize(argc, argv); // Initialization of gmsh library.
     gmsh::option::setNumber("General.Terminal", 1); // enables "gmsh::logger::write(...)"
-    gmsh::open(argv[1]);                            // reads the msh file
+    gmsh::option::setNumber("Mesh.SaveAll", 1);
+    gmsh::open(argv[1]); // reads the msh file
 
-    // explore the mesh: what type of 2D elements do we have?
-
-    // [DOC from gmsh.h]
-    // Get the types of elements in the entity of dimension `dim' and tag `tag'.
-    // If `tag' < 0, get the types for all entities of dimension `dim'. If `dim'
-    // and `tag' are negative, get all the types in the mesh.
-    // GMSH_API void getElementTypes(std::vector<int> & elementTypes,
-    //                               const int dim = -1,
-    //                               const int tag = -1);
-    std::vector<int> eleTypes;
-    gmsh::model::mesh::getElementTypes(eleTypes, 2);
-    if (eleTypes.size() != 1)
-    {
-        gmsh::logger::write("Hybrid meshes not handled in this example!",
-                            "error");
-        // [RB] I guess that "getElementEdgeNodes" is not implemented for hybrid meshes.
-        return 1;
-    }
-
+<<<<<<< HEAD
     // get all the properties (name, order, etc) related to this type of element
 
     // [DOC from gmsh.h]
@@ -185,71 +165,54 @@ int main(int argc, char **argv)
         // eliminating duplicates a second tag can be associated for internal edges,
         // allowing to keep track of neighbors
     }
+=======
+    gmsh::logger::write("Simulation parameter loading...");
+    readParam(argv[2], simulation);
+    gmsh::logger::write("Done.");
 
-    //gmsh::write("edges.msh");
+    // Gets the dimension of the geometric model, which is the dimension of the mesh.
 
-    std::vector<double> intpts, bf;
-    int numComp;
-    gmsh::model::mesh::getBasisFunctions(eleType2D, "Gauss4", "IsoParametric",
-                                         intpts, numComp, bf);
-    gmsh::model::getEntities(entities, 2);
-    std::vector<int> elementTags, nodeTags;
-    std::vector<double> jac, det, pts;
-    for (std::size_t i = 0; i < entities.size(); i++)
+    meshLoader(mainElement, frontierElement, simulation.gaussType, physicalGroups, gmsh::model::getDimension()); // Initialization of all quantities required.
+>>>>>>> nico1
+
+    gmsh::model::list(modelNames);
+
+    if(simulation.uNum == 6)
     {
-        int s = entities[i].second;
-        gmsh::model::mesh::getElementsByType(eleType2D, elementTags, nodeTags, s);
-        gmsh::model::mesh::getJacobians(eleType2D, "Gauss4", jac, det, pts, s);
+        View EView; // View of the results.
+        View HView; // View of the results.
+
+        EView.name = "EView";
+        EView.tag = gmsh::view::add(EView.name);
+        EView.dataType = "ElementNodeData";
+
+        HView.name = "HView";
+        HView.tag = gmsh::view::add(HView.name);
+        HView.dataType = "ElementNodeData";
+        
+        EView.modelName = HView.modelName = modelNames[0];
+
+        EView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
+        HView.data.resize(mainElement.elementTag.size(), std::vector<double>(3 * mainElement.numNodes));
+
+        solver(mainElement, frontierElement, physicalGroups, EView, HView, simulation); // Solving of the PDE with DG-FEM.
     }
 
-    std::vector<double> functionM;
-    int numElements = elementTags.size();
-    int numGaussPoints = intpts.size()/4;
-
-    for(std::size_t e = 0; e < numElements; e++)
-        for(std::size_t i = 0; i < numNodes; i++)
-            for(std::size_t j = 0; j < numNodes; j++)
-            {
-                for(std::size_t g = 0; g < numGaussPoints; g++)
-                    functionM.push_back(bf[numNodes*g + i] * bf[numNodes*g + j]);
-            }
-    
-    std::vector<double> matrixM;
-    gaussIntegration(intpts, functionM, det, matrixM, numElements, numGaussPoints, numNodes);
-
-    // iterate over all 1D elements and get integration information
-    gmsh::model::mesh::getElementTypes(eleTypes, 1);
-
-    // [DOC from gmsh.h]
-    // Get the basis functions of the element of type `elementType' for the given
-    // `integrationType' integration rule (e.g. "Gauss4") and `functionSpaceType'
-    // function space (e.g. "IsoParametric"). `integrationPoints' contains the
-    // parametric coordinates u, v, w and the weight q for each integeration
-    // point, concatenated: [g1u, g1v, g1w, g1q, g2u, ...]. `numComponents'
-    // returns the number C of components of a basis function. `basisFunctions'
-    // contains the evaluation of the basis functions at the integration points:
-    // [g1f1, ..., g1fC, g2f1, ...].
-    // GMSH_API void getBasisFunctions(const int elementType,
-    //                                 const std::string & integrationType,
-    //                                 const std::string & functionSpaceType,
-    //                                 std::vector<double> & integrationPoints,
-    //                                 int & numComponents,
-    //                                 std::vector<double> & basisFunctions);
-    int eleType1D = eleTypes[0];
-    gmsh::model::mesh::getBasisFunctions(eleType1D, "Gauss3", "IsoParametric",
-                                         intpts, numComp, bf);
-    gmsh::model::getEntities(entities, 1);
-    for (std::size_t i = 0; i < entities.size(); i++)
+    else if(simulation.uNum == 1)
     {
-        int c = entities[i].second;
-        std::vector<int> elementTags, nodeTags;
-        gmsh::model::mesh::getElementsByType(eleType1D, elementTags, nodeTags, c);
-        std::vector<double> jac, det, pts;
-        gmsh::model::mesh::getJacobians(eleType1D, "Gauss3", jac, det, pts, c);
+        View view, bin; // View of the results.
+
+        view.name = "View";
+        view.tag = gmsh::view::add(view.name);
+        view.dataType = "ElementNodeData";
+        
+        view.modelName = modelNames[0];
+
+        view.data.resize(mainElement.elementTag.size(), std::vector<double>(mainElement.numNodes));
+
+        solver(mainElement, frontierElement, physicalGroups, view, bin, simulation); // Solving of the PDE with DG-FEM.
     }
 
-    //gmsh::fltk::run();
-
-    gmsh::finalize();
+    gmsh::finalize(); // Closes gmsh
     return 0;
 }

@@ -21,6 +21,10 @@ echo setting MinGW64 environment...
 
 :: set the location of the linear solver eigen.
 set INCLUDE=C:\Users\Programme\eigen;%INCLUDE%
+<<<<<<< HEAD
+=======
+set INCLUDE=%CD%\Header;%INCLUDE%
+>>>>>>> nico1
 
 :: set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
 set GMSHSDK=C:\Users\Programme\gmsh-4.1.5-Windows64-sdk
