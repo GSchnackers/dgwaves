@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <gmsh.h>
-#include "functions.h"
 
 void writeError(std::vector<double> & error, const double timeStep) {
 

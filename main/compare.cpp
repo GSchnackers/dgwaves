@@ -1,7 +1,9 @@
+#define _USE_MATH_DEFINES
+
 #include <cstdio>
 #include <iostream>
 #include <gmsh.h>
-#include "functions.h"
+#include <cmath>
 
 void compare(double & error, std::vector<double> & errorNodes, const std::vector<double> coefF,\
             const std::vector<double> & coordinates, std::vector<double> & u, const double mytime){
