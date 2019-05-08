@@ -6,4 +6,4 @@ build/
 *.obj
 *.bak
 .vscode/
-*.msh
+#*.msh

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <gmsh.h>
 #include "structures.hpp"
+#include <OMP.h>
 
 void physFluxCu(const Quantity & u, const Element & mainElement, const Element & frontierElement,\
                 Quantity & flux, std::vector<double> c){
@@ -258,7 +259,7 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
 // This function implements the lax-friedrichs flux for electromagnetic equations.
 void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux){
 
-    std::size_t i, j, k, l;
+    std::size_t i;
 
     if(alpha > 1 || alpha < 0)
     {
@@ -266,7 +267,12 @@ void numFluxELM(const Element & frontierElement, const double alpha, Quantity & 
         exit(-1);
     }
 
-    for(i = 0; i < frontierElement.elementTag.size(); ++i)
+    #pragma omp parallel for shared(i, flux)
+    for(i = 0; i < flux.num.size(); ++i)
+        flux.num[i] = 0.5 * (flux.gp[i].first + flux.gp[i].second + alpha * (u.gp[i/3].first - u.gp[i/3].second) \
+                    * frontierElement.normals[i/18 * 3 + (i % 3)]);
+
+    /* for(i = 0; i < frontierElement.elementTag.size(); ++i)
         for(j = 0; j < frontierElement.numGp; ++j)
             for(k = 0; k < 6; ++k)
             {
@@ -282,7 +288,7 @@ void numFluxELM(const Element & frontierElement, const double alpha, Quantity & 
                                           frontierElement.normals[normIndex]);
                 }
             }
-
+ */
 
 }
 

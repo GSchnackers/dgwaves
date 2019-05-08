@@ -11,6 +11,7 @@ void sinusoidalDisp(const Element & mainElement, const Quantity & u, const Simul
 
     std::size_t i, j;
 
+    #pragma omp parallel for shared(u, view, i) private(j)
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
             view.data[i][j] = u.node[i * mainElement.numNodes + j];
@@ -82,6 +83,7 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         
         computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t, u, flux, k1);
 
+        #pragma omp parallel for shared(u, i, k)
         for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
@@ -106,16 +108,20 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         Quantity uTmp = u;
         computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t, uTmp, flux, k1);
 
+        #pragma omp parallel for shared(u, i, k1, uTmp)
         for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
         computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + halfInc, uTmp, flux, k2);
 
+        #pragma omp parallel for shared(u, i, k2, uTmp)
         for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
         computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + halfInc, uTmp, flux, k3);
 
+        #pragma omp parallel for shared(u, i, k3, uTmp)
         for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + simulation.simStep * k3[i]);
         computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + simulation.simStep, uTmp,\
                      flux, k4);
 
+        #pragma omp parallel for shared(u, i, k1, k2, k3, k4, uTmp)
         for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))

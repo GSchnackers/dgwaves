@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <iostream>
 #include "structures.hpp"
+#include <OMP.h>
 
 void numFluxIntegration(const Quantity & flux, const Element & mainElement, const Element & frontierElement,\
                         std::vector<double> & fluxVector, int uNum){
@@ -11,63 +12,46 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
     std::fill(fluxVector.begin(), fluxVector.end(), 0);
 
     std::vector<double> scalarProds(uNum * frontierElement.elementTag.size() * frontierElement.numGp, 0);
-    std::vector<double> integrations(uNum * frontierElement.nodeTags.size(), 0);
 
-    // Computation of all scalar products at the Gauss points of each frontier element.
-    for(i = 0; i < frontierElement.elementTag.size(); ++i)
-        for(j = 0; j < frontierElement.numGp; ++j)
-            for(k = 0; k < uNum; ++k)
-                for(l = 0; l < 3; ++l)
-                {
-                    int scalIndex = i * frontierElement.numGp * uNum + j * uNum + k;
-                    int fluxIndex = i * frontierElement.numGp * uNum * 3 + j * uNum * 3 + k * 3 + l;
-                    int normIndex = i * frontierElement.numGp * 3 + j * 3 + l;
-
-                    scalarProds[scalIndex] += flux.num[fluxIndex] * frontierElement.normals[normIndex];
-                }
+    #pragma omp parallel for shared(flux, frontierElement, i)
+    for(i = 0; i < flux.num.size(); ++i)
+        scalarProds[i/3] += flux.num[i] * frontierElement.normals[i/18 * 3 + (i % 3)];
 
     // Computation of the integration vector.
+    #pragma omp parallel for shared(i, scalarProds, flux, frontierElement, fluxVector)
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
+    {
+        int iGp = i * frontierElement.numGp;
+        int iGpU = iGp * uNum;
+        int mainElemIdx1 = frontierElement.neighbours[i].first * mainElement.numNodes * uNum;
+        int mainElemIdx2 = frontierElement.neighbours[i].second * mainElement.numNodes * uNum;
+
         for(j = 0; j < frontierElement.numNodes; ++j)
+        { 
+            int mainNodeIdx1 = mainElemIdx1 + \
+                               frontierElement.nodeCorrespondance[i * frontierElement.numNodes + j].first * uNum;
+            int mainNodeIdx2 = mainElemIdx2 + \
+                               frontierElement.nodeCorrespondance[i * frontierElement.numNodes + j].second * uNum;
+
             for(k = 0; k < frontierElement.numGp; ++k)
             {
-                int jacobIndex = i * frontierElement.numGp + k;
+                int jacobIndex = iGp + k;
                 int shapeIndex = k * frontierElement.numNodes + j;
 
                 for(l = 0; l < uNum; ++l)
                 {
-                    int intIndex = i * frontierElement.numNodes * uNum + j * uNum + l;
-                    int gpIndex  = i * frontierElement.numGp * uNum + k * uNum + l;
-                    
+                    int gpIndex  = iGpU + k * uNum + l;
 
-                    integrations[intIndex] += scalarProds[gpIndex] * frontierElement.jacobiansDet[jacobIndex] * \
-                                              frontierElement.shapeFunctionsParam[shapeIndex] * \
-                                              frontierElement.gaussPointsParam[k * 4 + 3];
-                }
-            }
+                    double tmp = scalarProds[gpIndex] * frontierElement.jacobiansDet[jacobIndex] * \
+                                 frontierElement.shapeFunctionsParam[shapeIndex] * \
+                                 frontierElement.gaussPointsParam[k * 4 + 3];
 
+                    fluxVector[mainNodeIdx1 + l] += tmp;
 
-    for(i = 0; i < frontierElement.elementTag.size(); ++i)
-        for(j = 0; j < frontierElement.numNodes; ++j)
-        {
-            int nodeIndex  = i * frontierElement.numNodes + j;
-            
-            for(k = 0; k < uNum; ++k)
-            {
-                int intIndex   = i * frontierElement.numNodes * uNum + j * uNum + k;
-                int mainIndex1 = frontierElement.neighbours[i].first * mainElement.numNodes * uNum + \
-                                 frontierElement.nodeCorrespondance[nodeIndex].first * uNum + k;
-
-                fluxVector[mainIndex1] += integrations[intIndex];
-
-                if(frontierElement.neighbours[i].second >= 0)
-                {
-                    int mainIndex2 = frontierElement.neighbours[i].second * mainElement.numNodes * uNum + \
-                                     frontierElement.nodeCorrespondance[nodeIndex].second * uNum + k;
-
-                    fluxVector[mainIndex2] -= integrations[intIndex];
+                    if(frontierElement.neighbours[i].second >= 0) fluxVector[mainNodeIdx2 + l] -= tmp;
                 }
             }
         }
-            
+    }
+
 }
