@@ -7,6 +7,6 @@ DEBUG 0
 ALPHA 1
 E0 1
 L 1
-BC ..\main\prisme2D.bc
-PROP ..\main\prisme2D.prop
+BC ..\Parameters\prisme2D.bc
+PROP ..\Parameters\prisme2D.prop
 UNUM 6
