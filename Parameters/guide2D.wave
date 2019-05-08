@@ -7,6 +7,6 @@ DEBUG 0
 ALPHA 1
 E0 1
 L 1
-BC ..\main\guide2D.bc
-PROP ..\main\guide2D.prop
+BC ..\Parameters\guide2D.bc
+PROP ..\Parameters\guide2D.prop
 UNUM 6
