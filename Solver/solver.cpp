@@ -142,7 +142,7 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
     gmsh::logger::write("Done.");
     
-    gmsh::view::write(view1.tag, "electricalField.msh");
+    gmsh::view::write(view1.tag, "electricField.msh");
 
     if(simulation.uNum == 6)
         gmsh::view::write(view2.tag, "magneticField.msh");
