@@ -13,16 +13,15 @@ Point(2) = {C+L, 0, 0, d};
 Point(3) = {C+L, H, 0, d};
 Point(4) = {0, H, 0, d};
 Point(5) = {C, 0, 0, d};
-Line(11) = {1, 5};
-Line(12) = {5, 3};
-Line(13) = {3, 4};
-Line(14) = {4, 1};
-Line(15) = {5, 2};
-Line(16) = {2, 3};
-Line(17) = {3, 5};
+Line(11) = {1, 5}; //en bas à gauche
+Line(12) = {5, 3}; //oblique
+Line(13) = {3, 4}; //haut
+Line(14) = {4, 1}; //gauche
+Line(15) = {5, 2}; //en bas à droite
+Line(16) = {2, 3}; //droite
 
 Curve Loop(21) = {11, 12, 13, 14};
-Curve Loop(22) = {15, 16, 17};
+Curve Loop(22) = {15, 16, -12};
 Plane Surface(31) = {21};
 Plane Surface(32) = {22};
 
