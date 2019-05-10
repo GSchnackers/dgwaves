@@ -36,13 +36,13 @@ void Initialization(Element & element, const int meshDim, std::string gaussType,
     // Get the number of sides of the element from its name. Its name is the family name + a number.
     if(element.name.find("Triangle") != std::string::npos) element.numSide = 3;
     else if(element.name.find("Line") != std::string::npos) element.numSide = 1;
-    else if(element.name.find("Quadrangle") != std::string::npos) element.numSide = 4;
+    else if(element.name.find("Quadrilateral") != std::string::npos) element.numSide = 4;
     else if(element.name.find("Tetrahedron") != std::string::npos) element.numSide = 4;
     else if(element.name.find("Prism") != std::string::npos) element.numSide = 4;
     else if(element.name.find("Hexahedron") != std::string::npos) element.numSide = 6;
     else if(element.name.find("Pyramid") != std::string::npos) element.numSide = 5;
     else{
-        gmsh::logger::write("The element name is not supported by the program.", "error");
+        gmsh::logger::write("The element name " + element.name + " is not supported by the program.", "error");
         exit(-1);
     }
 
