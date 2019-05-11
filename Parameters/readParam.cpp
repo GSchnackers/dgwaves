@@ -84,6 +84,19 @@ void readParam(std::string fileName, Simulation & simulation){
             file >> simulation.uNum;
             file.get();
         }
+        else if(!(command.compare("C")))
+        { 
+            for(std::size_t i = 0; i < 3; i++)
+            {
+                file >> simulation.c[i];
+                file.get();
+            }
+        }
+        else if(!(command.compare("ERROR")))
+        { 
+            file >> simulation.error;
+            file.get();
+        }
 
         else
             gmsh::logger::write("Unrecognized parameter. Ignored.", "warning");

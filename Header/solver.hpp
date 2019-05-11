@@ -5,6 +5,13 @@
 #include "structures.hpp"
 
 /*
+   Function that computes tha analytical solution
+*/
+void compare(double & error, std::vector<double> & errorNodes, Quantity & u,\
+             const std::vector<double> & coordinates, const Element & mainElement,\
+             const Simulation & simulation, const std::vector<Parameter> & bcParam, const double mytime);
+
+/*
    Function that computes the value imposed at the boundary conditions from the parameters given in
    "bcParam".
 */
@@ -76,11 +83,15 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
 void solver(const Element & mainElement, Element & frontierElement, const PhysicalGroups & physicalGroups,\
             View & view1, View & view2, Simulation & simulation);
 
-
 /*
    Functions that computes the value of the quantity "u" at the gauss points. "force" forces the computation 
    at the outside of the domain.
 */
 void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU, bool force = 0);
+
+/*
+   Write vector error in a file
+*/
+void writeError(const std::vector<double> & error, const Simulation & simulation);
 
 #endif

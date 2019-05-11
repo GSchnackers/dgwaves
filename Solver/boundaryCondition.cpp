@@ -7,7 +7,7 @@
 #include "structures.hpp"
 
 void boundAssign(Element & frontierElement, const Element & mainElement, const std::vector<int> & physicalEntityTags, \
-                std::fstream & boundFile, const std::string & physicalName,\
+                std::fstream & boundFile, const std::string & physicalName, const Simulation & simulation,\
                 int elemType, int elemDim, std::vector<Parameter> & bcParam, Quantity & u){
 
     std::size_t i, j, k, l, m;
@@ -83,13 +83,13 @@ void boundAssign(Element & frontierElement, const Element & mainElement, const s
                             else if(boundName.find("PerfectCond") != std::string::npos)
                             {
                                 for(l = 0; l < frontierElement.numNodes; ++l)
-                                    for(m = 0; m < 6; ++m)
+                                    for(m = 0; m < simulation.uNum; ++m)
                                     {
                                         int nodeIndex = k * frontierElement.numNodes + l;
                                         int uIndex = frontierElement.neighbours[k].first * \
-                                                     mainElement.numNodes * 6 +\
-                                                     frontierElement.nodeCorrespondance[nodeIndex].first * 6 +\
-                                                     m;
+                                                     mainElement.numNodes * simulation.uNum +\
+                                                     frontierElement.nodeCorrespondance[nodeIndex].first *\
+                                                     simulation.uNum + m;
 
                                         u.boundSign[uIndex] = -3;
                                     }
@@ -101,13 +101,13 @@ void boundAssign(Element & frontierElement, const Element & mainElement, const s
                             else if(boundName.find("Opening") != std::string::npos)
                             {
                                 for(l = 0; l < frontierElement.numNodes; ++l)
-                                    for(m = 0; m < 6; ++m)
+                                    for(m = 0; m < simulation.uNum; ++m)
                                     {
                                         int nodeIndex = k * frontierElement.numNodes + l;
                                         int uIndex    = frontierElement.neighbours[k].first * \
-                                                        mainElement.numNodes * 6 +\
-                                                        frontierElement.nodeCorrespondance[nodeIndex].first * 6 +\
-                                                        m;
+                                                        mainElement.numNodes * simulation.uNum +\
+                                                        frontierElement.nodeCorrespondance[nodeIndex].first * \
+                                                        simulation.uNum + m;
 
                                         u.boundSign[uIndex] = -1;
                                     }
@@ -184,10 +184,11 @@ void setBoundaryCondition(Element & frontierElement, const Element & mainElement
 
     for(i = 0; i < physicalGroups.dimTags.size(); ++i)
         if(physicalGroups.dimTags[i].first == frontierElement.dim)
-            for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j)
+            for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j){
                 boundAssign(frontierElement, mainElement, physicalGroups.entityTags[i], boundaryFile, \
-                            physicalGroups.name[i], physicalGroups.elemType[i][0][j], frontierElement.dim, \
-                            bcParam, u);
+                            physicalGroups.name[i], simulation, physicalGroups.elemType[i][0][j],\
+                            frontierElement.dim, bcParam, u);
+            }
 
     boundaryFile.close();
 

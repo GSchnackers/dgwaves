@@ -121,6 +121,8 @@ struct Simulation{
     std::string boundFileName; // name of the bc file.
     std::string propFileName; // name of the property file.
     int uNum;
+    std::vector<double> c = {0, 0, 0}; // Coefficient of speed for transport
+    int error; // compare analytical solution to numerical solution
 
 };
 
