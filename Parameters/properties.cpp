@@ -42,13 +42,10 @@ void propAssign(const Element & element, const std::vector<int> & physicalEntity
                             for(l = 0; l < element.numNodes; ++l)
                             {
 
-                                matProp.relPermittivity.bound[k * element.numNodes + l] = \
                                 matProp.relPermittivity.node[k * element.numNodes + l] = relPermitt;
 
-                                matProp.relPermeability.bound[k * element.numNodes + l] = \
                                 matProp.relPermeability.node[k * element.numNodes + l] = relPermea;
 
-                                matProp.conductivity.bound[k * element.numNodes + l] = \
                                 matProp.conductivity.node[k * element.numNodes + l] = conduct;
 
                             }

@@ -11,14 +11,8 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
 
     std::fill(fluxVector.begin(), fluxVector.end(), 0);
 
-    std::vector<double> scalarProds(uNum * frontierElement.elementTag.size() * frontierElement.numGp, 0);
-
-    #pragma omp parallel for shared(flux, frontierElement, i)
-    for(i = 0; i < flux.num.size(); ++i)
-        scalarProds[i/3] += flux.num[i] * frontierElement.normals[i/18 * 3 + (i % 3)];
-
     // Computation of the integration vector.
-    #pragma omp parallel for shared(i, scalarProds, flux, frontierElement, fluxVector)
+    #pragma omp parallel for shared(i, flux, frontierElement, fluxVector)
     for(i = 0; i < frontierElement.elementTag.size(); ++i)
     {
         int iGp = i * frontierElement.numGp;
@@ -42,7 +36,7 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
                 {
                     int gpIndex  = iGpU + k * uNum + l;
 
-                    double tmp = scalarProds[gpIndex] * frontierElement.jacobiansDet[jacobIndex] * \
+                    double tmp = flux.num[gpIndex] * frontierElement.jacobiansDet[jacobIndex] * \
                                  frontierElement.shapeFunctionsParam[shapeIndex] * \
                                  frontierElement.gaussPointsParam[k * 4 + 3];
 

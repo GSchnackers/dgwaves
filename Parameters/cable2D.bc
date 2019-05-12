@@ -1,4 +1,4 @@
-WALL1 SinusoidalE 1 4 0 0 0 0 0 0 0
+WALL1 TE2D 1 10
 WALL2 PerfectCond
 WALL3 PerfectCond
 WALL4 PerfectCond

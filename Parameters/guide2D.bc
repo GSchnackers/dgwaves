@@ -1,6 +1,6 @@
-WALL1 Opening
-WALL2 Opening
-WALL3 PerfectCond
-WALL4 PerfectCond
-WALL5 PerfectCond
-WALL6 SinusoidalE 1 4 0 0 0 0 0 0 0
+WALL1 PerfectCond 0
+WALL2 PerfectCond 0
+WALL3 PerfectCond 0
+WALL4 PerfectCond 0
+WALL5 PerfectCond 0
+WALL6 TE3D 1 0 20

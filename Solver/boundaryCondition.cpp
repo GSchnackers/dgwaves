@@ -1,14 +1,12 @@
-#define _USE_MATH_DEFINES
-
 #include <cstdio>
 #include <iostream>
 #include <cmath>
 #include <fstream>
 #include "structures.hpp"
 
-void boundAssign(Element & frontierElement, const Element & mainElement, const std::vector<int> & physicalEntityTags, \
+void boundAssign(Element & frontierElement, const std::vector<int> & physicalEntityTags, \
                 std::fstream & boundFile, const std::string & physicalName,\
-                int elemType, int elemDim, std::vector<Parameter> & bcParam, Quantity & u){
+                int elemType, int elemDim, Quantity & u){
 
     std::size_t i, j, k, l, m;
 
@@ -32,6 +30,7 @@ void boundAssign(Element & frontierElement, const Element & mainElement, const s
         for(j = 0; j < frontierElement.elementTag.size(); ++j)
         {
             int check = 0;
+            // This loop check wether a frontier element is in the physical group or not.
             for(k = 0; k < physicalElementTag.size(); ++k)
             {
                 int count = 0;
@@ -46,126 +45,54 @@ void boundAssign(Element & frontierElement, const Element & mainElement, const s
                     break;
                 }
 
-                //std::cout << std::endl << count << std::endl;
             }
             
-
-            //std::cout << std::endl;
-                
+            //  If the element is in a physical group, a BC type is assigned to it thanks to the .bc file.
             if(check)
             {
-                //std::cout << "Hello" << std::endl;
-                //std::cout << frontierElement.elementTag[j] << std::endl;
                 while(!std::getline(boundFile, boundCommand, ' ').eof())
                 {
                     if(physicalName.find(boundCommand) != std::string::npos)
                     {
-                        int mbeg = 0;
 
                         std::string boundName;
+                        int l = 0;
+                        char tmp = ' ';
 
                         std::getline(boundFile, boundName, ' ');
 
-                        if(boundName.find("Sinusoidal") != std::string::npos)
-                        {
-                            //std::cout << "Fake" << std::endl;
-                            std::vector<double> par(9);
-
-                            for(l = 0; l < par.size(); ++l)
-                            {
-                                boundFile >> par[l];
-                                boundFile.get();
-                            }
-
-                            if(boundName.find("SinusoidalH") != std::string::npos) mbeg = 3;
-
-                            for(l = 0; l < frontierElement.numNodes; ++l)
-                                for(m = mbeg; m < mbeg + 3; ++m)
-                                {
-                                    int nodeIndex = j * frontierElement.numNodes + l;
-                                    int uIndex = frontierElement.neighbours[j].first * \
-                                                mainElement.numNodes * 6 + \
-                                                frontierElement.nodeCorrespondance[nodeIndex].first * 6 + m;
-
-                                    //std::cout << mainElement.nodeTags[uIndex/6] << " " << frontierElement.nodeTags[nodeIndex] << std::endl;
-                                    //std::cout <<  frontierElement.neighbours[j].first << " " << frontierElement.neighbours[j].second << std::endl;
-                                    bcParam[uIndex].param1 = par[3 * (m % 3)];
-                                    bcParam[uIndex].param2 = par[3 * (m % 3) + 1];
-                                    bcParam[uIndex].param3 = par[3 * (m % 3) + 2];
-                                    u.boundSign[uIndex] = -2;
-                                }
-
-                            frontierElement.neighbours[j].second = -2;
-                            std::cout << std::endl;
-                            
-                        }
+                        if(boundName.find("SinusoidalE") != std::string::npos)
+                            frontierElement.neighbours[j].second = SINUS_E;
+                        
+                        else if(boundName.find("SinusoidalH") != std::string::npos)
+                            frontierElement.neighbours[j].second = SINUS_H;
 
                         else if(boundName.find("PerfectCond") != std::string::npos)
-                        {
-
-                            for(l = 0; l < frontierElement.numNodes; ++l)
-                                for(m = 0; m < 6; ++m)
-                                {
-                                    int nodeIndex = j * frontierElement.numNodes + l;
-                                    int uIndex    = frontierElement.neighbours[j].first * \
-                                                    mainElement.numNodes * 6 +\
-                                                    frontierElement.nodeCorrespondance[nodeIndex].first * 6 +\
-                                                    m;
-
-                                    u.boundSign[uIndex] = -3;
-                                }
-                            
-                            boundFile.get();
-                            frontierElement.neighbours[j].second = -3;
-
-                        }
-
-                        else if(boundName.find("Opening") != std::string::npos)
-                        {
-                            for(l = 0; l < frontierElement.numNodes; ++l)
-                                for(m = 0; m < 6; ++m)
-                                {
-                                    int nodeIndex = j * frontierElement.numNodes + l;
-                                    int uIndex    = frontierElement.neighbours[j].first * \
-                                                    mainElement.numNodes * 6 +\
-                                                    frontierElement.nodeCorrespondance[nodeIndex].first * 6 +\
-                                                    m;
-
-                                    u.boundSign[uIndex] = -1;
-                                }
-
-                            boundFile.get();
-                            frontierElement.neighbours[j].second = -1;
-                        }
+                            frontierElement.neighbours[j].second = PERFECTCOND;
 
                         else if(boundName.find("Sine") != std::string::npos)
-                        {
-                            std::vector<int> par(3);
+                            frontierElement.neighbours[j].second = SINE;
+                        
+                        else if(boundName.find("TE2D") != std::string::npos)
+                            frontierElement.neighbours[j].second = TE2D;
 
-                            for(l = 0; l < 3; ++l)
-                            {
-                                boundFile >> par[l];
-                                boundFile.get();
-                            }
+                        else if(boundName.find("TE3D") != std::string::npos)
+                            frontierElement.neighbours[j].second = TE3D;
 
-                            for(l = 0; l < frontierElement.numNodes; ++l)
-                            {
-                                int nodeIndex = j * frontierElement.numNodes + l;
-                                int uIndex    = frontierElement.neighbours[j].first * mainElement.numNodes + \
-                                                frontierElement.nodeCorrespondance[nodeIndex].first;
+                        boundFile >> frontierElement.bcParam[j * 9 + l];
+                        ++l;
 
-                                bcParam[uIndex].param1 = par[0];
-                                bcParam[uIndex].param2 = par[1];
-                                bcParam[uIndex].param3 = par[2];
-
-                                u.boundSign[uIndex] = -2;
-
-                            }
-
-                            frontierElement.neighbours[j].second = -2;
-
+                        while(1){
+                        
+                            char c;
+                            c = boundFile.get();
+                            if(c == EOF || c == '\n') break;
+                            boundFile >> frontierElement.bcParam[j * 9 + l];
+                            ++l;
+                            
                         }
 
+                        break;
 
                     }
 
@@ -184,9 +111,8 @@ void boundAssign(Element & frontierElement, const Element & mainElement, const s
 
 }
 
-void setBoundaryCondition(Element & frontierElement, const Element & mainElement,\
-                          const Simulation & simulation, const PhysicalGroups & physicalGroups, \
-                          Quantity & u, std::vector<Parameter> & bcParam){
+void setBoundaryCondition(Element & frontierElement, const Simulation & simulation, \
+                          const PhysicalGroups & physicalGroups, Quantity & u){
 
     std::size_t i, j;
 
@@ -209,26 +135,9 @@ void setBoundaryCondition(Element & frontierElement, const Element & mainElement
     for(i = 0; i < physicalGroups.dimTags.size(); ++i)
         if(physicalGroups.dimTags[i].first == frontierElement.dim)
             for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j)
-                boundAssign(frontierElement, mainElement, physicalGroups.entityTags[i], boundaryFile, \
-                            physicalGroups.name[i], physicalGroups.elemType[i][0][j], frontierElement.dim, \
-                            bcParam, u);
+                boundAssign(frontierElement, physicalGroups.entityTags[i], boundaryFile, \
+                            physicalGroups.name[i], physicalGroups.elemType[i][0][j], frontierElement.dim, u);
 
     boundaryFile.close();
-
-}
-
-
-void computeBoundaryCondition(Quantity & u, const double t, const std::vector<Parameter> & bcParam){
-
-    std::size_t i;
-
-    for(i = 0; i < u.bound.size(); ++i)
-        if(u.boundSign[i] == -2)
-             u.bound[i] = bcParam[i].param1 * sin(bcParam[i].param2 * M_PI * t + bcParam[i].param3);
-
-
-    for(i = 0; i < u.bound.size() && !t; ++i)
-        if(u.boundSign[i] == -3)  u.bound[i] = 0;
-
 
 }

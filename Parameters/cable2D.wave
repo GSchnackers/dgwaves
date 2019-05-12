@@ -1,12 +1,12 @@
-SIMTIME 1
+SIMTIME 0.1
 SIMSTEP 0.001
 REGISTRATION 1
 SOLVER 0
-GAUSS Gauss10
+GAUSS Gauss4
 DEBUG 0
 ALPHA 1
 E0 1
 L 1
-BC ..\main\cable2D.bc
-PROP ..\main\cable2D.prop
+BC ..\Parameters\cable2D.bc
+PROP ..\Parameters\cable2D.prop
 UNUM 6

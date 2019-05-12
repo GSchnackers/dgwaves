@@ -59,7 +59,6 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     Quantity flux; // fluxs of the problem.
     Simulation simParam; // Parameters of the simulation.
     Properties matProp; // Properties of the material all over the domain.
-    std::vector<Parameter> bcParam; // Parameters associated to the boundary conditions.
 
     std::vector<double> k1(simulation.uNum * mainElement.nodeTags.size(), 0);
     std::vector<double> k2(simulation.uNum * mainElement.nodeTags.size(), 0);
@@ -67,7 +66,7 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     std::vector<double> k4(simulation.uNum * mainElement.nodeTags.size(), 0);
 
     // Initializes the size of the useful quantities.
-    numericalInitializer(mainElement, frontierElement, simulation, physicalGroups, u, flux, matProp, bcParam);
+    numericalInitializer(mainElement, frontierElement, simulation, physicalGroups, u, flux, matProp);
     
     if(simulation.uNum == 6)
         ELMDisp(mainElement, u, simulation, t, view1, view2);
@@ -81,7 +80,7 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     for(t = 0; t < simulation.simTime && !simulation.solver; t += simulation.simStep)
     {
         
-        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t, u, flux, k1);
+        computeCoeff(mainElement, frontierElement, simulation, matProp, t, u, flux, k1);
 
         #pragma omp parallel for shared(u, i, k)
         for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
@@ -106,19 +105,19 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
         int stepNum = int(t/simulation.simTime);
         Quantity uTmp = u;
-        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t, uTmp, flux, k1);
+        computeCoeff(mainElement, frontierElement, simulation, matProp, t, uTmp, flux, k1);
 
         #pragma omp parallel for shared(u, i, k1, uTmp)
         for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
-        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + halfInc, uTmp, flux, k2);
+        computeCoeff(mainElement, frontierElement, simulation, matProp, t + halfInc, uTmp, flux, k2);
 
         #pragma omp parallel for shared(u, i, k2, uTmp)
         for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
-        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + halfInc, uTmp, flux, k3);
+        computeCoeff(mainElement, frontierElement, simulation, matProp, t + halfInc, uTmp, flux, k3);
 
         #pragma omp parallel for shared(u, i, k3, uTmp)
         for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + simulation.simStep * k3[i]);
-        computeCoeff(mainElement, frontierElement, bcParam, simulation, matProp, t + simulation.simStep, uTmp,\
+        computeCoeff(mainElement, frontierElement, simulation, matProp, t + simulation.simStep, uTmp,\
                      flux, k4);
 
         #pragma omp parallel for shared(u, i, k1, k2, k3, k4, uTmp)

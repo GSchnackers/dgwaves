@@ -8,14 +8,14 @@ nx = 2*dx;
 ny = 2*dy;
 nz = 1;
 
-Point(301) = {0, 0, 0, d};
-Point(302) = {dx, 0, 0, d};
-Point(303) = {dx, dy, 0, d};
-Point(304) = {0, dy, 0, d};
-Point(305) = {0, 0, dz, d};
-Point(306) = {dx, 0, dz, d};
-Point(307) = {dx, dy, dz, d};
-Point(308) = {0, dy, dz, d};
+Point(301) = {0, 0, 0};
+Point(302) = {dx, 0, 0};
+Point(303) = {dx, dy, 0};
+Point(304) = {0, dy, 0};
+Point(305) = {0, 0, dz};
+Point(306) = {dx, 0, dz};
+Point(307) = {dx, dy, dz};
+Point(308) = {0, dy, dz};
 //face dessous
 Line(401) = {301, 302};
 Line(402) = {302, 303};
@@ -54,19 +54,19 @@ Surface Loop(1) = {61, 62, 63, 64, 65, 66};
 Volume(1) = {1};
 
 // transfinite mesh
-Transfinite Curve {401, 403, 405, 407} = nx+1 Using Progression 1;
-Transfinite Curve {402, 404, 406, 408} = ny+1 Using Progression 1;
-Transfinite Curve {409, 410, 411, 412} = nz+1 Using Progression 1;
+//Transfinite Curve {401, 403, 405, 407} = nx+1 Using Progression 1;
+// Transfinite Curve {402, 404, 406, 408} = ny+1 Using Progression 1;
+//Transfinite Curve {409, 410, 411, 412} = nz+1 Using Progression 1;
 
-Transfinite Surface {61};
-Transfinite Surface {62};
-Transfinite Surface {63};
-Transfinite Surface {64};
-Transfinite Surface {65};
-Transfinite Surface {66};
+//Transfinite Surface {61};
+//Transfinite Surface {62};
+//Transfinite Surface {63};
+//Transfinite Surface {64};
+//Transfinite Surface {65};
+//Transfinite Surface {66};
 
 // Mesh definition on the volume.
-Transfinite Volume{1} = {301, 302, 303, 304, 305, 306, 307, 308};
+//Transfinite Volume{1} = {301, 302, 303, 304, 305, 306, 307, 308};
 
 
 // Physical groups definitions.
@@ -79,7 +79,7 @@ Physical Surface("WALL6") = {66}; //surface x=0
 
 Physical Volume("MATERIAL1") = {1};
 
-
+Mesh.Algorithm = 6;
 
 
 Mesh.SaveAll = 1;
