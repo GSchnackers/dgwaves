@@ -124,8 +124,7 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement, 
 
     else if(simulation.uNum == 1)
     {
-        std::vector<double> c = {1 , 0 , 0};
-        physFluxCu(u, mainElement, frontierElement, flux, c);
+        physFluxCu(u, mainElement, frontierElement, flux, simulation.c);
         numFluxUpwind(frontierElement, flux);
     }
 

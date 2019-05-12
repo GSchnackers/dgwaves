@@ -4,9 +4,15 @@
 #include <fstream>
 #include "structures.hpp"
 
+<<<<<<< HEAD
 void boundAssign(Element & frontierElement, const std::vector<int> & physicalEntityTags, \
                 std::fstream & boundFile, const std::string & physicalName,\
                 int elemType, int elemDim, Quantity & u){
+=======
+void boundAssign(Element & frontierElement, const Element & mainElement, const std::vector<int> & physicalEntityTags, \
+                std::fstream & boundFile, const std::string & physicalName, const Simulation & simulation,\
+                int elemType, int elemDim, std::vector<Parameter> & bcParam, Quantity & u){
+>>>>>>> d105a814f5de07b3f3c071b4e4ee112201975570
 
     std::size_t i, j, k, l, m;
 
@@ -134,9 +140,17 @@ void setBoundaryCondition(Element & frontierElement, const Simulation & simulati
 
     for(i = 0; i < physicalGroups.dimTags.size(); ++i)
         if(physicalGroups.dimTags[i].first == frontierElement.dim)
+<<<<<<< HEAD
             for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j)
                 boundAssign(frontierElement, physicalGroups.entityTags[i], boundaryFile, \
                             physicalGroups.name[i], physicalGroups.elemType[i][0][j], frontierElement.dim, u);
+=======
+            for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j){
+                boundAssign(frontierElement, mainElement, physicalGroups.entityTags[i], boundaryFile, \
+                            physicalGroups.name[i], simulation, physicalGroups.elemType[i][0][j],\
+                            frontierElement.dim, bcParam, u);
+            }
+>>>>>>> d105a814f5de07b3f3c071b4e4ee112201975570
 
     boundaryFile.close();
 

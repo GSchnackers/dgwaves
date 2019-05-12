@@ -15,8 +15,7 @@ void sinusoidalDisp(const Element & mainElement, const Quantity & u, const Simul
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
             view.data[i][j] = u.node[i * mainElement.numNodes + j];
-        
-        
+    
     gmsh::view::addModelData(view.tag, int(t/simulation.simStep), view.modelName, view.dataType, \
                         mainElement.elementTag, view.data, t, 1);
 
@@ -59,11 +58,25 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     Quantity flux; // fluxs of the problem.
     Simulation simParam; // Parameters of the simulation.
     Properties matProp; // Properties of the material all over the domain.
+    
+    std::vector<double> error(simulation.uNum * int(simulation.simTime / simulation.simStep), 0);
+    std::vector<double> errorNodes(simulation.uNum * mainElement.nodeTags.size(), 0);
+    std::vector<double> coordinates(3 * mainElement.nodeTags.size(), 0);
+    std::vector<double> coordNodes(3 * mainElement.numNodes, 0);
+    std::vector<double> binParam(3 * mainElement.numNodes);
 
     std::vector<double> k1(simulation.uNum * mainElement.nodeTags.size(), 0);
     std::vector<double> k2(simulation.uNum * mainElement.nodeTags.size(), 0);
     std::vector<double> k3(simulation.uNum * mainElement.nodeTags.size(), 0);
     std::vector<double> k4(simulation.uNum * mainElement.nodeTags.size(), 0);
+
+    for(i = 0; i < mainElement.nodeTags.size(); i++){
+        gmsh::model::mesh::getNode(mainElement.nodeTags[i], coordNodes, binParam);
+
+        for(j = 0; j < 3; j++){
+            coordinates[3*i + j] = coordNodes[j];
+        }
+    }
 
     // Initializes the size of the useful quantities.
     numericalInitializer(mainElement, frontierElement, simulation, physicalGroups, u, flux, matProp);
@@ -82,8 +95,12 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         
         computeCoeff(mainElement, frontierElement, simulation, matProp, t, u, flux, k1);
 
-        #pragma omp parallel for shared(u, i, k)
+        #pragma omp parallel for shared(u, i, k1)
         for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
+
+        if(simulation.error){
+            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, bcParam, t);
+        }
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
         {
@@ -123,6 +140,9 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         #pragma omp parallel for shared(u, i, k1, k2, k3, k4, uTmp)
         for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 
+        if(simulation.error)
+            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, bcParam, t);
+        
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
         {
             if(simulation.uNum == 6)
@@ -141,6 +161,9 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
     gmsh::logger::write("Done.");
     
+    if(simulation.error)
+        writeError(error, simulation);
+
     gmsh::view::write(view1.tag, "electricField.msh");
 
     if(simulation.uNum == 6)

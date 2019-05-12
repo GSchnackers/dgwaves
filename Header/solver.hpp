@@ -5,6 +5,13 @@
 #include "structures.hpp"
 
 /*
+   Function that computes tha analytical solution
+*/
+void compare(double & error, std::vector<double> & errorNodes, Quantity & u,\
+             const std::vector<double> & coordinates, const Element & mainElement,\
+             const Simulation & simulation, const std::vector<Parameter> & bcParam, const double mytime);
+
+/*
    Function that deals with the computation of the coefficient "k" useful for the Euler or Rugen-Kutta method.
 */
 void computeCoeff(const Element & mainElement, const Element & frontierElement, const Simulation & simulation,\
@@ -67,12 +74,16 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
 void solver(const Element & mainElement, Element & frontierElement, const PhysicalGroups & physicalGroups,\
             View & view1, View & view2, Simulation & simulation);
 
-
 /*
    Functions that computes the value of the quantity "u" at the gauss points. "force" forces the computation 
    at the outside of the domain.
 */
 void valGp(Quantity & u, const Element & mainElement, const Element & frontierElement, int numU, \
            const Properties & matProp, double t = 0);
+
+/*
+   Write vector error in a file
+*/
+void writeError(const std::vector<double> & error, const Simulation & simulation);
 
 #endif
