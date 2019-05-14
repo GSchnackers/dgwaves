@@ -240,8 +240,9 @@ void numFluxUpwind(const Element & frontierElement, Quantity & flux){
 // This function implements the lax-friedrichs flux for electromagnetic equations.
 void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux){
 
-    std::size_t i;
-    std::vector<std::pair<double, double>> physFluxNorm(flux.gp.size()/3, std::make_pair(0,0));
+    std::size_t i, j;
+    std::vector<double> physFluxNorm(flux.gp.size()/3, 0);
+    double scalU; 
 
     if(alpha > 1 || alpha < 0)
     {
@@ -252,15 +253,21 @@ void numFluxELM(const Element & frontierElement, const double alpha, Quantity & 
     // scalar product between the normal and the flux gauss point.
     #pragma omp parallel for shared(i, flux, frontierElement, physFluxNorm)
     for(i = 0; i < flux.gp.size(); ++i)
-    {
-        physFluxNorm[i/3].first += frontierElement.normals[i/18 * 3 + (i % 3)] * flux.gp[i].first;
-        physFluxNorm[i/3].second += frontierElement.normals[i/18 * 3 + (i % 3)] * flux.gp[i].second;
-    }
+        physFluxNorm[i/3] += frontierElement.normals[i/18 * 3 + (i % 3)] * (flux.gp[i].first - flux.gp[i].second);
 
-    #pragma omp parallel for shared(i, flux)
     for(i = 0; i < flux.num.size(); ++i)
-        flux.num[i] = 0.5 * (physFluxNorm[i].first + physFluxNorm[i].second + \
-                      alpha * (u.gp[i].first - u.gp[i].second));
+    {
+        if(!(i % 6) || i % 6 == 3)
+        {
+            scalU = 0;
+
+            for(j = 0; j < 3; ++j)
+                scalU += (u.gp[i + j].first - u.gp[i + j].second) * frontierElement.normals[i/6 * 3 + j];
+
+        }
+
+        flux.num[i] = 0.5 * (physFluxNorm[i] + alpha * (frontierElement.normals[i/6 * 3 + i % 3] * scalU - (u.gp[i].first - u.gp[i].second)));
+    }
 
 
 }

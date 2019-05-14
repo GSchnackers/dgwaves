@@ -70,8 +70,8 @@ void matrixMaker(Element & element, std::string matrixType)
 
                     for(l = 0; l < element.numGp; ++l)
                     {
-                        int realIndex = i * element.numGp * element.numNodes + l * element.numNodes + j;
-                        int shapeIndex = l * element.numNodes + k;
+                        int realIndex = i * element.numGp * element.numNodes + l * element.numNodes + k;
+                        int shapeIndex = l * element.numNodes + j;
                         int detIndex = i * element.numGp + l;
 
                         stiffTmp[stiffIndex] += realGrad[realIndex] * \

@@ -98,9 +98,9 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         #pragma omp parallel for shared(u, i, k1)
         for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
 
-        if(simulation.error){
+        /* if(simulation.error){
             compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, bcParam, t);
-        }
+        } */
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
         {
@@ -137,12 +137,12 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         computeCoeff(mainElement, frontierElement, simulation, matProp, t + simulation.simStep, uTmp,\
                      flux, k4);
 
-        #pragma omp parallel for shared(u, i, k1, k2, k3, k4, uTmp)
+        #pragma omp parallel for shared(u, i, k1, k2, k3, k4)
         for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 
-        if(simulation.error)
+        /* if(simulation.error)
             compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, bcParam, t);
-        
+         */
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
         {
             if(simulation.uNum == 6)
@@ -161,8 +161,8 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
     gmsh::logger::write("Done.");
     
-    if(simulation.error)
-        writeError(error, simulation);
+    /* if(simulation.error)
+        writeError(error, simulation); */
 
     gmsh::view::write(view1.tag, "electricField.msh");
 
