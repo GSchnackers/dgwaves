@@ -9,7 +9,7 @@
 */
 void compare(double & error, std::vector<double> & errorNodes, Quantity & u,\
              const std::vector<double> & coordinates, const Element & mainElement,\
-             const Simulation & simulation, const std::vector<Parameter> & bcParam, const double mytime);
+             const Simulation & simulation, const double mytime);
 
 /*
    Function that deals with the computation of the coefficient "k" useful for the Euler or Rugen-Kutta method.

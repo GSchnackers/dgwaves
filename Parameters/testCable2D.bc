@@ -1,0 +1,10 @@
+WALL1 SinusoidalE 0 0 0 0 0 0 1 10 0
+WALL2 Opening 0
+WALL3 Opening 0
+WALL4 PerfectCond 0
+WALL5 Opening 0
+WALL6 PerfectCond 0
+WALL7 Opening 0
+WALL8 PerfectCond 0
+WALL9 Opening 0
+WALL10 PerfectCond 0
