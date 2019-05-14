@@ -64,8 +64,11 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     else if(frontierElement.neighbours[i].second == TE2D)
     {
         if(gpIndex % 6 == 2)
-            return sin(frontierElement.bcParam[paramIdx] * M_PI * ((frontierElement.gaussPoints[gpIndex/6 * 3 + 1] - 0.5))) \
+            return sin(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) \
                    * cos(frontierElement.bcParam[paramIdx + 1] * M_PI * t);
+        
+        else if (gpIndex % 6 < 2)
+            return 0;
                    
         else 
             return u.gp[gpIndex].first;
@@ -74,14 +77,17 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     else if(frontierElement.neighbours[i].second == TE3D)
     {
         if(gpIndex % 6 == 1)
-            return cos(frontierElement.bcParam[paramIdx] * M_PI * (frontierElement.gaussPoints[gpIndex/6 * 3 + 1] - 0.5)) \
-                   * sin(frontierElement.bcParam[paramIdx + 1] * M_PI * (frontierElement.gaussPoints[gpIndex/6 * 3 + 2] - 0.125)/0.25) \
+            return cos(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) \
+                   * sin(frontierElement.bcParam[paramIdx + 1] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 2]/0.25) \
                    * cos(frontierElement.bcParam[paramIdx + 2] * M_PI * t);
         
         else if(gpIndex % 6 == 2)
-            return sin(frontierElement.bcParam[paramIdx] * M_PI * (frontierElement.gaussPoints[gpIndex/6 * 3 + 1] - 0.5)) \
-                   * cos(frontierElement.bcParam[paramIdx + 1] * M_PI * (frontierElement.gaussPoints[gpIndex/6 * 3 + 2] - 0.125)/0.25) \
+            return sin(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) \
+                   * cos(frontierElement.bcParam[paramIdx + 1] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 2]/0.25) \
                    * cos(frontierElement.bcParam[paramIdx + 2] * M_PI * t);
+        
+        else if(gpIndex % 6 == 0)
+            return 0;
                    
         else 
             return u.gp[gpIndex].first;

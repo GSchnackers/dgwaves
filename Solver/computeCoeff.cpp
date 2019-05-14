@@ -119,7 +119,7 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement, 
     if(simulation.uNum == 6)
     {
         physFluxELM(u, frontierElement, mainElement, matProp, t, flux);
-        numFluxELM(frontierElement, simulation.alpha, u, flux);
+        numFluxELM(frontierElement, matProp, simulation.alpha, u, flux);
     }
 
     else if(simulation.uNum == 1)
