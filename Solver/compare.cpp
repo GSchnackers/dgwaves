@@ -9,7 +9,7 @@
 
 void compare(double & error, std::vector<double> & errorNodes, Quantity & u,\
              const std::vector<double> & coordinates, const Element & mainElement,\
-             const Simulation & simulation, const std::vector<Parameter> & bcParam, const double mytime){
+             const Simulation & simulation, const double mytime){
     
     int numNodes = u.node.size()/simulation.uNum;
     std::vector<double> uAnal(numNodes*simulation.uNum);
@@ -19,9 +19,10 @@ void compare(double & error, std::vector<double> & errorNodes, Quantity & u,\
     for(std::size_t i = 0; i < numNodes; i++){
         if(simulation.uNum == 1){
             if(coordinates[3*i] < simulation.c[0]*mytime){
-                w = bcParam[0].param2 * M_PI;
-                uAnal[i] = bcParam[0].param1 * \
+                //w = bcParam[0].param2 * M_PI;
+                //uAnal[i] = bcParam[0].param1 * \
                 sin(w * (mytime - coordinates[3*i]/simulation.c[0]) + bcParam[0].param3);
+                uAnal[i] = 0;
             }
             else
                 uAnal[i] = 0;

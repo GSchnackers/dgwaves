@@ -98,9 +98,9 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         #pragma omp parallel for shared(u, i, k1)
         for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
 
-        /* if(simulation.error){
-            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, bcParam, t);
-        } */
+        if(simulation.error){
+            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, t);
+        }
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
         {
@@ -140,9 +140,9 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         #pragma omp parallel for shared(u, i, k1, k2, k3, k4)
         for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 
-        /* if(simulation.error)
-            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, bcParam, t);
-         */
+        if(simulation.error)
+            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, t);
+        
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
         {
             if(simulation.uNum == 6)
