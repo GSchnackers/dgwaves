@@ -29,7 +29,7 @@ void propAssign(const Element & element, const std::vector<int> & physicalEntity
                 {
                     while(!std::getline(propFile, propCommand, ' ').eof())
                     {
-                        if(physicalName.find(propCommand) != std::string::npos)
+                        if(!propCommand.compare(physicalName))
                         {
                             double relPermitt, relPermea, conduct;
                             propFile >> relPermitt;

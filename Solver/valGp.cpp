@@ -64,7 +64,7 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     else if(frontierElement.neighbours[i].second == TE2D)
     {
         if(gpIndex % 6 == 2)
-            return sin(frontierElement.bcParam[paramIdx] * M_PI * (frontierElement.gaussPoints[gpIndex/6 * 3 + 1]/0.5)) \
+            return sin(frontierElement.bcParam[paramIdx] * M_PI * ((frontierElement.gaussPoints[gpIndex/6 * 3 + 1] - 0.5))) \
                    * cos(frontierElement.bcParam[paramIdx + 1] * M_PI * t);
                    
         else 

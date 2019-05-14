@@ -253,7 +253,7 @@ void numFluxELM(const Element & frontierElement, const double alpha, Quantity & 
     // scalar product between the normal and the flux gauss point.
     #pragma omp parallel for shared(i, flux, frontierElement, physFluxNorm)
     for(i = 0; i < flux.gp.size(); ++i)
-        physFluxNorm[i/3] += frontierElement.normals[i/18 * 3 + (i % 3)] * (flux.gp[i].first - flux.gp[i].second);
+        physFluxNorm[i/3] += frontierElement.normals[i/18 * 3 + (i % 3)] * (flux.gp[i].first + flux.gp[i].second);
 
     for(i = 0; i < flux.num.size(); ++i)
     {
@@ -265,8 +265,7 @@ void numFluxELM(const Element & frontierElement, const double alpha, Quantity & 
                 scalU += (u.gp[i + j].first - u.gp[i + j].second) * frontierElement.normals[i/6 * 3 + j];
 
         }
-
-        flux.num[i] = 0.5 * (physFluxNorm[i] + alpha * (frontierElement.normals[i/6 * 3 + i % 3] * scalU - (u.gp[i].first - u.gp[i].second)));
+        flux.num[i] = 0.5 * (physFluxNorm[i] + alpha * ( - scalU * frontierElement.normals[i/6 * 3 + i % 3] + u.gp[i].first - u.gp[i].second));
     }
 
 

@@ -101,7 +101,7 @@ void timeMarching(const Element & mainElement, const std::vector<double> & SFPro
                     int vecIndex = i * mainElement.numNodes * uNum + k * uNum + l;
 
                     kVector[uIndex] += mainElement.massMatrixInverse[matrixIndex] * \
-                                       (-SFProd[vecIndex] + fluxVector[vecIndex]);
+                                       (SFProd[vecIndex] - fluxVector[vecIndex]);
                     
                 }
 

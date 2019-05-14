@@ -61,22 +61,22 @@ void boundAssign(Element & frontierElement, const std::vector<int> & physicalEnt
 
                         std::getline(boundFile, boundName, ' ');
 
-                        if(boundName.find("SinusoidalE") != std::string::npos)
+                        if(!boundName.compare("SinusoidalE"))
                             frontierElement.neighbours[j].second = SINUS_E;
                         
-                        else if(boundName.find("SinusoidalH") != std::string::npos)
+                        else if(!boundName.compare("SinusoidalH"))
                             frontierElement.neighbours[j].second = SINUS_H;
 
-                        else if(boundName.find("PerfectCond") != std::string::npos)
+                        else if(!boundName.compare("PerfectCond"))
                             frontierElement.neighbours[j].second = PERFECTCOND;
 
-                        else if(boundName.find("Sine") != std::string::npos)
+                        else if(!boundName.compare("Sine"))
                             frontierElement.neighbours[j].second = SINE;
                         
-                        else if(boundName.find("TE2D") != std::string::npos)
+                        else if(!boundName.compare("TE2D"))
                             frontierElement.neighbours[j].second = TE2D;
 
-                        else if(boundName.find("TE3D") != std::string::npos)
+                        else if(!boundName.compare("TE3D"))
                             frontierElement.neighbours[j].second = TE3D;
 
                         boundFile >> frontierElement.bcParam[j * 9 + l];
