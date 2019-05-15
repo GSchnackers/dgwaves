@@ -37,10 +37,8 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     gmsh::logger::write("Done.");
 
     gmsh::logger::write("Initializing the quantity impedance and inductances...");
-    matProp.impedance.node.resize(mainElement.nodeTags.size(), 0);
-    matProp.impedance.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
-    matProp.conductance.node.resize(mainElement.nodeTags.size(), 0);
-    matProp.conductance.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
+    matProp.speedGp.resize(frontierElement.numGp * frontierElement.elementTag.size());
+    matProp.speedGpSumInv.resize(matProp.speedGp.size());
     gmsh::logger::write("Done.");
 
     // Loading the physical properties of the material.
@@ -90,23 +88,12 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     // Computes the adimensionnal coefficients.
     gmsh::logger::write("Setting the adimensionnal numbers, the impedance and conductances at the Gauss points\
                          and at the nodes...");
-    for(i = 0; i < mainElement.nodeTags.size(); ++i)
-    {
-        
-        matProp.impedance.node[i] = \
-                vacuumImp * std::sqrt(matProp.relPermittivity.node[i]/matProp.relPermeability.node[i]);
-
-        matProp.conductance.node[i] = 1/matProp.impedance.node[i];
-
-        matProp.eta.node[i] = simulation.L * matProp.conductivity.node[i] * \
-                              matProp.impedance.node[i]/matProp.relPermittivity.node[i];
-                              
+    for(i = 0; i < matProp.speedGp.size(); ++i)
+    {   
+        matProp.speedGp[i].first = sqrt(matProp.relPermittivity.gp[i].first * matProp.relPermeability.gp[i].first);
+        matProp.speedGp[i].second = sqrt(matProp.relPermittivity.gp[i].second * matProp.relPermeability.gp[i].second);
+        matProp.speedGpSumInv[i] = 1/(matProp.speedGp[i].first + matProp.speedGp[i].second);       
     }
-
-    // Value at the Gauss points of the various quantities.
-    valGp(matProp.impedance, mainElement, frontierElement, 1, matProp);
-    valGp(matProp.conductance, mainElement, frontierElement, 1, matProp);
-    valGp(matProp.eta, mainElement, frontierElement, 1, matProp);
 
     gmsh::logger::write("Done");
 

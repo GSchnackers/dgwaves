@@ -29,7 +29,8 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
    Function that computes the Lax-Friederichs numerical flux for electromagnetism. "alpha" is a constant that
    weight the upwind and averaged part of the numerical flux.
 */
-void numFluxELM(const Element & frontierElement, const double alpha, Quantity & u, Quantity & flux);
+void numFluxELM(const Element & frontierElement, const Properties & matProp, const double alpha, Quantity & u, \
+                Quantity & flux);
 
 /*
    Function that computes the integration of the scalar product between the outside normals to elements and the 
