@@ -60,6 +60,7 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     Properties matProp; // Properties of the material all over the domain.
     
     std::vector<double> error(simulation.uNum * int(simulation.simTime / simulation.simStep), 0);
+    std::vector<double> currentError(simulation.uNum, 0);
     std::vector<double> errorNodes(simulation.uNum * mainElement.nodeTags.size(), 0);
     std::vector<double> coordinates(3 * mainElement.nodeTags.size(), 0);
     std::vector<double> coordNodes(3 * mainElement.numNodes, 0);
@@ -99,7 +100,11 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
 
         if(simulation.error){
-            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, t);
+            compare(currentError, errorNodes, u, coordinates, mainElement, simulation, t, matProp);
+            for(i = 0; i < simulation.uNum; i++){
+                error[simulation.uNum * int(t/simulation.simStep) + i] = currentError[i];
+                currentError[i] = 0;
+            }
         }
 
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
@@ -140,9 +145,14 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
         #pragma omp parallel for shared(u, i, k1, k2, k3, k4)
         for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 
-        if(simulation.error)
-            compare(error[int(t/simulation.simStep)], errorNodes, u, coordinates, mainElement, simulation, t);
-        
+        if(simulation.error){
+            compare(currentError, errorNodes, u, coordinates, mainElement, simulation, t, matProp);
+            for(i = 0; i < simulation.uNum; i++){
+                error[simulation.uNum * int(t/simulation.simStep) + i] = currentError[i];
+                currentError[i] = 0;
+            }
+        }
+
         if(!((int(t/simulation.simStep) + 1) % simulation.registration))
         {
             if(simulation.uNum == 6)
@@ -161,8 +171,8 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
     gmsh::logger::write("Done.");
     
-    /* if(simulation.error)
-        writeError(error, simulation); */
+    if(simulation.error)
+        writeError(error, simulation);
 
     gmsh::view::write(view1.tag, "electricField.msh");
 

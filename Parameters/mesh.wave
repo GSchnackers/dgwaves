@@ -10,4 +10,4 @@ L 1
 BC ..\Parameters\mesh.bc
 PROP ..\Parameters\mesh.prop
 UNUM 6
-ERROR 0
+ERROR 1
