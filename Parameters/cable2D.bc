@@ -1,7 +1,7 @@
-WALL1 SinusoidalE 1 4 0 0 0 0 0 0 0
+WALL1 SinusoidalE 0 0 0 0 0 0 2 4 0
 WALL2 PerfectCond
-WALL3 PerfectCond
-WALL4 PerfectCond
+WALL3 Opening
+WALL4 Opening
 WALL5 PerfectCond
 WALL6 PerfectCond
 WALL7 PerfectCond
