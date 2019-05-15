@@ -1,84 +1,101 @@
+// The following geometry is of the form.
+// -----------------------------------------------
+// |                   e3                         |
+// -----------------------------------------------
+// |                   e2                         | e
+// -----------------------------------------------
+// |                   e1                         | h    dy
+// -----------------------------------------------
+// |                   e2                         | e
+// -----------------------------------------------
+// |                   e3                         | 
+// -----------------------------------------------
+//
+//                     dx
 
-d = 0.2; // useless if transfinite
-h = 3;
-l = 2;
 
-m1 = 0.3;
-m2 = 0.4;
+dx = 5; // Length of the cable
+dy = 2; // width of the cable
+h = 0.5; // width of the central cable
+e = 0.25; // width of the dielectric layers.
 
-nx = 4;
-ny = 4*h/d;
+// Points Delimitating the domain.
 
-Point(301) = {0, 0, 0, d}; 
-Point(302) = {m1*l, 0, 0, d};
-Point(303) = {m2*l, 0, 0, d};
-Point(304) = {(1-m2)*l, 0, 0, d};
-Point(305) = {(1-m1)*l, 0, 0, d};
-Point(306) = {l, 0, 0, d};
-Point(307) = {l, h, 0, d};
-Point(308) = {(1-m1)*l, h, 0, d};
-Point(309) = {(1-m2)*l, h, 0, d};
-Point(310) = {m2*l, h, 0, d};
-Point(311) = {m1*l, h, 0, d};
-Point(312) = {0, h, 0, d};
-Line(401) = {301, 302}; //horz bas 1
-Line(402) = {302, 311}; //vert 2
-Line(403) = {311, 312}; //horz haut 1
-Line(404) = {312, 301}; //vert 1
-Line(405) = {302, 303}; //horz bas 2
-Line(406) = {303, 310}; //vert 3
-Line(407) = {310, 311}; //horz haut 2
-// Line(408) = {311, 302}; // - Line(402)
-Line(409) = {303, 304}; //horz bas 3
-Line(410) = {304, 309}; //vert 4
-Line(411) = {309, 310}; //horz haut 3
-// Line(412) = {310, 303}; // - Line(406)
-Line(413) = {304, 305}; //horz bas 4
-Line(414) = {305, 308}; //vert 5
-Line(415) = {308, 309}; //horz haut 4
-// Line(416) = {309, 304}; // - Line(410)
-Line(417) = {305, 306}; //horz bas 5
-Line(418) = {306, 307}; //vert 6
-Line(419) = {307, 308}; //horz haut 5
-// Line(420) = {308, 305}; // - Line(414)
+Point(1) = {0, -dy/2, 0};
+Point(2) = {dx, -dy/2, 0};
+Point(3) = {dx, dy/2, 0};
+Point(4) = {0, dy/2, 0};
 
-Curve Loop(51) = {401, 402, 403, 404};
-Curve Loop(52) = {405, 406, 407, -402};
-Curve Loop(53) = {409, 410, 411, -406};
-Curve Loop(54) = {413, 414, 415, -410};
-Curve Loop(55) = {417, 418, 419, -414};
-Plane Surface(61) = {51};
-Plane Surface(62) = {52};
-Plane Surface(63) = {53};
-Plane Surface(64) = {54};
-Plane Surface(65) = {55};
+// Points delimitating the media
 
-// transfinite mesh
-//Transfinite Curve {402, 404, 406, 410, 414, 418} = ny+1 Using Progression 1;
-//Transfinite Curve {401, 403, 405, 407, 409, 411, 413, 415, 417, 419} = nx+1 Using Progression 1;
+Point(5) = {0, h/2, 0};
+Point(6) = {dx, h/2, 0};
+Point(7) = {dx, h/2 + e, 0};
+Point(8) = {0, h/2 + e, 0};
 
-//Transfinite Surface {61};
-//Transfinite Surface {62};
-//Transfinite Surface {63};
-//Transfinite Surface {64};
-//Transfinite Surface {65};
+Point(9) = {0, -h/2, 0};
+Point(10) = {dx, -h/2, 0};
+Point(11) = {dx, -h/2 - e, 0};
+Point(12) = {0, -h/2 - e, 0};
 
-// Physical curves taking into account the boundaries.
-Physical Curve("WALL1") = {409}; //horz bas 3
-Physical Curve("WALL2") = {401}; //horz bas 1
-Physical Curve("WALL3") = {405}; //horz bas 2
-Physical Curve("WALL4") = {413}; //horz bas 4
-Physical Curve("WALL5") = {417}; //horz bas 5
-Physical Curve("WALL6") = {418}; //vert 6 (à droite)
-Physical Curve("WALL7") = {419}; //horz haut 5
-Physical Curve("WALL8") = {415}; //horz haut 4
-Physical Curve("WALL9") = {411}; //horz haut 3
-Physical Curve("WALL10") = {407}; //horz haut 2
-Physical Curve("WALL11") = {403}; //horz haut 1
-Physical Curve("WALL12") = {404}; //vert 1 (à gauche)
-//Physical Curve("Constant1") = {409};
-Physical Surface("MATERIAL3") = {61, 65};
-Physical Surface("MATERIAL2") = {62, 64};
-Physical Surface("MATERIAL1") = {63};
+// Lines delimitating the central cable.
+
+Line(1) = {5, 9}; // Entry of the domain.
+Line(2) = {9, 10}; 
+Line(3) = {10, 6};
+Line(4) = {6, 5};
+
+// Lines defining the upper e zone
+
+Line(5) = {5, 8}; // Opening.
+Line(6) = {8, 7};
+Line(7) = {7, 6}; // Opening
+
+// Lines defining the highest zone.
+
+Line(8) = {8, 4}; // Opening.
+Line(9) = {4, 3}; // Opening 
+Line(10) = {3, 7}; // Opening
+
+// Lines defining the lower e zone
+
+Line(11) = {9, 12}; // Opening.
+Line(12) = {12, 11};
+Line(13) = {11, 10}; // Opening
+
+// Lines defining the lowest zone.
+
+Line(14) = {12, 1}; // Opening.
+Line(15) = {1, 2}; // Opening 
+Line(16) = {2, 11}; // Opening
+
+// Surface of the center cable 
+Curve Loop(1) = {1, 2, 3, 4};
+Plane Surface(1) = {1};
+
+// Surface of the upper e zone.
+Curve Loop(2) = {5, 6, 7, 4};
+Plane Surface(2) = {2};
+
+// Surface of the highest zone.
+Curve Loop(3) = {8, 9, 10, -6};
+Plane Surface(3) = {3};
+
+// Surface of the lower e zone.
+Curve Loop(4) = {2, -13, -12, -11};
+Plane Surface(4) = {4};
+
+// Surface of the lowest zone.
+Curve Loop(5) = {12, -16, -15, -14};
+Plane Surface(5) = {5};
+
+// Physical groups.
+Physical Curve("WALL1") = {1};
+Physical Curve("WALL2") = {3, 5, 7, 8, 9, 10, 11, 13, 14, 15, 16};
+
+Physical Surface("MATERIAL1") = {1};
+Physical Surface("MATERIAL2") = {2, 4};
+Physical Surface("MATERIAL3") = {3, 5};
 
 Mesh.Algorithm = 6;
+

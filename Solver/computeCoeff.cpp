@@ -16,11 +16,6 @@ void timeChecker(const Element & mainElement, const Element & frontierElement,\
     std::cout << " %%%%%%%%%%%%%%%%%%%%% TIME STEP t = " << t << " %%%%%%%%%%%%%%%%%%%%%" << std::endl;
     std::cout << " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
 
-    std::cout << "BC's verifier at t = " << t << std::endl;
-    for(i = 0; i < u.bound.size(); ++i)
-        std::cout << "Element: " << mainElement.elementTag[i/(numU * mainElement.numNodes)] << " Node: " << mainElement.nodeTags[i/numU] << " Value: " << u.bound[i] << " " << std::endl;
-    std::cout << std::endl;
-
     std::cout << "Gauss points verifier at t = " << t << std::endl;
         
     // Value of u at the gauss Point verifier.
@@ -112,27 +107,24 @@ void timeMarching(const Element & mainElement, const std::vector<double> & SFPro
 
 }
 
-void computeCoeff(const Element & mainElement, const Element & frontierElement,\
-                  const std::vector<Parameter> & bcParam, const Simulation & simulation,\
+void computeCoeff(const Element & mainElement, const Element & frontierElement, const Simulation & simulation,\
                   const Properties & matProp, const double t, Quantity & u, Quantity & flux, \
                   std::vector<double> & k){
 
     std::vector<double> SFProd(simulation.uNum * mainElement.nodeTags.size(), 0);
     std::vector<double> fluxVector(simulation.uNum * mainElement.nodeTags.size(), 0);
 
-    computeBoundaryCondition(u, t, bcParam);
-    valGp(u, mainElement, frontierElement, simulation.uNum);
+    valGp(u, mainElement, frontierElement, simulation.uNum, matProp, t);
 
     if(simulation.uNum == 6)
     {
-        physFluxELM(u, frontierElement, mainElement, matProp, flux);
-        numFluxELM(frontierElement, simulation.alpha, u, flux);
+        physFluxELM(u, frontierElement, mainElement, matProp, t, flux);
+        numFluxELM(frontierElement, matProp, simulation.alpha, u, flux);
     }
 
     else if(simulation.uNum == 1)
     {
-        std::vector<double> c = {1 , 0 , 0};
-        physFluxCu(u, mainElement, frontierElement, flux, c);
+        physFluxCu(u, mainElement, frontierElement, flux, simulation.c);
         numFluxUpwind(frontierElement, flux);
     }
 

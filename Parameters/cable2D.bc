@@ -1,12 +1,2 @@
-WALL1 SinusoidalE 0 0 0 0 0 0 2 4 0
-WALL2 PerfectCond
-WALL3 Opening
-WALL4 Opening
-WALL5 PerfectCond
-WALL6 PerfectCond
-WALL7 PerfectCond
-WALL8 PerfectCond
-WALL9 PerfectCond
-WALL10 PerfectCond
-WALL11 PerfectCond
-WALL12 PerfectCond
+WALL1 TE2D 1 10
+WALL2 Opening 0

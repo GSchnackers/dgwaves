@@ -6,6 +6,15 @@
 #include <gmsh.h>
 #include <vector>
 
+#define _USE_MATH_DEFINES
+
+#define OPENING -1
+#define SINUS_E -2
+#define SINUS_H -3
+#define PERFECTCOND -4
+#define SINE -5
+#define TE2D -6
+#define TE3D -7
 
 // Structure Element represent the common characteristic of element of dimension dim.
 
@@ -65,6 +74,8 @@ struct Element{
 
     std::vector<double> normals; // Vector containing the normals. Only useful for frontier elements.
 
+    std::vector<double> bcParam; // Takes the parameters of the BC's.
+
 };
 
 typedef struct Element Element;
@@ -88,23 +99,11 @@ struct Quantity{
     std::vector<double> node; // Values of the quantity at the nodes of the elements.
     std::vector<std::pair<double, double>> gp; // value of the quantity at the gauss points.
     std::vector<double> direction; // The direction in which the information propagates.
-    std::vector<double> bound; // set of 0 and 1 value. It is 1 if the corresponding node is at the boundary, it is 0 if not.
-    std::vector<double> num; // numerical value
-    std::vector<double> boundSign; // Contains the type of the boundary condition applied to the node.
+    std::vector<double> num; // numerical value.
 
 };
 
 typedef struct Quantity Quantity;
-
-struct Parameter{
-
-    double param1;
-    double param2;
-    double param3;
-
-};
-
-typedef struct Parameter Parameter;
 
 struct Simulation{
 
@@ -121,6 +120,8 @@ struct Simulation{
     std::string boundFileName; // name of the bc file.
     std::string propFileName; // name of the property file.
     int uNum;
+    std::vector<double> c = {0, 0, 0}; // Coefficient of speed for transport
+    int error; // compare analytical solution to numerical solution
 
 };
 
@@ -132,8 +133,8 @@ struct Properties{
     Quantity relPermittivity; // Contains the relative permittivity
     Quantity relPermeability; // Contains the relative permeability.
     Quantity conductivity; // Contains the conductivity.
-    Quantity impedance; // Contains the impedance of the material.
-    Quantity conductance; // Contains the conductance of the material.
+    std::vector<std::pair<double, double>> speedGp; // Contains the adimensional speed of light in the media at the gauss points.
+    std::vector<double> speedGpSumInv; // Contains the inverse of the sum of both speeds.
     Quantity eta; // Adimensionnal number related to the conductivity of the material.
 
 };

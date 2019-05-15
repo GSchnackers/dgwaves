@@ -78,7 +78,7 @@ void sortingNeighbouring(const Element & mainElement, Element & frontierElement,
                 }
 
                 tmpNeighbours[sizeNeigh].first = elementIndexi;
-                tmpNeighbours[sizeNeigh].second = -1;
+                tmpNeighbours[sizeNeigh].second = OPENING; // by default, the neighbour is set to an opening.
                 
                 ++sizeNeigh;
                 break;
