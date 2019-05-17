@@ -16,7 +16,7 @@ void compare(std::vector<double> & error, std::vector<double> & errorNodes, cons
     double w, wc, beta, c, muR, epsR;
     double a = 1;
     int m = 1;
-    double f = 2;
+    double f = 1;
     
     for(std::size_t i = 0; i < numNodes; i++){
         if(simulation.uNum == 1){

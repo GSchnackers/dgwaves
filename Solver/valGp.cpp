@@ -21,15 +21,15 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     {
 
         if(gpIndex % 6 == 0) 
-            return frontierElement.bcParam[paramIdx] * sin(frontierElement.bcParam[paramIdx + 1] \
+            return frontierElement.bcParam[paramIdx] * sin(2 * frontierElement.bcParam[paramIdx + 1] \
                     * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
                     
         else if(gpIndex % 6 == 1)                           
-            return frontierElement.bcParam[paramIdx + 3] * sin(frontierElement.bcParam[paramIdx + 4] \
+            return frontierElement.bcParam[paramIdx + 3] * sin(2 * frontierElement.bcParam[paramIdx + 4] \
                     * M_PI * t + frontierElement.bcParam[paramIdx + 5]);
 
         else if(gpIndex % 6 == 2)                                
-            return frontierElement.bcParam[paramIdx + 6] * sin(frontierElement.bcParam[paramIdx + 7] \
+            return frontierElement.bcParam[paramIdx + 6] * sin(2 * frontierElement.bcParam[paramIdx + 7] \
                     * M_PI * t + frontierElement.bcParam[paramIdx + 8]); 
                                             
         else return u.gp[gpIndex].first;
@@ -40,15 +40,15 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     {
         
         if(gpIndex % 6 == 3) 
-            return frontierElement.bcParam[paramIdx] * sin(frontierElement.bcParam[paramIdx + 1] \
+            return frontierElement.bcParam[paramIdx] * sin(2 * frontierElement.bcParam[paramIdx + 1] \
                     * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
                     
         else if(gpIndex % 6 == 4)                           
-            return frontierElement.bcParam[paramIdx + 3] * sin(frontierElement.bcParam[paramIdx + 4] \
+            return frontierElement.bcParam[paramIdx + 3] * sin(2 * frontierElement.bcParam[paramIdx + 4] \
                     * M_PI * t + frontierElement.bcParam[paramIdx + 5]);
 
         else if(gpIndex % 6 == 5)                                
-            return frontierElement.bcParam[paramIdx + 6] * sin(frontierElement.bcParam[paramIdx + 7] \
+            return frontierElement.bcParam[paramIdx + 6] * sin(2 * frontierElement.bcParam[paramIdx + 7] \
                     * M_PI * t + frontierElement.bcParam[paramIdx + 8]); 
                                             
         else return u.gp[gpIndex].first;
@@ -65,7 +65,7 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     {
         if(gpIndex % 6 == 2)
             return sin(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) \
-                   * cos(frontierElement.bcParam[paramIdx + 1] * M_PI * t);
+                   * cos(2 * frontierElement.bcParam[paramIdx + 1] * M_PI * t);
         
         else if (gpIndex % 6 < 2)
             return 0;
@@ -79,7 +79,7 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
         if(gpIndex % 6 == 1)
             return cos(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) \
                    * sin(frontierElement.bcParam[paramIdx + 1] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 2]/0.25) \
-                   * cos(frontierElement.bcParam[paramIdx + 2] * M_PI * t);
+                   * cos(2 * frontierElement.bcParam[paramIdx + 2] * M_PI * t);
         
         else if(gpIndex % 6 == 2)
             return sin(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) \
