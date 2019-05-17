@@ -1,12 +1,12 @@
 
 d = 1; // useless if transfinite
 
-nx = 2;
+nx = 8;
 ny = 2;
 
 Point(31) = {0, 0, 0, d};
-Point(32) = {1, 0, 0, d};
-Point(33) = {1, 1, 0, d};
+Point(32) = {4, 0, 0, d};
+Point(33) = {4, 1, 0, d};
 Point(34) = {0, 1, 0, d};
 Line(41) = {31, 32};
 Line(42) = {32, 33};

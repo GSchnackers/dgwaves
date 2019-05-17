@@ -7,7 +7,7 @@
 /*
    Function that computes tha analytical solution
 */
- void compare(std::vector<double> & error, std::vector<double> & errorNodes, const Quantity & u,\
+ void compare(std::vector<double> & error, std::vector<double> & errorNodes, Quantity & u,\
              const std::vector<double> & coordinates, const Element & mainElement,\
              const Simulation & simulation, const double mytime, const Properties & matProp);
 

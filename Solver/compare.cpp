@@ -7,7 +7,7 @@
 #include "solver.hpp"
 #include "structures.hpp"
 
-void compare(std::vector<double> & error, std::vector<double> & errorNodes, const Quantity & u,\
+void compare(std::vector<double> & error, std::vector<double> & errorNodes, Quantity & u,\
              const std::vector<double> & coordinates, const Element & mainElement,\
              const Simulation & simulation, const double mytime, const Properties & matProp){
     
@@ -36,7 +36,7 @@ void compare(std::vector<double> & error, std::vector<double> & errorNodes, cons
             wc = c*m*M_PI/a;
             w = 2*M_PI*f;
             beta = sqrt(w*w-wc*wc)/c;
-            if(coordinates[3*i] < mytime){
+            if(coordinates[3*i] < (w/(sqrt(w*w - wc*wc)))*mytime){
                 // Dimensionless amplitude is taken = 1 (to change in the code if any change in the BC)
                 uAnal[simulation.uNum*i] = 0; // Ex
                 uAnal[simulation.uNum*i + 1] = 0; // Ey
