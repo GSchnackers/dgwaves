@@ -13,10 +13,10 @@ void compare(std::vector<double> & error, std::vector<double> & errorNodes, Quan
     
     int numNodes = u.node.size()/simulation.uNum;
     std::vector<double> uAnal(numNodes*simulation.uNum);
-    double w, wc, beta, c, muR, epsR;
+    double w, wc, beta, c, muR, epsR, normE, normH, prodEH;
     double a = 1;
     int m = 1;
-    double f = 1;
+    double f = 2;
     
     for(std::size_t i = 0; i < numNodes; i++){
         if(simulation.uNum == 1){
@@ -55,9 +55,17 @@ void compare(std::vector<double> & error, std::vector<double> & errorNodes, Quan
             }
         }
 
-        for(std::size_t j = 0; j < simulation.uNum ; j++){
+        for(std::size_t j = 0; j < simulation.uNum; j++){
             errorNodes[simulation.uNum*i + j] = uAnal[simulation.uNum*i + j] - u.node[simulation.uNum*i + j];
             error[j] += errorNodes[simulation.uNum*i + j]*errorNodes[simulation.uNum*i + j]/numNodes;
         }
+
+        normE = u.node[simulation.uNum*i]*u.node[simulation.uNum*i] + u.node[simulation.uNum*i+1]\
+                *u.node[simulation.uNum*i + 1] + u.node[simulation.uNum*i+2]*u.node[simulation.uNum*i+2];
+        normH = u.node[simulation.uNum*i+3]*u.node[simulation.uNum*i+3] + u.node[simulation.uNum*i+4]\
+                *u.node[simulation.uNum*i+4] + u.node[simulation.uNum*i+5]*u.node[simulation.uNum*i+5];
+        prodEH = u.node[simulation.uNum*i]*u.node[simulation.uNum*i+3] + u.node[simulation.uNum*i+1]\
+                *u.node[simulation.uNum*i+4] + u.node[simulation.uNum*i+2]*u.node[simulation.uNum*i+5];
+        error[simulation.uNum] += sqrt(normE*normH - prodEH*prodEH)/numNodes;
     }
 }
