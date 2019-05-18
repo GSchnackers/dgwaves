@@ -59,8 +59,8 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     Simulation simParam; // Parameters of the simulation.
     Properties matProp; // Properties of the material all over the domain.
     
-    std::vector<double> error((simulation.uNum+1) * int(simulation.simTime / simulation.simStep), 0);
-    std::vector<double> currentError(simulation.uNum+1, 0);
+    std::vector<double> error((simulation.uNum+2) * int(simulation.simTime / simulation.simStep), 0);
+    std::vector<double> currentError(simulation.uNum+2, 0);
     std::vector<double> errorNodes(simulation.uNum * mainElement.nodeTags.size(), 0);
     std::vector<double> coordinates(3 * mainElement.nodeTags.size(), 0);
     std::vector<double> coordNodes(3 * mainElement.numNodes, 0);
@@ -101,8 +101,8 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
         if(simulation.error){
             compare(currentError, errorNodes, u, coordinates, mainElement, simulation, t, matProp);
-            for(i = 0; i < simulation.uNum+1; i++){
-                error[(simulation.uNum+1) * int(t/simulation.simStep) + i] = currentError[i];
+            for(i = 0; i < simulation.uNum+2; i++){
+                error[(simulation.uNum+2) * int(t/simulation.simStep) + i] = currentError[i];
                 currentError[i] = 0;
             }
         }
@@ -147,8 +147,8 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
         if(simulation.error){
             compare(currentError, errorNodes, u, coordinates, mainElement, simulation, t, matProp);
-            for(i = 0; i < simulation.uNum+1; i++){
-                error[(simulation.uNum+1) * int(t/simulation.simStep) + i] = currentError[i];
+            for(i = 0; i < simulation.uNum+2; i++){
+                error[(simulation.uNum+2) * int(t/simulation.simStep) + i] = currentError[i];
                 currentError[i] = 0;
             }
         }
