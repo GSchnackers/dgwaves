@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <iostream>
+#include <time.h>
 #include <gmsh.h>
 #include "meshing.hpp"
 #include "parameters.hpp"
@@ -8,6 +9,10 @@
 
 int main(int argc, char **argv)
 {
+    //starting the clock to compute the execution time
+    float temps;
+    clock_t t1, t2;
+    t1 = clock();
 
     if (argc < 2)
     {
@@ -79,5 +84,11 @@ int main(int argc, char **argv)
     }
 
     gmsh::finalize(); // Closes gmsh
+
+    //display execution time
+    t2 = clock();
+    temps = (float)(t2-t1)/CLOCKS_PER_SEC;
+    printf("temps = %f\n", temps);
+
     return 0;
 }
