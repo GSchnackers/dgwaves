@@ -20,8 +20,7 @@ void propAssign(const Element & element, const std::vector<int> & physicalEntity
     {
         std::vector<int> physicalElementTag;
 
-        gmsh::model::mesh::getElementsByType(elemDim, physicalElementTag, binInt, \
-                                             physicalEntityTags[i]);
+        gmsh::model::mesh::getElementsByType(elemDim, physicalElementTag, binInt, physicalEntityTags[i]);
 
         for(j = 0; j < physicalElementTag.size(); ++j)
             for(k = 0; k < element.elementTag.size(); ++k)
@@ -37,24 +36,29 @@ void propAssign(const Element & element, const std::vector<int> & physicalEntity
                             propFile >> relPermea;
                             propFile.get();
                             propFile >> conduct;
-                            propFile.get();
 
                             for(l = 0; l < element.numNodes; ++l)
                             {
+                                int idx = k * element.numNodes + l;
 
-                                matProp.relPermittivity.node[k * element.numNodes + l] = relPermitt;
+                                matProp.relPermittivity.node[idx] = relPermitt;
 
-                                matProp.relPermeability.node[k * element.numNodes + l] = relPermea;
+                                matProp.relPermeability.node[idx] = relPermea;
 
-                                matProp.conductivity.node[k * element.numNodes + l] = conduct;
+                                matProp.conductivity.node[idx] = conduct;
 
+                            }
+
+                            while(1)
+                            {
+                                char c = propFile.get();
+                                if(c == '\n' || c == EOF) break;
                             }
 
 
                         }
 
-                        else
-                            std::getline(propFile, bin);
+                        else std::getline(propFile, bin);
 
 
                     }
@@ -76,6 +80,8 @@ void setProperties(const Element & mainElement, const Element & frontierElement,
     std::size_t i, j;
     
     std::fstream propFile;
+
+    std::cout << simulation.propFileName << std::endl;
 
     propFile.open(simulation.propFileName);
     if(simulation.propFileName.find(".prop") == std::string::npos)

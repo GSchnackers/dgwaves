@@ -31,92 +31,35 @@ IF(APPLE)
     SET(CMAKE_FIND_FRAMEWORK LAST)
 ENDIF()
 
-# find gmsh-sdk
-# gmsh.h
-FIND_PATH(GMSH_INCLUDE_DIRS NAMES "gmsh.h")
-MESSAGE(STATUS "GMSH_INCLUDE_DIRS=" ${GMSH_INCLUDE_DIRS})
-if(NOT GMSH_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR "gmsh.h not found!")
-ENDIF()
-INCLUDE_DIRECTORIES(${GMSH_INCLUDE_DIRS})
-
-# omp.h
-FIND_PATH(OMP_INCLUDE_DIRS NAMES "omp.h")
-MESSAGE(STATUS "OMP_INCLUDE_DIRS=" ${OMP_INCLUDE_DIRS})
-if(NOT OMP_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR "omp.h not found!")
-ENDIF()
-INCLUDE_DIRECTORIES(${OMP_INCLUDE_DIRS})
-
-# omp library
-FIND_LIBRARY(OMP_LIBRARIES gomp)
-MESSAGE(STATUS "OMP_LIBRARIES=" ${OMP_LIBRARIES})
-IF(NOT OMP_LIBRARIES)
-    MESSAGE(FATAL_ERROR "omp library not found!")
-ENDIF()
-
 message(STATUS "Checking OpenMP")
 find_package(OpenMP)
 IF(OPENMP_FOUND)
-    message("Found OpenMP! ^_^")
+    message("OpenMP has been found.")
     # add flags for OpenMP
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_SHARED_LINKER_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 ELSE()
-    message("Missed OpenMP! x_x")
+    message("OpenMP not found. It will be ignored during compilation.")
 ENDIF()
 
-# eigen
-FIND_PATH(EIGEN_INCLUDE_DIRS NAMES "eigen")
-MESSAGE(STATUS "EIGEN_INCLUDE_DIRS=" ${EIGEN_INCLUDE_DIRS})
-if(NOT EIGEN_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR "eigen not found!")
-ENDIF()
-INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS})
+# find gmsh-sdk
+# gmsh.h
+INCLUDE_DIRECTORIES("/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/gmsh-sdk/include")
+# headers
+INCLUDE_DIRECTORIES("/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/Header")
+# eigen include files
+INCLUDE_DIRECTORIES("/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/eigen")
 
-# libgmsh.so
-FIND_LIBRARY(GMSH_LIBRARIES gmsh)
+FIND_LIBRARY(GMSH_LIBRARIES "libgmsh.so.4.1" PATH "/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/gmsh-sdk/lib")
 MESSAGE(STATUS "GMSH_LIBRARIES=" ${GMSH_LIBRARIES})
 IF(NOT GMSH_LIBRARIES)
     MESSAGE(FATAL_ERROR "gmsh library not found!")
 ENDIF()
 
-# solver.hpp
-FIND_PATH(SOLVER_INCLUDE_DIRS NAMES "solver.hpp")
-MESSAGE(STATUS "SOLVER_INCLUDE_DIRS=" ${SOLVER_INCLUDE_DIRS})
-if(NOT SOLVER_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR "solver.hpp not found!")
-ENDIF()
-INCLUDE_DIRECTORIES(${SOLVER_INCLUDE_DIRS})
-
-# parameters.hpp
-FIND_PATH(PARAMETERS_INCLUDE_DIRS NAMES "parameters.hpp")
-MESSAGE(STATUS "PARAMETERS_INCLUDE_DIRS=" ${PARAMETERS_INCLUDE_DIRS})
-if(NOT PARAMETERS_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR "parameters.hpp not found!")
-ENDIF()
-INCLUDE_DIRECTORIES(${PARAMETERS_INCLUDE_DIRS})
-
-# meshing.hpp
-FIND_PATH(MESHING_INCLUDE_DIRS NAMES "meshing.hpp")
-MESSAGE(STATUS "MESHING_INCLUDE_DIRS=" ${MESHING_INCLUDE_DIRS})
-if(NOT MESHING_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR "meshing.hpp not found!")
-ENDIF()
-INCLUDE_DIRECTORIES(${MESHING_INCLUDE_DIRS})
-
-# structures.hpp
-FIND_PATH(STRUCTURE_INCLUDE_DIRS NAMES "structures.hpp")
-MESSAGE(STATUS "STRUCTURE_INCLUDE_DIRS=" ${STRUCTURE_INCLUDE_DIRS})
-if(NOT STRUCTURE_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR "structures.hpp not found!")
-ENDIF()
-INCLUDE_DIRECTORIES(${STRUCTURE_INCLUDE_DIRS})
-
-# gmsh.exe
-FIND_PROGRAM(GMSH_EXECUTABLE gmsh)
+# find the gmsh executable
+FIND_PROGRAM(GMSH_EXECUTABLE gmsh PATH "/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/gmsh-sdk/bin")
 MESSAGE(STATUS "GMSH_EXECUTABLE=" ${GMSH_EXECUTABLE})
 IF(NOT GMSH_EXECUTABLE)
     MESSAGE(FATAL_ERROR "gmsh executable not found!")

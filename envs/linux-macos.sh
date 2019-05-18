@@ -12,15 +12,5 @@
 #   ctest
 
 # set the location of gmsh SDK ( **MODIFY THIS LINE FOR YOUR SYSTEM** )
-GMSHSDK=~/gmsh-4.1.5-Linux64-sdk
-
-# where are gmsh and gmsh-**.so ?
-export PATH=${GMSHSDK}/bin:${GMSHSDK}/lib:${PATH}
-# where is gmsh.h ?
-export INCLUDE=${GMSHSDK}/include:${INCLUDE}
-# where is gmsh.lib ?
-export LIB=${GMSHSDK}/lib:${LIB}
-# where is gmsh.py ? (required only if you want to use the python API)
-export PYTHONPATH=${GMSHSDK}/lib:${PYTHONPATH}
-# the following command is only useful for macOS 
-export DYLD_LIBRARY_PATH=${GMSHSDK}/lib:${DYLD_LIBRARY_PATH}
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/gmsh-sdk/lib
+export LD_LIBRARY_PATH

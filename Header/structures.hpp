@@ -115,8 +115,6 @@ struct Simulation{
     std::string gaussType; // Gauss integration type.
     int debug; // triggers the debug mode.
     double alpha; // Coefficient of lax friedrichs numerical flux.
-    double E0; // Reference electric field.
-    double L; // Reference length.
     std::string boundFileName; // name of the bc file.
     std::string propFileName; // name of the property file.
     int uNum;

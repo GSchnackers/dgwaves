@@ -25,81 +25,58 @@ void readParam(std::string fileName, Simulation & simulation){
     while(std::getline(file, command, ' '))
     {
 
-        if(!(command.compare("SIMTIME")))
-        {
-             file >> simulation.simTime;
-             file.get();
-        }
+        bool cond = true;
+
+        if(!(command.compare("SIMTIME"))) file >> simulation.simTime;
         
-        else if(!(command.compare("SIMSTEP")))
+        else if(!(command.compare("SIMSTEP"))) file >> simulation.simStep;
+        
+        else if(!(command.compare("REGISTRATION"))) file >> simulation.registration;
+        
+        else if(!(command.compare("SOLVER"))) file >> simulation.solver;
+        
+        else if(!(command.compare("GAUSS"))) 
         {
-            file >> simulation.simStep;
-            file.get();
+            std::getline(file, simulation.gaussType);
+            cond = false;
         }
 
-        else if(!(command.compare("REGISTRATION")))
+        else if(!(command.compare("DEBUG"))) file >> simulation.debug;
+    
+        else if(!(command.compare("ALPHA"))) file >> simulation.alpha;
+        
+        else if(!(command.compare("BC")))
         {
-            file >> simulation.registration;
-            file.get();
+            std::getline(file, simulation.boundFileName);
+            cond = false;
         }
 
-        else if(!(command.compare("SOLVER")))
+        else if(!(command.compare("PROP")))
         {
-            file >> simulation.solver;
-            file.get();
+            std::getline(file, simulation.propFileName);
+            cond = false;
         }
 
-        else if(!(command.compare("GAUSS"))) std::getline(file, simulation.gaussType);
-
-        else if(!(command.compare("DEBUG")))
-        { 
-            file >> simulation.debug;
-            file.get();
-        }
-
-        else if(!(command.compare("ALPHA")))
-        { 
-            file >> simulation.alpha;
-            file.get();
-        }
-
-        else if(!(command.compare("E0")))
-        { 
-            file >> simulation.E0;
-            file.get();
-        }
-
-        else if(!(command.compare("L")))
-        { 
-            file >> simulation.L;
-            file.get();
-        }
-
-        else if(!(command.compare("BC"))) std::getline(file, simulation.boundFileName);
-
-        else if(!(command.compare("PROP"))) std::getline(file, simulation.propFileName);
-
-        else if(!(command.compare("UNUM")))
-        { 
-            file >> simulation.uNum;
-            file.get();
-        }
+        else if(!(command.compare("UNUM"))) file >> simulation.uNum;
+        
         else if(!(command.compare("C")))
-        { 
             for(std::size_t i = 0; i < 3; i++)
             {
                 file >> simulation.c[i];
                 file.get();
             }
-        }
-        else if(!(command.compare("ERROR")))
-        { 
-            file >> simulation.error;
-            file.get();
-        }
+        else if(!(command.compare("ERROR"))) file >> simulation.error;
 
         else
             gmsh::logger::write("Unrecognized parameter. Ignored.", "warning");
+
+        if(cond)
+            while(1)
+            {
+                char c = file.get();
+                if(c == '\n' || c == EOF) break;
+            }
+
         
     }
 
