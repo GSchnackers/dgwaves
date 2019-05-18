@@ -11,14 +11,14 @@ void writeError(const std::vector<double> & error, const Simulation & simulation
     
     if(fichier) {
         if(simulation.uNum == 1)
-            fichier << "time error" << std::endl;
+            fichier << "time error Power" << std::endl;
         else if(simulation.uNum == 6)
-            fichier << "time errorEx errorEy errorEz errorHx errorHy errorHz" << std::endl;
+            fichier << "time errorEx errorEy errorEz errorHx errorHy errorHz Power PowerAnal" << std::endl;
         
-        for(std::size_t i = 0; i < error.size()/simulation.uNum; i++){
+        for(std::size_t i = 0; i < error.size()/(simulation.uNum+2); i++){
             fichier << std::to_string(i*simulation.simStep);
-            for(std::size_t j = 0; j < simulation.uNum; j++)
-                fichier << " " << std::to_string(error[i*simulation.uNum + j]);
+            for(std::size_t j = 0; j < simulation.uNum+2; j++)
+                fichier << " " << std::to_string(error[i*(simulation.uNum+2) + j]);
             fichier << std::endl;
         }
 
