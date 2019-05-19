@@ -67,6 +67,8 @@ void readParam(std::string fileName, Simulation & simulation){
             }
         else if(!(command.compare("ERROR"))) file >> simulation.error;
 
+        else if(!(command.compare("NUMTHREADS"))) file >> simulation.numThreads;
+
         else
             gmsh::logger::write("Unrecognized parameter. Ignored.", "warning");
 

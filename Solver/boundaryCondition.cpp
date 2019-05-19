@@ -132,6 +132,8 @@ void setBoundaryCondition(Element & frontierElement, const Simulation & simulati
         exit(-1);
     }
 
+
+    #pragma omp parallel for default(shared) private(j)
     for(i = 0; i < physicalGroups.dimTags.size(); ++i)
         if(physicalGroups.dimTags[i].first == frontierElement.dim)
             for(j = 0; j < physicalGroups.elemType[i][0].size(); ++j)

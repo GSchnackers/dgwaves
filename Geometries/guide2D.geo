@@ -8,14 +8,14 @@ nx = 2*dx;
 ny = 2*dy;
 nz = 1;
 
-Point(301) = {0, 0, 0};
-Point(302) = {dx, 0, 0};
-Point(303) = {dx, dy, 0};
-Point(304) = {0, dy, 0};
-Point(305) = {0, 0, dz};
-Point(306) = {dx, 0, dz};
-Point(307) = {dx, dy, dz};
-Point(308) = {0, dy, dz};
+Point(301) = {0, 0, 0, d};
+Point(302) = {dx, 0, 0, d};
+Point(303) = {dx, dy, 0, d};
+Point(304) = {0, dy, 0, d};
+Point(305) = {0, 0, dz, d};
+Point(306) = {dx, 0, dz, d};
+Point(307) = {dx, dy, dz, d};
+Point(308) = {0, dy, dz, d};
 //face dessous
 
 Line(401) = {301, 302};
@@ -69,3 +69,5 @@ Mesh.Algorithm = 6;
 
 
 Mesh.SaveAll = 1;
+Mesh.Algorithm3D = 1;
+Mesh.CharacteristicLengthMax = 0.1;

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <gmsh.h>
 #include "structures.hpp"
+#include <omp.h>
 
 double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Element & frontierElement, \
                   const Properties & matProp){
@@ -21,16 +22,13 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     {
 
         if(gpIndex % 6 == 0) 
-            return frontierElement.bcParam[paramIdx] * sin(2 * frontierElement.bcParam[paramIdx + 1] \
-                    * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
+            return frontierElement.bcParam[paramIdx] * sin(2 * frontierElement.bcParam[paramIdx + 1] * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
                     
         else if(gpIndex % 6 == 1)                           
-            return frontierElement.bcParam[paramIdx + 3] * sin(2 * frontierElement.bcParam[paramIdx + 4] \
-                    * M_PI * t + frontierElement.bcParam[paramIdx + 5]);
+            return frontierElement.bcParam[paramIdx + 3] * sin(2 * frontierElement.bcParam[paramIdx + 4] * M_PI * t + frontierElement.bcParam[paramIdx + 5]);
 
         else if(gpIndex % 6 == 2)                                
-            return frontierElement.bcParam[paramIdx + 6] * sin(2 * frontierElement.bcParam[paramIdx + 7] \
-                    * M_PI * t + frontierElement.bcParam[paramIdx + 8]); 
+            return frontierElement.bcParam[paramIdx + 6] * sin(2 * frontierElement.bcParam[paramIdx + 7] * M_PI * t + frontierElement.bcParam[paramIdx + 8]); 
                                             
         else return u.gp[gpIndex].first;
 
@@ -40,16 +38,13 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     {
         
         if(gpIndex % 6 == 3) 
-            return frontierElement.bcParam[paramIdx] * sin(2 * frontierElement.bcParam[paramIdx + 1] \
-                    * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
+            return frontierElement.bcParam[paramIdx] * sin(2 * frontierElement.bcParam[paramIdx + 1] * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
                     
         else if(gpIndex % 6 == 4)                           
-            return frontierElement.bcParam[paramIdx + 3] * sin(2 * frontierElement.bcParam[paramIdx + 4] \
-                    * M_PI * t + frontierElement.bcParam[paramIdx + 5]);
+            return frontierElement.bcParam[paramIdx + 3] * sin(2 * frontierElement.bcParam[paramIdx + 4] * M_PI * t + frontierElement.bcParam[paramIdx + 5]);
 
         else if(gpIndex % 6 == 5)                                
-            return frontierElement.bcParam[paramIdx + 6] * sin(2 * frontierElement.bcParam[paramIdx + 7] \
-                    * M_PI * t + frontierElement.bcParam[paramIdx + 8]); 
+            return frontierElement.bcParam[paramIdx + 6] * sin(2 * frontierElement.bcParam[paramIdx + 7] * M_PI * t + frontierElement.bcParam[paramIdx + 8]); 
                                             
         else return u.gp[gpIndex].first;
 
@@ -64,8 +59,8 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     else if(frontierElement.neighbours[i].second == TE2D)
     {
         if(gpIndex % 6 == 2)
-            return sin(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) \
-                   * sin(2 * frontierElement.bcParam[paramIdx + 1] * M_PI * t);
+            return sin(frontierElement.bcParam[paramIdx] * M_PI * frontierElement.gaussPoints[gpIndex/6 * 3 + 1]) * \
+                   sin(2 * frontierElement.bcParam[paramIdx + 1] * M_PI * t);
         
         else if (gpIndex % 6 < 2)
             return 0;
@@ -114,6 +109,7 @@ void valGp(Quantity & u, const Element & mainElement, const Element & frontierEl
 
     std::fill(u.gp.begin(), u.gp.end(), std::make_pair(0,0));
 
+    #pragma omp parallel for default(shared) private(i,j,k,l)
     for(i = 0; i < frontierElement.elementTag.size(); ++i) // Loop over the elements
         for(j = 0; j < frontierElement.numGp; ++j) // Loop over the Gauss Points
             for(k = 0; k < frontierElement.numNodes; ++k) // loop over the nodes

@@ -11,7 +11,7 @@ void sinusoidalDisp(const Element & mainElement, const Quantity & u, const Simul
 
     std::size_t i, j;
 
-    #pragma omp parallel for shared(u, view, i) private(j)
+    #pragma omp parallel for shared(u, view) private(i,j)
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
             view.data[i][j] = u.node[i * mainElement.numNodes + j];
@@ -27,6 +27,7 @@ void ELMDisp(const Element & mainElement, const Quantity & u, const Simulation &
 
     std::size_t i, j, k;
 
+    #pragma omp parallel for default(shared) private(i,j,k)
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
             for(k = 0; k < 3; ++k)
@@ -90,80 +91,58 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
     gmsh::logger::write("Simulation...");
 
-    // Euler method.
-    for(t = 0; t < simulation.simTime && !simulation.solver; t += simulation.simStep)
-    {
-        
-        computeCoeff(mainElement, frontierElement, simulation, matProp, t, u, flux, k1);
-
-        #pragma omp parallel for shared(u, i, k1)
-        for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
-
-        if(simulation.error){
-            compare(currentError, errorNodes, u, coordinates, mainElement, simulation, t, matProp);
-            for(i = 0; i < simulation.uNum+1; i++){
-                error[(simulation.uNum+1) * int(t/simulation.simStep) + i] = currentError[i];
-                currentError[i] = 0;
-            }
-        }
-
-        if(!((int(t/simulation.simStep) + 1) % simulation.registration))
-        {
-            if(simulation.uNum == 6)
-                ELMDisp(mainElement, u, simulation, t, view1, view2);
-
-            else if(simulation.uNum == 1)
-                sinusoidalDisp(mainElement, u, simulation, t, view1);
-        }
-
-        if(!(int(t/simulation.simTime) % 20) || t/simulation.simTime == 1)
-            std::cout << "\33\rProgression: " << int(t/simulation.simTime * 100) << "%";
-
-    }
-
-    // Runge-Kutta 4 method.
-    for(t = 0; t < simulation.simTime && simulation.solver; t += simulation.simStep)
+    // Solver itself.
+    for(t = 0; t < simulation.simTime; t += simulation.simStep)
     {    
 
         int stepNum = int(t/simulation.simTime);
         Quantity uTmp = u;
         computeCoeff(mainElement, frontierElement, simulation, matProp, t, uTmp, flux, k1);
 
-        #pragma omp parallel for shared(u, i, k1, uTmp)
-        for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
-        computeCoeff(mainElement, frontierElement, simulation, matProp, t + halfInc, uTmp, flux, k2);
+        if(simulation.solver)
+        {
+            #pragma omp parallel for default(shared) private(i)
+            for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k1[i]);
 
-        #pragma omp parallel for shared(u, i, k2, uTmp)
-        for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
-        computeCoeff(mainElement, frontierElement, simulation, matProp, t + halfInc, uTmp, flux, k3);
+            computeCoeff(mainElement, frontierElement, simulation, matProp, t + halfInc, uTmp, flux, k2);
+            #pragma omp parallel for default(shared) private(i)
+            for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + halfInc * k2[i]);
 
-        #pragma omp parallel for shared(u, i, k3, uTmp)
-        for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + simulation.simStep * k3[i]);
-        computeCoeff(mainElement, frontierElement, simulation, matProp, t + simulation.simStep, uTmp,\
-                     flux, k4);
+            computeCoeff(mainElement, frontierElement, simulation, matProp, t + halfInc, uTmp, flux, k3);
+            #pragma omp parallel for default(shared) private(i)
+            for (i = 0; i < u.node.size(); ++i) uTmp.node[i] = u.node[i] * (1 + simulation.simStep * k3[i]);
 
-        #pragma omp parallel for shared(u, i, k1, k2, k3, k4)
-        for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+            computeCoeff(mainElement, frontierElement, simulation, matProp, t + simulation.simStep, uTmp, flux, k4);
+            #pragma omp parallel for default(shared) private(i)
+            for(i = 0; i < u.node.size(); ++i) u.node[i] += sixthInc * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+        }
+
+        else
+            #pragma omp parallel for default(shared) private(i)
+            for (i = 0; i < u.node.size(); ++i) u.node[i] += simulation.simStep * k1[i];
 
         if(simulation.error){
+
             compare(currentError, errorNodes, u, coordinates, mainElement, simulation, t, matProp);
+
             for(i = 0; i < simulation.uNum+1; i++){
                 error[(simulation.uNum+1) * int(t/simulation.simStep) + i] = currentError[i];
                 currentError[i] = 0;
             }
+
         }
 
-        if(!((int(t/simulation.simStep) + 1) % simulation.registration))
-        {
-            if(simulation.uNum == 6)
-                ELMDisp(mainElement, u, simulation, t, view1, view2);
+        if(simulation.registration > 0)
+            if(!((int(t/simulation.simStep) + 1) % simulation.registration) || t/simulation.simTime == 1 || !t)
+            {
+                if(simulation.uNum == 6)
+                    ELMDisp(mainElement, u, simulation, t, view1, view2);
 
-            else if(simulation.uNum == 1)
-                sinusoidalDisp(mainElement, u, simulation, t, view1);
-        }
+                else if(simulation.uNum == 1)
+                    sinusoidalDisp(mainElement, u, simulation, t, view1);
+            }
 
-        if(!(stepNum % 20))
-            std::cout << "\33\rProgression: " << int(t/simulation.simTime * 100) << "%";
+        if(!(int(t/simulation.simTime) % 20)) std::cout << "\rProgression: " << int(t/simulation.simTime * 100) << "%";
         
     }
 
@@ -174,9 +153,12 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     if(simulation.error)
         writeError(error, simulation);
 
-    gmsh::view::write(view1.tag, "electricField.msh");
+    if(simulation.registration > 0)
+    {
+        gmsh::view::write(view1.tag, "electricField.msh");
 
-    if(simulation.uNum == 6)
-        gmsh::view::write(view2.tag, "magneticField.msh");
+        if(simulation.uNum == 6)
+            gmsh::view::write(view2.tag, "magneticField.msh");
+    }
 
 }

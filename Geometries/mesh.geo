@@ -1,15 +1,15 @@
 
 d = 1; // useless if transfinite
 
-nx = 8;
-ny = 8;
+nx = 4;
+ny = 4;
 L = 1;
 H = 1;
 
-Point(31) = {0, 0, 0, d};
-Point(32) = {L, 0, 0, d};
-Point(33) = {L, H, 0, d};
-Point(34) = {0, H, 0, d};
+Point(31) = {0, 0, 0};
+Point(32) = {L, 0, 0};
+Point(33) = {L, H, 0};
+Point(34) = {0, H, 0};
 Line(41) = {31, 32};
 Line(42) = {32, 33};
 Line(43) = {33, 34};
@@ -34,3 +34,4 @@ Physical Curve("WALL4") = {41};
 Physical Surface("MATERIAL1") = {61};
 
 Mesh.SaveAll = 1;
+Mesh.Algorithm = 6;

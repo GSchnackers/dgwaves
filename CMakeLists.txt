@@ -40,17 +40,11 @@ IF(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_SHARED_LINKER_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-ELSE()
-    message("OpenMP not found. It will be ignored during compilation.")
 ENDIF()
 
-# find gmsh-sdk
-# gmsh.h
 INCLUDE_DIRECTORIES("/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/gmsh-sdk/include")
-# headers
-INCLUDE_DIRECTORIES("/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/Header")
-# eigen include files
 INCLUDE_DIRECTORIES("/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/eigen")
+INCLUDE_DIRECTORIES("/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/Header")
 
 FIND_LIBRARY(GMSH_LIBRARIES "libgmsh.so.4.1" PATH "/media/nicolas/Seagate/Documents/Cours/Master1/Q2/integrated_project/dgwaves/gmsh-sdk/lib")
 MESSAGE(STATUS "GMSH_LIBRARIES=" ${GMSH_LIBRARIES})
@@ -68,4 +62,4 @@ ENDIF()
 FILE(GLOB SRCS "Meshing/*.cpp" "Parameters/*.cpp" "Solver/*.cpp" "main/*.cpp")
 SET(PROG_NAME main)
 ADD_EXECUTABLE(${PROG_NAME} ${SRCS})
-TARGET_LINK_LIBRARIES(${PROG_NAME} ${GMSH_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PROG_NAME} PUBLIC OpenMP::OpenMP_CXX ${GMSH_LIBRARIES})

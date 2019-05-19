@@ -120,6 +120,7 @@ struct Simulation{
     int uNum;
     std::vector<double> c = {0, 0, 0}; // Coefficient of speed for transport
     int error; // compare analytical solution to numerical solution
+    int numThreads; // Number of threads to be used for parallelisation. 
 
 };
 

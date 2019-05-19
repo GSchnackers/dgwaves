@@ -1,18 +1,16 @@
 #include <cstdio>
 #include <iostream>
-#include <time.h>
 #include <gmsh.h>
 #include "meshing.hpp"
 #include "parameters.hpp"
 #include "solver.hpp"
 #include "structures.hpp"
+#include <omp.h>
+
+// Main function of the DG-FEM solver for conservation equations.
 
 int main(int argc, char **argv)
 {
-    //starting the clock to compute the execution time
-    float temps;
-    clock_t t1, t2;
-    t1 = clock();
 
     if (argc < 2)
     {
@@ -40,6 +38,11 @@ int main(int argc, char **argv)
     gmsh::logger::write("Simulation parameter loading...");
     readParam(argv[2], simulation);
     gmsh::logger::write("Done.");
+
+    std::cout << omp_get_max_threads() << std::endl;
+
+    omp_set_dynamic(0);
+    omp_set_num_threads(simulation.numThreads);
 
     // Gets the dimension of the geometric model, which is the dimension of the mesh.
 
@@ -84,11 +87,6 @@ int main(int argc, char **argv)
     }
 
     gmsh::finalize(); // Closes gmsh
-
-    //display execution time
-    t2 = clock();
-    temps = (float)(t2-t1)/CLOCKS_PER_SEC;
-    printf("temps = %f\n", temps);
 
     return 0;
 }

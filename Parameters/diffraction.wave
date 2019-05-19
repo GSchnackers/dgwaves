@@ -1,0 +1,11 @@
+SIMTIME 7
+SIMSTEP 0.0001
+REGISTRATION 500
+SOLVER 0
+GAUSS Gauss2
+DEBUG 0
+ALPHA 1
+BC ../Parameters/diffraction.bc
+PROP ../Parameters/diffraction.prop
+UNUM 6
+NUMTHREADS 4

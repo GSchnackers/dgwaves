@@ -12,7 +12,7 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
     // Components along x, y and z of the gradient.
     std::fill(prod.begin(), prod.end(), 0);
     
-    #pragma omp parallel for shared(i, prod, mainElement) private(j,k)
+    #pragma omp parallel for default(shared) private(i,j,k,l)
     for(i = 0; i < mainElement.elementTag.size(); ++i)
         for(j = 0; j < mainElement.numNodes; ++j)
             for(k = 0; k < mainElement.numNodes; ++k)
@@ -31,5 +31,4 @@ void stiffnessFluxProd(const Element & mainElement, const Quantity & flux, std::
 
                 }
             }
-
 }
