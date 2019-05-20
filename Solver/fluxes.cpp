@@ -19,7 +19,6 @@ void physFluxCu(const Quantity & u, const Element & mainElement, const Element &
     {
         flux.gp[i].first = c[i % 3] * u.gp[i/3].first;
         flux.gp[i].second = c[i % 3] * u.gp[i/3].second;
-        flux.direction[i] = c[i % 3];
     }         
 
 }

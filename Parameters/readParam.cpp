@@ -9,6 +9,8 @@ void readParam(std::string fileName, Simulation & simulation){
     std::ifstream file;
     std::string command;
 
+    simulation.c.resize(3,0);
+
     if(fileName.find(".wave") == std::string::npos)
     {
         gmsh::logger::write("The parameter file for the simulation is not a .wave. Only .wave are supported.", "error");

@@ -30,7 +30,6 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     gmsh::logger::write("Initializing the quantity flux...");
     flux.node.resize(3 * simulation.uNum * mainElement.nodeTags.size(), 0);
     flux.gp.resize(3 * simulation.uNum * frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
-    flux.direction.resize(flux.gp.size(), 0);
     flux.num.resize(flux.gp.size()/3, 0);
     gmsh::logger::write("Done.");
 

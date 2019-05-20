@@ -29,7 +29,7 @@ struct Element{
     std::string name; // Name of the element.
     int dim; // dimension of the element.
     int order; // Order of the element.
-    int numSide; // Number of sides frontier elements on one element.
+    int numSide; // Number of frontier elements on one element.
 
     // Useful properties common to all elements of the element.
 
@@ -98,7 +98,6 @@ struct Quantity{
 
     std::vector<double> node; // Values of the quantity at the nodes of the elements.
     std::vector<std::pair<double, double>> gp; // value of the quantity at the gauss points.
-    std::vector<double> direction; // The direction in which the information propagates.
     std::vector<double> num; // numerical value.
 
 };
@@ -114,11 +113,11 @@ struct Simulation{
     int solver; // solver type
     std::string gaussType; // Gauss integration type.
     int debug; // triggers the debug mode.
-    double alpha; // Coefficient of lax friedrichs numerical flux.
+    double alpha; // Coefficient for the numerical flux.
     std::string boundFileName; // name of the bc file.
     std::string propFileName; // name of the property file.
-    int uNum;
-    std::vector<double> c = {0, 0, 0}; // Coefficient of speed for transport
+    int uNum; // number of unknowns.
+    std::vector<double> c; // Coefficient of speed for transport
     int error; // compare analytical solution to numerical solution
     int numThreads; // Number of threads to be used for parallelisation. 
 
@@ -134,7 +133,6 @@ struct Properties{
     Quantity conductivity; // Contains the conductivity.
     std::vector<std::pair<double, double>> speedGpInv; // Contains the adimensional speed of light in the media at the gauss points.
     std::vector<double> speedGpSumInvInv; // Contains the inverse of the sum of both speeds.
-    Quantity eta; // Adimensionnal number related to the conductivity of the material.
 
 };
 
