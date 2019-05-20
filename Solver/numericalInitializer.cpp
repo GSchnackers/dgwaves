@@ -1,3 +1,8 @@
+/* 
+
+    This file initializes the sizes of all the numerical quantities required for solving the PDE with the DG-FEM method.
+
+*/
 #include <cstdio>
 #include <iostream>
 #include <gmsh.h>
@@ -5,20 +10,13 @@
 #include "structures.hpp"
 #include "parameters.hpp"
 
-#define VACUUM_PERMIT 8.54e-12
-#define VACUUM_PERMEA 1.257e-6
-#define VACUUM_IMPEDANCE 377
-#define VACUUM_CONDUCTANCE 2.652e-3
-
 void numericalInitializer(const Element & mainElement, Element & frontierElement, \
                           const Simulation & simulation, const PhysicalGroups & physicalGroups,\
                           Quantity & u, Quantity & flux, Properties & matProp){
 
     std::size_t i;
 
-    double vacuumImp = std::sqrt(VACUUM_PERMEA/VACUUM_PERMIT);
-
-    gmsh::logger::write("Initializing the bc parameters...");
+    gmsh::logger::write("Initializing the BC's parameters...");
     frontierElement.bcParam.resize(9 * frontierElement.elementTag.size());
     gmsh::logger::write("Done.");
 
@@ -37,8 +35,8 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     gmsh::logger::write("Done.");
 
     gmsh::logger::write("Initializing the quantity impedance and inductances...");
-    matProp.speedGp.resize(frontierElement.numGp * frontierElement.elementTag.size());
-    matProp.speedGpSumInv.resize(matProp.speedGp.size());
+    matProp.speedGpInv.resize(frontierElement.numGp * frontierElement.elementTag.size());
+    matProp.speedGpSumInvInv.resize(matProp.speedGpInv.size());
     gmsh::logger::write("Done.");
 
     // Loading the physical properties of the material.
@@ -61,18 +59,10 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     matProp.relPermeability.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp, \
                                       std::make_pair(0,0));
     gmsh::logger::write("Done.");
-
-    gmsh::logger::write("Initializing the adimensionnal quantity...");
-    matProp.eta.node.resize(mainElement.nodeTags.size(), 0);
-    matProp.eta.gp.resize(frontierElement.elementTag.size() * frontierElement.numGp, std::make_pair(0,0));
-    gmsh::logger::write("Done.");
-
-    // Setting of the properties of the elements
-    setProperties(mainElement, frontierElement, simulation, physicalGroups, matProp);
-
     
     // Setting of the boundary types.
     gmsh::logger::write("Setting the boundary condition type and the material properties...");
+    setProperties(mainElement, frontierElement, simulation, physicalGroups, matProp);
     setBoundaryCondition(frontierElement, simulation, physicalGroups, u);
     gmsh::logger::write("Done.");
 
@@ -88,11 +78,11 @@ void numericalInitializer(const Element & mainElement, Element & frontierElement
     // Computes the adimensionnal coefficients.
     gmsh::logger::write("Setting the adimensionnal numbers, the impedance and conductances at the Gauss points\
                          and at the nodes...");
-    for(i = 0; i < matProp.speedGp.size(); ++i)
+    for(i = 0; i < matProp.speedGpInv.size(); ++i)
     {   
-        matProp.speedGp[i].first = sqrt(matProp.relPermittivity.gp[i].first * matProp.relPermeability.gp[i].first);
-        matProp.speedGp[i].second = sqrt(matProp.relPermittivity.gp[i].second * matProp.relPermeability.gp[i].second);
-        matProp.speedGpSumInv[i] = 1/(matProp.speedGp[i].first + matProp.speedGp[i].second);       
+        matProp.speedGpInv[i].first = sqrt(matProp.relPermittivity.gp[i].first * matProp.relPermeability.gp[i].first);
+        matProp.speedGpInv[i].second = sqrt(matProp.relPermittivity.gp[i].second * matProp.relPermeability.gp[i].second);
+        matProp.speedGpSumInvInv[i] = 1/(matProp.speedGpInv[i].first + matProp.speedGpInv[i].second);       
     }
 
     gmsh::logger::write("Done");

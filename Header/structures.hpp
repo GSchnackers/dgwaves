@@ -132,8 +132,8 @@ struct Properties{
     Quantity relPermittivity; // Contains the relative permittivity
     Quantity relPermeability; // Contains the relative permeability.
     Quantity conductivity; // Contains the conductivity.
-    std::vector<std::pair<double, double>> speedGp; // Contains the adimensional speed of light in the media at the gauss points.
-    std::vector<double> speedGpSumInv; // Contains the inverse of the sum of both speeds.
+    std::vector<std::pair<double, double>> speedGpInv; // Contains the adimensional speed of light in the media at the gauss points.
+    std::vector<double> speedGpSumInvInv; // Contains the inverse of the sum of both speeds.
     Quantity eta; // Adimensionnal number related to the conductivity of the material.
 
 };

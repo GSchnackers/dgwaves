@@ -91,7 +91,7 @@ double valGpBound(int i, int gpIndex, double t, const Quantity & u, const Elemen
     else if(frontierElement.neighbours[i].second == SINE)
     {
         return frontierElement.bcParam[paramIdx] * \
-               sin(frontierElement.bcParam[paramIdx + 1] * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
+               sin(2 * frontierElement.bcParam[paramIdx + 1] * M_PI * t + frontierElement.bcParam[paramIdx + 2]);
     }
 
     else

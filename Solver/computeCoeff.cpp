@@ -1,10 +1,14 @@
+/*
+    This file deals with the computation of the coefficients for the 
+*/
+
 #include <cstdio>
 #include <iostream>
 #include <gmsh.h>
 #include "solver.hpp"
 #include "structures.hpp"
 
-// Function that check all relevant quantities over time if required.
+// Function that check all relevant quantities over time if required. It is used only in debug mode.
 void timeChecker(const Element & mainElement, const Element & frontierElement,\
                  const Quantity & flux, const Quantity & u, const std::vector<double> & SFProd, \
                  const std::vector<double> & fluxVector, const double t, int numU){
@@ -125,7 +129,7 @@ void computeCoeff(const Element & mainElement, const Element & frontierElement, 
     else if(simulation.uNum == 1)
     {
         physFluxCu(u, mainElement, frontierElement, flux, simulation.c);
-        numFluxUpwind(frontierElement, flux);
+        numFluxUpwind(frontierElement, u, flux, simulation.alpha);
     }
 
     stiffnessFluxProd(mainElement, flux, SFProd, simulation.uNum);

@@ -202,44 +202,14 @@ void physFluxELM(const Quantity & u, const Element & frontierElement, const Elem
 }
 
 // Computes a fairly simple upwind flux: it choses the flux from which information comes from.
-void numFluxUpwind(const Element & frontierElement, Quantity & flux){
+void numFluxUpwind(const Element & frontierElement, const Quantity & u, Quantity & flux, double alpha){
 
     std::size_t i, j, k;
+    std::vector<double> scalarProd(frontierElement.elementTag.size() * frontierElement.numGp,0);
 
-    for(i = 0; i < frontierElement.elementTag.size(); ++i)
-    {
-        
-    }
-    for(i = 0; i < frontierElement.elementTag.size(); ++i)
-    {
-        for(j = 0; j < frontierElement.numGp; ++j)
-        {
-            double scalarProd = 0;
+    for(i = 0; i < flux.gp.size(); ++i) scalarProd[i/3] += (flux.gp[i].first + flux.gp[i].second) * frontierElement.normals[i];
 
-            // Computation of the scalar product at the gauss point.
-            for(k = 0; k < 3; ++k)
-            {
-                int index = i * frontierElement.numGp * 3 + j * 3 + k;
-                scalarProd += flux.direction[index] * frontierElement.normals[index];
-            }
-
-            // Selection of the upwind flux.
-            
-            for(k = 0; k < 3; ++k)
-            {
-                int index = i * frontierElement.numGp * 3 + j * 3 + k;
-
-                if(scalarProd > 0)
-                    flux.num[index/3] += flux.gp[index].first * frontierElement.normals[index];
-
-                else if(scalarProd < 0)
-                    flux.num[index/3] += flux.gp[index].first * frontierElement.normals[index];
-
-            }
-            
-        } 
-
-    } 
+    for(i = 0; i < flux.num.size(); ++i) flux.num[i] = 0.5 *(scalarProd[i] + alpha * (u.gp[i].first - u.gp[i].second));
 
 }
 
@@ -260,7 +230,7 @@ void numFluxELM(const Element & frontierElement, const Properties & matProp, con
     // scalar product between the normal and the flux gauss point.
     for(i = 0; i < flux.gp.size(); ++i)
         physFluxNorm[i/3] += frontierElement.normals[i/18 * 3 + (i % 3)] * \
-                             (matProp.speedGp[i/18].first * flux.gp[i].first + matProp.speedGp[i/18].second * flux.gp[i].second);
+                             (matProp.speedGpInv[i/18].first * flux.gp[i].first + matProp.speedGpInv[i/18].second * flux.gp[i].second);
 
     #pragma omp parallel for default(shared) private(j, scalU)
     for(i = 0; i < flux.num.size(); ++i)
@@ -274,7 +244,7 @@ void numFluxELM(const Element & frontierElement, const Properties & matProp, con
 
         }
         
-        flux.num[i] = matProp.speedGpSumInv[i/6] * (physFluxNorm[i] + alpha * (u.gp[i].first - u.gp[i].second) - scalU * frontierElement.normals[i/6 * 3 + (i % 3)]);
+        flux.num[i] = matProp.speedGpSumInvInv[i/6] * (physFluxNorm[i] + alpha * (u.gp[i].first - u.gp[i].second) - scalU * frontierElement.normals[i/6 * 3 + (i % 3)]);
     }
 
 

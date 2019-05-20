@@ -42,7 +42,7 @@ void numFluxIntegration(const Quantity & flux, const Element & mainElement, cons
 /*
    Function that computes the simple upwind numerical flux in the case of a scalar transport.
 */
-void numFluxUpwind(const Element & frontierElement, Quantity & flux);
+void numFluxUpwind(const Element & frontierElement, const Quantity & u, Quantity & flux, double alpha);
 
 /*
    Function that computes the physical flux cu at the nodes of the main elements and at the gauss points of the 

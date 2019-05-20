@@ -140,6 +140,12 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
 
                 else if(simulation.uNum == 1)
                     sinusoidalDisp(mainElement, u, simulation, t, view1);
+
+                gmsh::view::write(view1.tag, "electricField.msh");
+
+                if(simulation.uNum == 6)
+                    gmsh::view::write(view2.tag, "magneticField.msh");
+                
             }
 
         if(!(int(t/simulation.simTime) % 20)) std::cout << "\rProgression: " << int(t/simulation.simTime * 100) << "%";
@@ -152,13 +158,5 @@ void solver(const Element & mainElement, Element & frontierElement, const Physic
     
     if(simulation.error)
         writeError(error, simulation);
-
-    if(simulation.registration > 0)
-    {
-        gmsh::view::write(view1.tag, "electricField.msh");
-
-        if(simulation.uNum == 6)
-            gmsh::view::write(view2.tag, "magneticField.msh");
-    }
 
 }

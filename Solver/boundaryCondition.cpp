@@ -52,7 +52,7 @@ void boundAssign(Element & frontierElement, const std::vector<int> & physicalEnt
             {
                 while(!std::getline(boundFile, boundCommand, ' ').eof())
                 {
-                    if(boundCommand.compare(physicalName) != std::string::npos)
+                    if(!boundCommand.compare(physicalName))
                     {
 
                         std::string boundName;
