@@ -7,6 +7,6 @@ DEBUG 0
 ALPHA 1
 E0 1
 L 1
-BC ..\Parameters\cable2D.bc
-PROP ..\Parameters\cable2D.prop
+BC ../Parameters/cable2D.bc
+PROP ../Parameters/cable2D.prop
 UNUM 6
